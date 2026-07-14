@@ -1,0 +1,40 @@
+# CCAT AI Coach
+
+An instrumented CCAT-style preparation platform focused on diagnosing and improving execution bottlenecks such as pacing, hesitation, reading efficiency, confidence calibration, and fatigue.
+
+## Product direction
+
+The initial product will prove one complete learning loop:
+
+1. Timed baseline diagnostic
+2. Evidence-based diagnostic report
+3. Targeted practice and pacing drills
+4. Structured coaching intervention
+5. Equivalent reassessment
+6. Before-and-after progress reporting
+
+Scoring, timing metrics, and diagnostic evidence remain deterministic. AI converts verified findings into clear explanations and coaching, but does not determine scores or invent findings.
+
+## Initial delivery phases
+
+- **Foundation:** test blueprint, content taxonomy, original question bank, and equivalent assessment forms
+- **Practice engine:** authentication, timed sessions, deterministic scoring, telemetry, and review
+- **Diagnostic coach:** rules-based findings plus structured AI explanations
+- **Adaptive loop:** personalized drills, pacing interventions, study plans, and reassessment
+- **Closed beta:** validate score improvement, recommendation quality, content quality, latency, and cost
+
+## Proposed stack
+
+- Next.js, React, and TypeScript
+- Supabase Auth and PostgreSQL
+- OpenAI API through a versioned AI gateway
+- PostHog analytics
+- LangSmith tracing where useful
+- GitHub Actions for linting, tests, prompt evaluations, and deployment
+
+The architecture will begin as a modular application rather than a multi-agent system. LangGraph can be introduced later for workflows that genuinely require branching, retries, or multi-step verification.
+
+## Repository status
+
+This repository currently contains the product source documents and initial planning. Application scaffolding is the next step.
+
