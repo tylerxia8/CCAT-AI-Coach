@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Attempt, QUESTIONS, scoreDiagnostic } from "@/lib/diagnostic";
+import { appendEvent, createSession, parseSession, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -20,10 +21,41 @@ export function DiagnosticExperience() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [confidence, setConfidence] = useState<Record<string, 1 | 2 | 3>>({});
   const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [storedSession, setStoredSession] = useState<StoredDiagnosticSession | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const questionStartedAt = useRef(Date.now());
 
   const question = QUESTIONS[index];
   const result = useMemo(() => scoreDiagnostic(QUESTIONS, attempts), [attempts]);
+
+  useEffect(() => {
+    const restored = parseSession(window.localStorage.getItem(SESSION_STORAGE_KEY));
+    if (restored) {
+      setStoredSession(restored);
+      setIndex(Math.min(restored.currentIndex, QUESTIONS.length - 1));
+      setRemaining(restored.remainingSeconds);
+      setAnswers(restored.answers);
+      setConfidence(restored.confidence);
+      setAttempts(restored.attempts);
+      setStage(restored.status === "completed" ? "results" : "test");
+      questionStartedAt.current = Date.now();
+    }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || !storedSession) return;
+    const nextSession: StoredDiagnosticSession = {
+      ...storedSession,
+      currentIndex: index,
+      remainingSeconds: remaining,
+      answers,
+      confidence,
+      attempts,
+      updatedAt: new Date().toISOString(),
+    };
+    window.localStorage.setItem(SESSION_STORAGE_KEY, serializeSession(nextSession));
+  }, [answers, attempts, confidence, hydrated, index, remaining, storedSession]);
 
   useEffect(() => {
     if (stage !== "test") return;
@@ -36,8 +68,16 @@ export function DiagnosticExperience() {
   }, [remaining, stage]);
 
   function start() {
+    const session = appendEvent(createSession(), "session_start");
+    const withQuestionView = appendEvent(session, "question_view", { questionId: QUESTIONS[0].id });
+    setStoredSession(withQuestionView);
+    window.localStorage.setItem(SESSION_STORAGE_KEY, serializeSession(withQuestionView));
     setStage("test");
     questionStartedAt.current = Date.now();
+  }
+
+  function track(name: Parameters<typeof appendEvent>[1], details: Parameters<typeof appendEvent>[2]) {
+    setStoredSession((current) => current ? appendEvent(current, name, details) : current);
   }
 
   function recordAndMove(nextIndex: number) {
@@ -52,6 +92,8 @@ export function DiagnosticExperience() {
       }];
     });
     setIndex(nextIndex);
+    track("question_submit", { questionId: question.id, payload: { elapsedSeconds } });
+    track("question_view", { questionId: QUESTIONS[nextIndex].id });
     questionStartedAt.current = Date.now();
   }
 
@@ -65,7 +107,17 @@ export function DiagnosticExperience() {
       elapsedSeconds,
     });
     setAttempts(finalAttempts);
+    setStoredSession((current) => {
+      if (!current) return current;
+      const submitted = appendEvent(current, "question_submit", { questionId: question.id, payload: { elapsedSeconds } });
+      return { ...appendEvent(submitted, "session_complete", { payload: { answered: Object.keys(answers).length } }), status: "completed" };
+    });
     setStage("results");
+  }
+
+  function restart() {
+    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    window.location.reload();
   }
 
   if (stage === "welcome") {
@@ -106,7 +158,7 @@ export function DiagnosticExperience() {
         </section>
         <section className="report-grid">
           <article className="category-card"><div className="section-label">Category performance</div>{result.categoryResults.filter((item) => item.total).map((item) => <div className="category-row" key={item.category}><span>{item.category}</span><div className="bar"><i style={{ width: `${(item.correct / item.total) * 100}%` }} /></div><b>{item.correct}/{item.total}</b></div>)}</article>
-          <article className="coach-card"><div className="section-label">Coach recommendation</div><h2>{result.priority}</h2><p>Run a focused set at a fixed pace, then review only the questions where your answer or confidence changed. The goal is a consistent decision rhythm—not rushing.</p><button className="secondary" onClick={() => window.location.reload()}>Retake preview</button></article>
+          <article className="coach-card"><div className="section-label">Coach recommendation</div><h2>{result.priority}</h2><p>Run a focused set at a fixed pace, then review only the questions where your answer or confidence changed. The goal is a consistent decision rhythm—not rushing.</p><button className="secondary" onClick={restart}>Retake preview</button></article>
         </section>
       </main>
     );
@@ -125,12 +177,12 @@ export function DiagnosticExperience() {
         <h1>{question.prompt}</h1>
         <div className="choices">
           {question.choices.map((choice, choiceIndex) => (
-            <button key={choice} className={answers[question.id] === choiceIndex ? "selected" : ""} onClick={() => setAnswers((current) => ({ ...current, [question.id]: choiceIndex }))}>
+            <button key={choice} className={answers[question.id] === choiceIndex ? "selected" : ""} onClick={() => { setAnswers((current) => ({ ...current, [question.id]: choiceIndex })); track("answer_select", { questionId: question.id, payload: { answerIndex: choiceIndex } }); }}>
               <span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}
             </button>
           ))}
         </div>
-        <div className="confidence-row"><span>How confident are you?</span>{([1, 2, 3] as const).map((level) => <button key={level} className={confidence[question.id] === level ? "selected" : ""} onClick={() => setConfidence((current) => ({ ...current, [question.id]: level }))}>{level === 1 ? "Low" : level === 2 ? "Medium" : "High"}</button>)}</div>
+        <div className="confidence-row"><span>How confident are you?</span>{([1, 2, 3] as const).map((level) => <button key={level} className={confidence[question.id] === level ? "selected" : ""} onClick={() => { setConfidence((current) => ({ ...current, [question.id]: level })); track("confidence_select", { questionId: question.id, payload: { level } }); }}>{level === 1 ? "Low" : level === 2 ? "Medium" : "High"}</button>)}</div>
         <div className="question-actions">
           <button className="text-button" disabled={index === 0} onClick={() => recordAndMove(index - 1)}>← Previous</button>
           {index < QUESTIONS.length - 1 ? <button className="primary" onClick={() => recordAndMove(index + 1)}>Next question →</button> : <button className="primary" onClick={finish}>Finish diagnostic</button>}
