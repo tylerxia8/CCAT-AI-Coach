@@ -45,4 +45,4 @@ Open `http://localhost:3000`.
 
 ## Repository status
 
-The first vertical slice is implemented: a responsive timed diagnostic, deterministic scoring, pace and confidence analysis, category performance, and an initial coaching recommendation. In-progress sessions and behavioral events persist locally across refreshes, and the repository includes a Supabase-ready schema with versioned questions, assessment forms, attempts, telemetry, and row-level security. Authentication and cloud synchronization are next.
+The first vertical slice is implemented: a responsive timed diagnostic, deterministic scoring, pace and confidence analysis, category performance, and an initial coaching recommendation. In-progress sessions and behavioral events persist locally across refreshes. The repository includes a Supabase-ready schema, passwordless email authentication, authenticated session and telemetry synchronization, versioned questions, assessment forms, and row-level security. Seeding reviewed question content and synchronizing question-level attempts are next.

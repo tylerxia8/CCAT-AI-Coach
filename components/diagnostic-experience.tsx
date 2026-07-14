@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { Attempt, QUESTIONS, scoreDiagnostic } from "@/lib/diagnostic";
 import { appendEvent, createSession, parseSession, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
+import { CloudSyncStatus } from "@/components/cloud-sync-status";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -60,12 +62,24 @@ export function DiagnosticExperience() {
   useEffect(() => {
     if (stage !== "test") return;
     if (remaining <= 0) {
+      const elapsedSeconds = Math.max(1, Math.round((Date.now() - questionStartedAt.current) / 1000));
+      const timedAttempt: Attempt = {
+        questionId: question.id,
+        answerIndex: answers[question.id] ?? null,
+        confidence: confidence[question.id] ?? null,
+        elapsedSeconds,
+      };
+      setAttempts((current) => [...current.filter((attempt) => attempt.questionId !== question.id), timedAttempt]);
+      setStoredSession((current) => current ? {
+        ...appendEvent(appendEvent(current, "question_submit", { questionId: question.id, payload: { elapsedSeconds, timedOut: true } }), "session_complete", { payload: { timedOut: true } }),
+        status: "completed",
+      } : current);
       setStage("results");
       return;
     }
     const timer = window.setInterval(() => setRemaining((value) => value - 1), 1000);
     return () => window.clearInterval(timer);
-  }, [remaining, stage]);
+  }, [answers, confidence, question, remaining, stage]);
 
   function start() {
     const session = appendEvent(createSession(), "session_start");
@@ -123,7 +137,7 @@ export function DiagnosticExperience() {
   if (stage === "welcome") {
     return (
       <main className="shell welcome-shell">
-        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-note">Private preview</div></nav>
+        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><Link className="nav-link" href="/auth">Sign in</Link></nav>
         <section className="hero">
           <div className="eyebrow">Diagnostic session · 6 minutes</div>
           <h1>Find the points you’re <em>leaving on the clock.</em></h1>
@@ -146,9 +160,9 @@ export function DiagnosticExperience() {
   if (stage === "results") {
     return (
       <main className="shell results-shell">
-        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-note">Diagnostic complete</div></nav>
+        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><Link className="nav-link" href="/auth">Save progress</Link></nav>
         <section className="results-head">
-          <div><div className="eyebrow">Your starting point</div><h1>{result.correct} of {result.total} correct</h1><p>Your highest-impact next move is to <strong>{result.priority.toLowerCase()}</strong>.</p></div>
+          <div><div className="eyebrow">Your starting point</div><h1>{result.correct} of {result.total} correct</h1><p>Your highest-impact next move is to <strong>{result.priority.toLowerCase()}</strong>.</p><CloudSyncStatus session={storedSession} /></div>
           <div className="score-ring"><strong>{Math.round(result.accuracy * 100)}</strong><span>% accuracy</span></div>
         </section>
         <section className="metric-grid">

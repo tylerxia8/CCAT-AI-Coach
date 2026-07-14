@@ -34,6 +34,9 @@ button { font: inherit; }
 .brand { align-items: center; display: flex; font-size: 15px; font-weight: 800; gap: 12px; letter-spacing: -.02em; }
 .brand > span { align-items: center; background: var(--green); border-radius: 50%; color: white; display: inline-flex; font-size: 11px; height: 34px; justify-content: center; letter-spacing: .08em; width: 34px; }
 .nav-note, .quiet { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.nav-link, .back-link { color: var(--ink); font-size: 12px; font-weight: 800; text-decoration: none; }
+.nav-link { border: 1px solid var(--line); border-radius: 999px; padding: 10px 16px; }
+.nav-link:hover { border-color: var(--green); color: var(--green); }
 
 .hero { max-width: 980px; padding: clamp(74px, 10vw, 138px) 0 84px; }
 .eyebrow, .section-label { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
@@ -88,6 +91,10 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .score-ring { align-items: center; aspect-ratio: 1; border: 12px solid var(--lime); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; min-width: 170px; }
 .score-ring strong { font-family: var(--font-serif), Georgia, serif; font-size: 54px; line-height: 1; }
 .score-ring span { color: var(--muted); font-size: 10px; margin-top: 6px; text-transform: uppercase; }
+.sync-status { color: var(--muted); display: inline-block; font-size: 11px; margin-top: 8px; }
+.sync-status.success { color: var(--green); }
+.sync-status.action { color: var(--green); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.sync-status.error { color: #a23b2d; }
 .metric-grid { display: grid; gap: 1px; grid-template-columns: repeat(3, 1fr); background: var(--line); border: 1px solid var(--line); }
 .metric-grid article { background: var(--card); padding: 26px; }
 .metric-grid span, .metric-grid small { color: var(--muted); display: block; font-size: 11px; text-transform: uppercase; }
@@ -102,6 +109,26 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .coach-card h2 { font-family: var(--font-serif), Georgia, serif; font-size: 34px; font-weight: 500; line-height: 1.05; }
 .coach-card p { color: #dfe9e3; font-size: 14px; line-height: 1.7; }
 .coach-card button { margin-top: 12px; }
+
+.auth-shell { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 70px 24px; position: relative; }
+.back-link { left: clamp(24px, 6vw, 92px); position: absolute; top: 36px; }
+.auth-card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 28px 80px rgba(35, 48, 39, .08); max-width: 520px; padding: clamp(32px, 6vw, 58px); width: 100%; }
+.auth-card .brand { margin-bottom: 68px; }
+.auth-card h1 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(44px, 7vw, 64px); font-weight: 450; letter-spacing: -.045em; line-height: .95; margin: 18px 0 20px; }
+.auth-card > p { color: var(--muted); line-height: 1.6; }
+.auth-form { display: grid; gap: 10px; margin-top: 34px; }
+.auth-form label { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.auth-form input { background: white; border: 1px solid var(--line); border-radius: 12px; font: inherit; outline: 0; padding: 15px 16px; }
+.auth-form input:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(31, 90, 67, .12); }
+.auth-form .primary { margin-top: 6px; }
+.auth-form .primary:disabled { cursor: default; opacity: .65; }
+.form-message { font-size: 12px; margin: 8px 0 0; }
+.form-message.sent { color: var(--green); }
+.form-message.error { color: #a23b2d; }
+.setup-note { background: #eef2e9; border-left: 3px solid var(--green); display: grid; gap: 6px; margin-top: 32px; padding: 16px; }
+.setup-note strong { font-size: 13px; }
+.setup-note span { color: var(--muted); font-size: 12px; line-height: 1.55; }
+.setup-note code { color: var(--ink); }
 
 @media (max-width: 720px) {
   .feature-grid, .metric-grid, .report-grid { grid-template-columns: 1fr; }
