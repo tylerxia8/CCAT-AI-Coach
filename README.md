@@ -34,7 +34,15 @@ Scoring, timing metrics, and diagnostic evidence remain deterministic. AI conver
 
 The architecture will begin as a modular application rather than a multi-agent system. LangGraph can be introduced later for workflows that genuinely require branching, retries, or multi-step verification.
 
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
 ## Repository status
 
-This repository currently contains the product source documents and initial planning. Application scaffolding is the next step.
-
+The first vertical slice is implemented: a responsive timed diagnostic, deterministic scoring, pace and confidence analysis, category performance, and an initial coaching recommendation. Authentication, persistence, content administration, and the production question bank are next.
