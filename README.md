@@ -66,3 +66,5 @@ When Supabase is configured and the learner is signed in, compact result summari
 Run the complete local quality gate with `npm run check`. The same test, lint, build, client-bundle privacy scan, and dependency audit run in GitHub Actions on every pull request and push to `main`.
 
 Runtime hardening includes centralized browser security headers, disabled framework identification, non-cacheable private API responses, and a privacy-safe `/api/health` liveness endpoint.
+
+The settings page lets learners inspect stored data groups, export a versioned JSON copy, clear application-owned data from the current browser, and sign out of a configured cloud account.
