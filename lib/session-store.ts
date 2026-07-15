@@ -1,8 +1,8 @@
 import type { Attempt } from "./diagnostic";
 import { DIAGNOSTIC_SECONDS } from "./diagnostic";
 
-export const SESSION_STORAGE_KEY = "aptitude-coach:diagnostic:v6";
-export const LEGACY_SESSION_STORAGE_KEYS = ["aptitude-coach:diagnostic:v1", "aptitude-coach:diagnostic:v2", "aptitude-coach:diagnostic:v3", "aptitude-coach:diagnostic:v4", "aptitude-coach:diagnostic:v5"] as const;
+export const SESSION_STORAGE_KEY = "aptitude-coach:diagnostic:v7";
+export const LEGACY_SESSION_STORAGE_KEYS = ["aptitude-coach:diagnostic:v1", "aptitude-coach:diagnostic:v2", "aptitude-coach:diagnostic:v3", "aptitude-coach:diagnostic:v4", "aptitude-coach:diagnostic:v5", "aptitude-coach:diagnostic:v6"] as const;
 
 export type TelemetryEventName =
   | "session_start"
@@ -21,7 +21,7 @@ export type TelemetryEvent = {
 };
 
 export type StoredDiagnosticSession = {
-  version: 6;
+  version: 7;
   id: string;
   status: "active" | "completed";
   startedAt: string;
@@ -31,6 +31,9 @@ export type StoredDiagnosticSession = {
   answers: Record<string, number>;
   confidence: Record<string, 1 | 2 | 3>;
   answerChanges: Record<string, number>;
+  firstAnswers: Record<string, number>;
+  firstAnswerSeconds: Record<string, number>;
+  viewCounts: Record<string, number>;
   attempts: Attempt[];
   events: TelemetryEvent[];
 };
@@ -38,7 +41,7 @@ export type StoredDiagnosticSession = {
 export function createSession(now = new Date()): StoredDiagnosticSession {
   const timestamp = now.toISOString();
   return {
-    version: 6,
+    version: 7,
     id: globalThis.crypto?.randomUUID?.() ?? `${now.getTime()}-${Math.random().toString(16).slice(2)}`,
     status: "active",
     startedAt: timestamp,
@@ -48,6 +51,9 @@ export function createSession(now = new Date()): StoredDiagnosticSession {
     answers: {},
     confidence: {},
     answerChanges: {},
+    firstAnswers: {},
+    firstAnswerSeconds: {},
+    viewCounts: {},
     attempts: [],
     events: [],
   };
@@ -86,17 +92,21 @@ export function parseSession(value: string | null): StoredDiagnosticSession | nu
   try {
     const candidate = JSON.parse(value) as Partial<StoredDiagnosticSession>;
     if (
-      candidate.version !== 6 ||
+      candidate.version !== 7 ||
       typeof candidate.id !== "string" ||
       (candidate.status !== "active" && candidate.status !== "completed") ||
       typeof candidate.currentIndex !== "number" ||
       typeof candidate.remainingSeconds !== "number" ||
       !candidate.answers ||
       !candidate.confidence ||
+      !candidate.answerChanges ||
+      !candidate.firstAnswers ||
+      !candidate.firstAnswerSeconds ||
+      !candidate.viewCounts ||
       !Array.isArray(candidate.attempts) ||
       !Array.isArray(candidate.events)
     ) return null;
-    return { ...candidate, answerChanges: candidate.answerChanges ?? {} } as StoredDiagnosticSession;
+    return candidate as StoredDiagnosticSession;
   } catch {
     return null;
   }

@@ -12,7 +12,7 @@ describe("session store", () => {
 
   it("rejects malformed or incompatible data", () => {
     expect(parseSession("not-json")).toBeNull();
-    expect(parseSession(JSON.stringify({ version: 5 }))).toBeNull();
+    expect(parseSession(JSON.stringify({ version: 6 }))).toBeNull();
   });
 
   it("appends versioned telemetry without mutating the original session", () => {

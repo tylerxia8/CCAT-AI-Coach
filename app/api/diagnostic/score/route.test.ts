@@ -18,6 +18,9 @@ describe("diagnostic scoring API", () => {
       answerIndex: DIAGNOSTIC_ANSWER_KEY[question.id].correctIndex,
       elapsedSeconds: question.targetSeconds,
       confidence: 3,
+      firstAnswerIndex: DIAGNOSTIC_ANSWER_KEY[question.id].correctIndex,
+      firstAnswerSeconds: question.targetSeconds - 2,
+      viewCount: 1,
     }));
     const response = await POST(request({ attempts }));
     expect(response.status).toBe(200);
@@ -25,7 +28,7 @@ describe("diagnostic scoring API", () => {
     const result = await response.json();
     expect(result).toMatchObject({ correct: QUESTIONS.length, accuracy: 1 });
     expect(result.reviews).toHaveLength(QUESTIONS.length);
-    expect(result.reviews[0]).toMatchObject({ isCorrect: true, pace: "on_target", answerChanges: 0, skill: "rates and arithmetic" });
+    expect(result.reviews[0]).toMatchObject({ isCorrect: true, firstAnswerCorrect: true, firstAnswerSeconds: 16, viewCount: 1, pace: "on_target", answerChanges: 0, skill: "rates and arithmetic" });
     expect(result.reviews[0].explanation).toContain("five 8-hour blocks");
     expect(result.coaching).toMatchObject({ bottleneck: "refinement" });
     expect(result.diagnosis).toMatchObject({ primaryCause: "refinement", weakestSkill: null });

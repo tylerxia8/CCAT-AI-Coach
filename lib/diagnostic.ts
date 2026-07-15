@@ -25,6 +25,9 @@ export type Attempt = {
   elapsedSeconds: number;
   confidence: 1 | 2 | 3 | null;
   answerChanges?: number;
+  firstAnswerIndex?: number | null;
+  firstAnswerSeconds?: number | null;
+  viewCount?: number;
 };
 
 export type DiagnosticResult = {
@@ -50,6 +53,9 @@ export type QuestionReview = {
   targetSeconds: number;
   confidence: 1 | 2 | 3 | null;
   answerChanges: number;
+  firstAnswerCorrect: boolean | null;
+  firstAnswerSeconds: number | null;
+  viewCount: number;
   skill: string;
   explanation: string;
 };

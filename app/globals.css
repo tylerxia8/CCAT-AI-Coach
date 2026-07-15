@@ -162,6 +162,12 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .prescription-grid h3 { font-family: var(--font-serif), Georgia, serif; font-size: 28px; font-weight: 500; margin: 10px 0; }
 .prescription-grid p { color: var(--muted); font-size: 12px; line-height: 1.6; }
 .prescription-grid > article > strong { display: block; font-size: 11px; margin-top: 18px; }
+.skill-diagnostics { background: var(--card); border: 1px solid var(--line); border-radius: 14px; display: grid; gap: 28px; grid-template-columns: minmax(200px, .7fr) 1.5fr; margin-top: 12px; padding: 24px; }
+.skill-diagnostics h3 { font-family: var(--font-serif), Georgia, serif; font-size: 28px; font-weight: 500; margin: 10px 0 0; }
+.skill-diagnostic-list { display: grid; }
+.skill-diagnostic-list > div { border-bottom: 1px solid var(--line); display: grid; font-size: 10px; gap: 10px; grid-template-columns: 1.5fr repeat(4, .7fr); padding: 10px 0; }
+.skill-diagnostic-list > div:last-child { border-bottom: 0; }
+.skill-diagnostic-list span { color: var(--muted); }
 .review-section { margin-top: 82px; }
 .review-heading { align-items: flex-end; display: flex; justify-content: space-between; margin-bottom: 28px; }
 .review-heading h2 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(36px, 5vw, 54px); font-weight: 450; letter-spacing: -.04em; margin: 14px 0 0; }
@@ -344,6 +350,8 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   .pie-layout { grid-template-columns: 110px 1fr; }
   .diagnosis-heading { align-items: start; flex-direction: column; }
   .cause-grid, .prescription-grid { grid-template-columns: 1fr; }
+  .skill-diagnostics { grid-template-columns: 1fr; }
+  .skill-diagnostic-list > div { grid-template-columns: 1.5fr 1fr 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -33,6 +33,8 @@ export function QuestionReview({ reviews }: { reviews: Review[] }) {
                 <span className={review.pace === "slow" ? "signal-warn" : ""}>{review.pace === "slow" ? "Slower than target" : review.pace === "unanswered" ? "No timing recorded" : "On-target pace"}</span>
                 <span>{confidenceLabel(review.confidence)}</span>
                 <span>{review.answerChanges ? `${review.answerChanges} answer change${review.answerChanges === 1 ? "" : "s"}` : "No answer changes"}</span>
+                <span>{review.viewCount > 1 ? `${review.viewCount} visits` : "Answered in one visit"}</span>
+                {review.firstAnswerCorrect === true && !review.isCorrect && <span>Correct first choice changed to wrong</span>}
               </div>
             </div>
           </details>

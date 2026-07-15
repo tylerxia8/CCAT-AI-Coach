@@ -26,6 +26,14 @@ export function PerformanceDiagnosis({ diagnosis }: { diagnosis: Diagnosis }) {
           </article>
         ))}
       </div>
+      <div className="skill-diagnostics">
+        <div><div className="section-label">Skill-level evidence</div><h3>Where points and seconds were lost.</h3></div>
+        <div className="skill-diagnostic-list">
+          {diagnosis.skillBreakdown.map((item) => (
+            <div key={item.skill}><strong>{item.skill}</strong><span>{item.correct}/{item.total} correct</span><span>{item.averageSeconds || "—"}s avg</span><span>{item.slow} slow</span><span>{item.changed} changed</span></div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

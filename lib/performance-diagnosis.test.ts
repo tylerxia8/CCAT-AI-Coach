@@ -16,6 +16,9 @@ function review(index: number, overrides: Partial<QuestionReview> = {}): Questio
     targetSeconds: 18,
     confidence: 2,
     answerChanges: 0,
+    firstAnswerCorrect: null,
+    firstAnswerSeconds: null,
+    viewCount: 1,
     explanation: "Verified explanation for the question.",
     ...overrides,
   };
@@ -48,5 +51,12 @@ describe("diagnosePerformance", () => {
     const diagnosis = diagnosePerformance(reviews);
     expect(diagnosis.primaryCause).toBe("second_guessing");
     expect(diagnosis.prescriptions[0].mode).toBe("commitment");
+  });
+
+  it("distinguishes harmful correct-to-wrong changes from productive corrections", () => {
+    const reviews = Array.from({ length: 10 }, (_, index) => review(index, index < 2 ? { answerChanges: 1, firstAnswerCorrect: true, isCorrect: false, correctAnswer: "B" } : {}));
+    const diagnosis = diagnosePerformance(reviews);
+    expect(diagnosis.primaryCause).toBe("second_guessing");
+    expect(diagnosis.causes.find((cause) => cause.cause === "second_guessing")?.evidence.join(" ")).toContain("2 correct first choices became wrong");
   });
 });

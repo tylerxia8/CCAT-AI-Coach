@@ -27,6 +27,9 @@ export function DiagnosticExperience() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [confidence, setConfidence] = useState<Record<string, 1 | 2 | 3>>({});
   const [answerChanges, setAnswerChanges] = useState<Record<string, number>>({});
+  const [firstAnswers, setFirstAnswers] = useState<Record<string, number>>({});
+  const [firstAnswerSeconds, setFirstAnswerSeconds] = useState<Record<string, number>>({});
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [result, setResult] = useState<ScoredDiagnosticResult | null>(null);
   const [scoreError, setScoreError] = useState(false);
@@ -48,6 +51,9 @@ export function DiagnosticExperience() {
       setAnswers(restored.answers);
       setConfidence(restored.confidence);
       setAnswerChanges(restored.answerChanges);
+      setFirstAnswers(restored.firstAnswers);
+      setFirstAnswerSeconds(restored.firstAnswerSeconds);
+      setViewCounts(restored.viewCounts);
       setAttempts(restored.attempts);
       setStage(restored.status === "completed" ? "results" : "test");
       questionStartedAt.current = Date.now();
@@ -56,19 +62,26 @@ export function DiagnosticExperience() {
   }, []);
 
   useEffect(() => {
-    if (!hydrated || !storedSession) return;
-    const nextSession: StoredDiagnosticSession = {
-      ...storedSession,
-      currentIndex: index,
-      remainingSeconds: remaining,
-      answers,
-      confidence,
-      answerChanges,
-      attempts,
-      updatedAt: new Date().toISOString(),
-    };
-    window.localStorage.setItem(SESSION_STORAGE_KEY, serializeSession(nextSession));
-  }, [answerChanges, answers, attempts, confidence, hydrated, index, remaining, storedSession]);
+    if (!hydrated) return;
+    setStoredSession((current) => {
+      if (!current) return current;
+      const nextSession: StoredDiagnosticSession = {
+        ...current,
+        currentIndex: index,
+        remainingSeconds: remaining,
+        answers,
+        confidence,
+        answerChanges,
+        firstAnswers,
+        firstAnswerSeconds,
+        viewCounts,
+        attempts,
+        updatedAt: new Date().toISOString(),
+      };
+      window.localStorage.setItem(SESSION_STORAGE_KEY, serializeSession(nextSession));
+      return nextSession;
+    });
+  }, [answerChanges, answers, attempts, confidence, firstAnswerSeconds, firstAnswers, hydrated, index, remaining, viewCounts]);
 
   useEffect(() => {
     if (stage !== "results") return;
@@ -102,12 +115,16 @@ export function DiagnosticExperience() {
     if (stage !== "test") return;
     if (remaining <= 0) {
       const elapsedSeconds = Math.max(1, Math.round((Date.now() - questionStartedAt.current) / 1000));
+      const previous = attempts.find((attempt) => attempt.questionId === question.id);
       const timedAttempt: Attempt = {
         questionId: question.id,
         answerIndex: answers[question.id] ?? null,
         confidence: confidence[question.id] ?? null,
-        elapsedSeconds,
+        elapsedSeconds: (previous?.elapsedSeconds ?? 0) + elapsedSeconds,
         answerChanges: answerChanges[question.id] ?? 0,
+        firstAnswerIndex: firstAnswers[question.id] ?? null,
+        firstAnswerSeconds: firstAnswerSeconds[question.id] ?? null,
+        viewCount: viewCounts[question.id] ?? 1,
       };
       setAttempts((current) => [...current.filter((attempt) => attempt.questionId !== question.id), timedAttempt]);
       setStoredSession((current) => current ? {
@@ -121,12 +138,13 @@ export function DiagnosticExperience() {
       setRemaining(Math.max(0, Math.ceil((deadlineAt.current - Date.now()) / 1000)));
     }, 250);
     return () => window.clearInterval(timer);
-  }, [answerChanges, answers, confidence, question, remaining, stage]);
+  }, [answerChanges, answers, attempts, confidence, firstAnswerSeconds, firstAnswers, question, remaining, stage, viewCounts]);
 
   function start() {
     const session = appendEvent(createSession(), "session_start");
     const withQuestionView = appendEvent(session, "question_view", { questionId: QUESTIONS[0].id });
     setStoredSession(withQuestionView);
+    setViewCounts({ [QUESTIONS[0].id]: 1 });
     window.localStorage.setItem(SESSION_STORAGE_KEY, serializeSession(withQuestionView));
     setStage("test");
     deadlineAt.current = Date.now() + TEST_SECONDS * 1000;
@@ -140,15 +158,21 @@ export function DiagnosticExperience() {
   function recordAndMove(nextIndex: number) {
     const elapsedSeconds = Math.max(1, Math.round((Date.now() - questionStartedAt.current) / 1000));
     setAttempts((current) => {
+      const previous = current.find((attempt) => attempt.questionId === question.id);
       const withoutCurrent = current.filter((attempt) => attempt.questionId !== question.id);
       return [...withoutCurrent, {
         questionId: question.id,
         answerIndex: answers[question.id] ?? null,
         confidence: confidence[question.id] ?? null,
-        elapsedSeconds,
+        elapsedSeconds: (previous?.elapsedSeconds ?? 0) + elapsedSeconds,
         answerChanges: answerChanges[question.id] ?? 0,
+        firstAnswerIndex: firstAnswers[question.id] ?? null,
+        firstAnswerSeconds: firstAnswerSeconds[question.id] ?? null,
+        viewCount: viewCounts[question.id] ?? 1,
       }];
     });
+    const nextQuestionId = QUESTIONS[nextIndex].id;
+    setViewCounts((current) => ({ ...current, [nextQuestionId]: (current[nextQuestionId] ?? 0) + 1 }));
     setIndex(nextIndex);
     track("question_submit", { questionId: question.id, payload: { elapsedSeconds } });
     track("question_view", { questionId: QUESTIONS[nextIndex].id });
@@ -157,13 +181,17 @@ export function DiagnosticExperience() {
 
   function finish() {
     const elapsedSeconds = Math.max(1, Math.round((Date.now() - questionStartedAt.current) / 1000));
+    const previous = attempts.find((attempt) => attempt.questionId === question.id);
     const finalAttempts = attempts.filter((attempt) => attempt.questionId !== question.id);
     finalAttempts.push({
       questionId: question.id,
       answerIndex: answers[question.id] ?? null,
       confidence: confidence[question.id] ?? null,
-      elapsedSeconds,
+      elapsedSeconds: (previous?.elapsedSeconds ?? 0) + elapsedSeconds,
       answerChanges: answerChanges[question.id] ?? 0,
+      firstAnswerIndex: firstAnswers[question.id] ?? null,
+      firstAnswerSeconds: firstAnswerSeconds[question.id] ?? null,
+      viewCount: viewCounts[question.id] ?? 1,
     });
     setAttempts(finalAttempts);
     setStoredSession((current) => {
@@ -254,11 +282,18 @@ export function DiagnosticExperience() {
           {question.choices.map((choice, choiceIndex) => (
             <button key={choice} className={answers[question.id] === choiceIndex ? "selected" : ""} onClick={() => {
               const previousAnswer = answers[question.id];
+              if (firstAnswers[question.id] === undefined) {
+                const priorViewing = attempts.find((attempt) => attempt.questionId === question.id)?.elapsedSeconds ?? 0;
+                const latency = priorViewing + Math.max(1, Math.round((Date.now() - questionStartedAt.current) / 1000));
+                setFirstAnswers((current) => ({ ...current, [question.id]: choiceIndex }));
+                setFirstAnswerSeconds((current) => ({ ...current, [question.id]: latency }));
+                track("answer_select", { questionId: question.id, payload: { answerIndex: choiceIndex, changed: false, firstSelection: true, latency } });
+              }
               if (previousAnswer !== undefined && previousAnswer !== choiceIndex) {
                 setAnswerChanges((current) => ({ ...current, [question.id]: (current[question.id] ?? 0) + 1 }));
               }
               setAnswers((current) => ({ ...current, [question.id]: choiceIndex }));
-              track("answer_select", { questionId: question.id, payload: { answerIndex: choiceIndex, changed: previousAnswer !== undefined && previousAnswer !== choiceIndex } });
+              if (firstAnswers[question.id] !== undefined) track("answer_select", { questionId: question.id, payload: { answerIndex: choiceIndex, changed: previousAnswer !== undefined && previousAnswer !== choiceIndex, firstSelection: false } });
             }}>
               <span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}
             </button>

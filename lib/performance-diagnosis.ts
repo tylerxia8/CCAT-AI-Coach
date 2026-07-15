@@ -22,6 +22,7 @@ export type PerformanceDiagnosis = {
   causes: CauseDiagnosis[];
   prescriptions: TrainingPrescription[];
   weakestSkill: string | null;
+  skillBreakdown: Array<{ skill: string; correct: number; total: number; averageSeconds: number; slow: number; changed: number }>;
 };
 
 export function inferQuestionSkill(question: Pick<Question, "category" | "prompt" | "stimulus" | "itemFamily">) {
@@ -63,6 +64,9 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
   const changed = answered.filter((item) => item.answerChanges > 0);
   const repeatedChanges = answered.filter((item) => item.answerChanges >= 2);
   const changedMisses = changed.filter((item) => !item.isCorrect);
+  const correctToWrong = changed.filter((item) => item.firstAnswerCorrect === true && !item.isCorrect);
+  const wrongToCorrect = changed.filter((item) => item.firstAnswerCorrect === false && item.isCorrect);
+  const revisited = answered.filter((item) => item.viewCount > 1);
   const times = answered.map((item) => item.elapsedSeconds);
   const mean = times.length ? times.reduce((sum, value) => sum + value, 0) / times.length : 0;
   const deviation = times.length ? Math.sqrt(times.reduce((sum, value) => sum + (value - mean) ** 2, 0) / times.length) : 0;
@@ -79,11 +83,23 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
     .map(([skill, total]) => ({ skill, total, misses: skillMisses.get(skill) ?? 0 }))
     .sort((a, b) => b.misses / b.total - a.misses / a.total)[0];
   const weakestSkill = weakestSkillEntry && weakestSkillEntry.misses / weakestSkillEntry.total >= 0.4 ? weakestSkillEntry.skill : null;
+  const skillBreakdown = [...skillTotals.entries()].map(([skill, total]) => {
+    const items = reviews.filter((review) => review.skill === skill);
+    const answeredItems = items.filter((review) => review.selectedAnswer !== null);
+    return {
+      skill,
+      correct: items.filter((review) => review.isCorrect).length,
+      total,
+      averageSeconds: answeredItems.length ? Math.round(answeredItems.reduce((sum, review) => sum + review.elapsedSeconds, 0) / answeredItems.length) : 0,
+      slow: items.filter((review) => review.pace === "slow").length,
+      changed: items.filter((review) => review.answerChanges > 0).length,
+    };
+  }).sort((a, b) => (b.total - b.correct) - (a.total - a.correct) || b.slow - a.slow || a.skill.localeCompare(b.skill));
 
   const knowledgeScore = clamp((normalTimeMisses.length / Math.max(1, reviews.length)) * 2.2 + (weakestSkill ? 0.3 : 0));
   const speedScore = clamp((slowCorrect.length / Math.max(1, answered.length)) * 2 + (slow.length >= answered.length * 0.4 ? 0.2 : 0));
   const rhythmScore = clamp(Math.max(0, variation - 0.45) + Math.max(0, slowStreak - 2) * 0.12);
-  const secondGuessingScore = clamp((changedMisses.length / Math.max(1, changed.length)) * 0.5 + repeatedChanges.length / Math.max(1, answered.length) * 2);
+  const secondGuessingScore = clamp(correctToWrong.length / Math.max(1, changed.length) + repeatedChanges.length / Math.max(1, answered.length) * 1.5);
 
   const causes: CauseDiagnosis[] = [
     makeCause("knowledge", knowledgeScore, [
@@ -100,11 +116,13 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
     ], Math.max(slowStreak, times.length >= 8 ? 2 : 0)),
     makeCause("second_guessing", secondGuessingScore, [
       `${changed.length} answers were changed; ${changedMisses.length} of those finished incorrect.`,
+      `${correctToWrong.length} correct first choices became wrong; ${wrongToCorrect.length} wrong first choices were repaired.`,
       `${repeatedChanges.length} questions were changed more than once.`,
+      `${revisited.length} questions were revisited after the first view.`,
     ], changed.length),
   ].sort((a, b) => b.score - a.score);
 
-  const primaryCause: PerformanceCause = repeatedChanges.length >= 3 && changedMisses.length >= Math.ceil(changed.length * 0.5)
+  const primaryCause: PerformanceCause = correctToWrong.length >= 2 || (repeatedChanges.length >= 3 && changedMisses.length >= Math.ceil(changed.length * 0.5))
     ? "second_guessing"
     : variation >= 0.65 && slowStreak < 3
       ? "rhythm"
@@ -115,6 +133,7 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
     causes,
     prescriptions: prescriptionsFor(primaryCause, weakestSkill),
     weakestSkill,
+    skillBreakdown,
   };
 }
 

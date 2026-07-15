@@ -17,6 +17,9 @@ function isAttempt(value: unknown): value is Attempt {
     && attempt.elapsedSeconds >= 0
     && attempt.elapsedSeconds <= DIAGNOSTIC_SECONDS
     && (attempt.answerChanges === undefined || (Number.isInteger(attempt.answerChanges) && attempt.answerChanges >= 0 && attempt.answerChanges <= 20))
+    && (attempt.firstAnswerIndex === undefined || attempt.firstAnswerIndex === null || (Number.isInteger(attempt.firstAnswerIndex) && Number(attempt.firstAnswerIndex) >= 0 && Number(attempt.firstAnswerIndex) < 5))
+    && (attempt.firstAnswerSeconds === undefined || attempt.firstAnswerSeconds === null || (typeof attempt.firstAnswerSeconds === "number" && Number.isFinite(attempt.firstAnswerSeconds) && attempt.firstAnswerSeconds >= 0 && attempt.firstAnswerSeconds <= DIAGNOSTIC_SECONDS))
+    && (attempt.viewCount === undefined || (Number.isInteger(attempt.viewCount) && attempt.viewCount >= 1 && attempt.viewCount <= 20))
     && (attempt.confidence === null || attempt.confidence === 1 || attempt.confidence === 2 || attempt.confidence === 3);
 }
 
@@ -51,6 +54,9 @@ export async function POST(request: Request) {
       targetSeconds: question.targetSeconds,
       confidence: attempt?.confidence ?? null,
       answerChanges: attempt?.answerChanges ?? 0,
+      firstAnswerCorrect: attempt?.firstAnswerIndex == null ? null : attempt.firstAnswerIndex === answer.correctIndex,
+      firstAnswerSeconds: attempt?.firstAnswerSeconds ?? null,
+      viewCount: attempt?.viewCount ?? 1,
       skill: inferQuestionSkill(question),
       explanation: answer.explanation,
     };

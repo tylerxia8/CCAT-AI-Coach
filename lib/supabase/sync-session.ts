@@ -39,6 +39,9 @@ export async function syncCompletedSession(session: StoredDiagnosticSession, res
       elapsed_seconds: attempt.elapsedSeconds,
       confidence: attempt.confidence,
       answer_changes: attempt.answerChanges ?? 0,
+      first_answer_index: attempt.firstAnswerIndex ?? null,
+      first_answer_seconds: attempt.firstAnswerSeconds ?? null,
+      view_count: attempt.viewCount ?? 1,
     }] : [];
   });
   if (synchronizedAttempts.length) {
