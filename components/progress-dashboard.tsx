@@ -2,13 +2,27 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { HISTORY_STORAGE_KEY, parseHistory, summarizeProgress, type DiagnosticHistory } from "@/lib/history-store";
+import { addHistoryEntry, HISTORY_STORAGE_KEY, parseHistory, summarizeProgress, type DiagnosticHistory, type DiagnosticHistoryEntry } from "@/lib/history-store";
 
 function percent(value: number) { return `${Math.round(value * 100)}%`; }
 
 export function ProgressDashboard() {
   const [history, setHistory] = useState<DiagnosticHistory | null>(null);
-  useEffect(() => setHistory(parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY))), []);
+  const [source, setSource] = useState<"browser" | "cloud">("browser");
+  useEffect(() => {
+    const local = parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY));
+    setHistory(local);
+    fetch("/api/progress")
+      .then((response) => response.ok ? response.json() as Promise<{ entries: DiagnosticHistoryEntry[]; source: string }> : null)
+      .then((payload) => {
+        if (!payload?.entries.length) return;
+        const merged = payload.entries.reduce(addHistoryEntry, local);
+        window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(merged));
+        setHistory(merged);
+        if (payload.source === "cloud") setSource("cloud");
+      })
+      .catch(() => { /* Browser history remains available during cloud outages. */ });
+  }, []);
   if (!history) return <main className="progress-shell"><div className="dashboard-loading">Loading progress…</div></main>;
   const summary = summarizeProgress(history);
 
@@ -24,7 +38,7 @@ export function ProgressDashboard() {
   return (
     <main className="progress-shell">
       <DashboardNav />
-      <section className="dashboard-head"><div><div className="eyebrow">Performance dashboard</div><h1>Progress is a pattern.</h1><p>{summary.sessions} completed {summary.sessions === 1 ? "diagnostic" : "diagnostics"} saved in this browser.</p></div><Link className="primary link-button" href="/">New diagnostic →</Link></section>
+      <section className="dashboard-head"><div><div className="eyebrow">Performance dashboard</div><h1>Progress is a pattern.</h1><p>{summary.sessions} completed {summary.sessions === 1 ? "diagnostic" : "diagnostics"} · {source === "cloud" ? "synced across your account" : "saved in this browser"}</p></div><Link className="primary link-button" href="/">New diagnostic →</Link></section>
       <section className="dashboard-metrics">
         <article><small>Latest accuracy</small><strong>{percent(summary.latestAccuracy)}</strong><span>{summary.accuracyChange === null ? "Baseline established" : `${summary.accuracyChange >= 0 ? "+" : ""}${Math.round(summary.accuracyChange * 100)} points from baseline`}</span></article>
         <article><small>On-target pace</small><strong>{percent(summary.latestPaceScore)}</strong><span>Latest session</span></article>

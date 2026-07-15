@@ -1,4 +1,5 @@
 import type { StoredDiagnosticSession } from "@/lib/session-store";
+import type { ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { getQuestionVersionId } from "@/lib/question-version-ids";
 import { createClient } from "./client";
 
@@ -8,7 +9,7 @@ export type SyncResult =
   | { status: "synced" }
   | { status: "error"; message: string };
 
-export async function syncCompletedSession(session: StoredDiagnosticSession): Promise<SyncResult> {
+export async function syncCompletedSession(session: StoredDiagnosticSession, result: ScoredDiagnosticResult): Promise<SyncResult> {
   const supabase = createClient();
   if (!supabase) return { status: "local" };
   const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -63,5 +64,22 @@ export async function syncCompletedSession(session: StoredDiagnosticSession): Pr
 
   const { error: finalizeError } = await supabase.rpc("finalize_session", { target_session_id: session.id });
   if (finalizeError) return { status: "error", message: finalizeError.message };
+
+  const { error: resultError } = await supabase.from("diagnostic_results").upsert({
+    session_id: session.id,
+    user_id: user.id,
+    correct: result.correct,
+    total: result.total,
+    accuracy: result.accuracy,
+    average_seconds: result.averageSeconds,
+    pace_score: result.paceScore,
+    confidence_score: result.confidenceScore,
+    category_results: result.categoryResults,
+    bottleneck: result.coaching.bottleneck,
+    coaching_title: result.coaching.title,
+    completed_at: session.updatedAt,
+    updated_at: new Date().toISOString(),
+  });
+  if (resultError) return { status: "error", message: resultError.message };
   return { status: "synced" };
 }

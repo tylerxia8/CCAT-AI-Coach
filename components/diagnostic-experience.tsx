@@ -200,7 +200,7 @@ export function DiagnosticExperience() {
       <main className="shell results-shell">
         <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/progress">View progress</Link><Link className="nav-link" href="/auth">Save progress</Link></div></nav>
         <section className="results-head">
-          <div><div className="eyebrow">Your starting point</div><h1>{result.correct} of {result.total} correct</h1><p>Your highest-impact next move is to <strong>{result.priority.toLowerCase()}</strong>.</p><CloudSyncStatus session={storedSession} /></div>
+          <div><div className="eyebrow">Your starting point</div><h1>{result.correct} of {result.total} correct</h1><p>Your highest-impact next move is to <strong>{result.priority.toLowerCase()}</strong>.</p><CloudSyncStatus session={storedSession} diagnosticResult={result} /></div>
           <div className="score-ring"><strong>{Math.round(result.accuracy * 100)}</strong><span>% accuracy</span></div>
         </section>
         <section className="metric-grid">

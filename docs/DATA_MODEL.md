@@ -28,3 +28,5 @@ Until a Supabase project is configured, the browser stores the active diagnostic
 Migration `0002_seed_diagnostic_and_score.sql` seeds an immutable diagnostic form and adds two database controls. A trigger calculates attempt correctness from the stored question version, ignoring any client-provided correctness value. The authenticated `finalize_session` function then derives the session score only from persisted attempts owned by the current user.
 
 The browser bundle contains only prompts, choices, difficulty, and target pace. The private answer bank is imported only by the server scoring route. That route validates question IDs, answer ranges, timing bounds, confidence values, and duplicate attempts before returning a diagnostic result.
+
+Migration `0003_diagnostic_results.sql` stores a compact, user-owned result summary after server finalization. The authenticated progress endpoint validates these rows before merging them into versioned browser history, allowing the dashboard to work across devices while retaining an offline/local fallback.

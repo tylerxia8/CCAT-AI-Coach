@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { StoredDiagnosticSession } from "@/lib/session-store";
+import type { ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { syncCompletedSession, type SyncResult } from "@/lib/supabase/sync-session";
 
-export function CloudSyncStatus({ session }: { session: StoredDiagnosticSession | null }) {
+export function CloudSyncStatus({ session, diagnosticResult }: { session: StoredDiagnosticSession | null; diagnosticResult: ScoredDiagnosticResult }) {
   const [result, setResult] = useState<SyncResult | { status: "syncing" }>({ status: "syncing" });
 
   useEffect(() => {
     if (!session || session.status !== "completed") return;
     let active = true;
-    syncCompletedSession(session).then((value) => { if (active) setResult(value); });
+    syncCompletedSession(session, diagnosticResult).then((value) => { if (active) setResult(value); });
     return () => { active = false; };
-  }, [session]);
+  }, [diagnosticResult, session]);
 
   if (!session || session.status !== "completed") return null;
   if (result.status === "syncing") return <span className="sync-status">Saving…</span>;

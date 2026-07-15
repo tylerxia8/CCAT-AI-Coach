@@ -55,4 +55,6 @@ The deterministic coaching engine classifies pacing, confidence calibration, cat
 
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
+When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.
+
 Run the complete local quality gate with `npm run check`. The same test, lint, build, client-bundle privacy scan, and dependency audit run in GitHub Actions on every pull request and push to `main`.
