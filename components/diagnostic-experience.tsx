@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Attempt, QUESTIONS, scoreDiagnostic } from "@/lib/diagnostic";
+import { Attempt, DiagnosticResult, QUESTIONS } from "@/lib/diagnostic";
 import { appendEvent, createSession, parseSession, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
 import { CloudSyncStatus } from "@/components/cloud-sync-status";
 
@@ -23,13 +23,13 @@ export function DiagnosticExperience() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [confidence, setConfidence] = useState<Record<string, 1 | 2 | 3>>({});
   const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [result, setResult] = useState<DiagnosticResult | null>(null);
+  const [scoreError, setScoreError] = useState(false);
   const [storedSession, setStoredSession] = useState<StoredDiagnosticSession | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const questionStartedAt = useRef(Date.now());
 
   const question = QUESTIONS[index];
-  const result = useMemo(() => scoreDiagnostic(QUESTIONS, attempts), [attempts]);
-
   useEffect(() => {
     const restored = parseSession(window.localStorage.getItem(SESSION_STORAGE_KEY));
     if (restored) {
@@ -58,6 +58,27 @@ export function DiagnosticExperience() {
     };
     window.localStorage.setItem(SESSION_STORAGE_KEY, serializeSession(nextSession));
   }, [answers, attempts, confidence, hydrated, index, remaining, storedSession]);
+
+  useEffect(() => {
+    if (stage !== "results") return;
+    const controller = new AbortController();
+    setScoreError(false);
+    fetch("/api/diagnostic/score", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ attempts }),
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Scoring failed");
+        return response.json() as Promise<DiagnosticResult>;
+      })
+      .then(setResult)
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) setScoreError(true);
+      });
+    return () => controller.abort();
+  }, [attempts, stage]);
 
   useEffect(() => {
     if (stage !== "test") return;
@@ -158,6 +179,14 @@ export function DiagnosticExperience() {
   }
 
   if (stage === "results") {
+    if (!result) {
+      return (
+        <main className="shell results-shell">
+          <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-note">Diagnostic complete</div></nav>
+          <section className="analysis-state"><div className="eyebrow">Secure scoring</div><h1>{scoreError ? "We couldn’t score this session." : "Analyzing your decisions…"}</h1><p>{scoreError ? "Your answers are still saved in this browser. Refresh to try scoring again." : "The answer key stays on the server while we calculate your accuracy, pacing, and confidence fit."}</p>{scoreError && <button className="primary" onClick={() => window.location.reload()}>Try again</button>}</section>
+        </main>
+      );
+    }
     return (
       <main className="shell results-shell">
         <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><Link className="nav-link" href="/auth">Save progress</Link></nav>

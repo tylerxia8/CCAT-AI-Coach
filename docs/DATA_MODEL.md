@@ -21,8 +21,10 @@ Until a Supabase project is configured, the browser stores the active diagnostic
 2. Configure email authentication and profile creation.
 3. Restrict content authoring to explicit admin roles.
 4. Add database tests for row-level security and score reconstruction.
-5. Move assessment delivery behind a server endpoint so answer keys are not included in the client bundle.
+5. Replace the in-repository preview bank with database-backed assessment delivery.
 
 ## Scoring integrity
 
 Migration `0002_seed_diagnostic_and_score.sql` seeds an immutable diagnostic form and adds two database controls. A trigger calculates attempt correctness from the stored question version, ignoring any client-provided correctness value. The authenticated `finalize_session` function then derives the session score only from persisted attempts owned by the current user.
+
+The browser bundle contains only prompts, choices, difficulty, and target pace. The private answer bank is imported only by the server scoring route. That route validates question IDs, answer ranges, timing bounds, confidence values, and duplicate attempts before returning a diagnostic result.

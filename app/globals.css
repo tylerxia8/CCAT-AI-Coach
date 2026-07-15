@@ -85,6 +85,9 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .text-button:disabled { opacity: .3; }
 
 .results-shell { padding-bottom: 80px; }
+.analysis-state { margin: 0 auto; max-width: 760px; padding: clamp(100px, 16vw, 190px) 0; text-align: center; }
+.analysis-state h1 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(48px, 7vw, 76px); font-weight: 450; letter-spacing: -.045em; line-height: 1; margin: 22px 0; }
+.analysis-state p { color: var(--muted); line-height: 1.7; margin: 0 auto 28px; max-width: 580px; }
 .results-head { align-items: center; display: flex; justify-content: space-between; padding: 74px 0 60px; }
 .results-head h1 { font-size: clamp(52px, 7vw, 88px); margin: 18px 0; }
 .results-head p { color: var(--muted); font-size: 16px; }

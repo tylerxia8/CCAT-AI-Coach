@@ -46,3 +46,5 @@ Open `http://localhost:3000`.
 ## Repository status
 
 The first vertical slice is implemented: a responsive timed diagnostic, deterministic scoring, pace and confidence analysis, category performance, and an initial coaching recommendation. In-progress sessions and behavioral events persist locally across refreshes. The repository includes a Supabase-ready schema, passwordless email authentication, authenticated attempt and telemetry synchronization, an immutable seeded diagnostic form, database-enforced correctness, server-side session finalization, and row-level security.
+
+Answer keys and explanations are excluded from the browser bundle. Completed attempts are validated and scored through a server-only endpoint before results are displayed.
