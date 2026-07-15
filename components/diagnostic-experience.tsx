@@ -159,11 +159,6 @@ export function DiagnosticExperience() {
     setStage("results");
   }
 
-  function restart() {
-    window.localStorage.removeItem(SESSION_STORAGE_KEY);
-    window.location.reload();
-  }
-
   if (stage === "welcome") {
     return (
       <main className="shell welcome-shell">
@@ -220,7 +215,7 @@ export function DiagnosticExperience() {
         <section className="drill-card">
           <div className="drill-marker">Next drill</div>
           <div><div className="section-label">Prescribed practice</div><h2>{result.coaching.drill.title}</h2><p>{result.coaching.drill.instructions}</p></div>
-          <div className="drill-target"><small>Completion target</small><strong>{result.coaching.drill.target}</strong><button className="secondary" onClick={restart}>Start a fresh diagnostic</button></div>
+          <div className="drill-target"><small>Completion target</small><strong>{result.coaching.drill.target}</strong><Link className="secondary drill-link" href={`/practice?focus=${result.coaching.bottleneck}`}>Start prescribed drill</Link></div>
         </section>
         <QuestionReview reviews={result.reviews} />
       </main>

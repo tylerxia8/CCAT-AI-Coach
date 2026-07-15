@@ -53,6 +53,8 @@ After scoring, learners receive a verified question-by-question review showing t
 
 The deterministic coaching engine classifies pacing, confidence calibration, category weakness, late-test endurance, or general refinement. Every recommendation includes observed evidence, a strategy, and a measurable next drill.
 
+Prescribed drills open a separate eight-question practice set with per-question pace targets. Answers are checked on the server, and verified corrective feedback is released only after each answer is committed.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.

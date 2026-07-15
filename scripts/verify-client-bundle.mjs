@@ -11,6 +11,13 @@ const privateFragments = [
   "involve deriving a judgment",
   "Liam > Noor > Priya",
   "Increasing $60 by 10% adds $6",
+  "Each machine produces 10 parts per hour",
+  "The overlap between Pexes and Jors",
+  "previous term doubled plus 2",
+  "Turning 90° counterclockwise from south",
+  "Verbose means using more words",
+  "Mara before Theo before Jin",
+  "Dividing 30 by the original 120",
 ];
 
 const files = await walk(clientRoot);

@@ -124,6 +124,7 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .drill-target small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .drill-target strong { font-size: 13px; line-height: 1.45; }
 .drill-target button { justify-self: start; margin-top: 8px; padding: 11px 15px; }
+.drill-link { justify-self: start; margin-top: 8px; padding: 11px 15px; text-decoration: none; }
 .review-section { margin-top: 82px; }
 .review-heading { align-items: flex-end; display: flex; justify-content: space-between; margin-bottom: 28px; }
 .review-heading h2 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(36px, 5vw, 54px); font-weight: 450; letter-spacing: -.04em; margin: 14px 0 0; }
@@ -168,6 +169,32 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .setup-note span { color: var(--muted); font-size: 12px; line-height: 1.55; }
 .setup-note code { color: var(--ink); }
 
+.practice-shell { min-height: 100vh; padding: 0 clamp(24px, 6vw, 92px) 80px; }
+.practice-progress { background: var(--line); height: 4px; margin: 0 calc(clamp(24px, 6vw, 92px) * -1); }
+.practice-progress i { background: var(--green); display: block; height: 100%; transition: width .25s; }
+.practice-card { margin: 0 auto; max-width: 820px; padding: clamp(64px, 9vw, 108px) 0; }
+.practice-card h1 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(36px, 5vw, 54px); font-weight: 450; letter-spacing: -.035em; line-height: 1.08; margin: 26px 0 38px; }
+.practice-card .choices button:disabled { cursor: default; }
+.feedback-card { border-left: 4px solid; margin-top: 24px; padding: 20px 22px; }
+.feedback-card.correct { background: #e6f0e2; border-color: var(--green); }
+.feedback-card.incorrect { background: #f7e9df; border-color: #a75435; }
+.feedback-label { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.feedback-card p { font-family: var(--font-serif), Georgia, serif; font-size: 19px; line-height: 1.5; margin: 10px 0 0; }
+.practice-error { color: #a23b2d; font-size: 12px; }
+.practice-actions { align-items: center; border-top: 1px solid var(--line); display: flex; justify-content: space-between; margin-top: 28px; padding-top: 24px; }
+.practice-actions > span { color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.practice-actions .primary:disabled { cursor: default; opacity: .4; }
+.practice-complete { margin: 0 auto; max-width: 760px; padding: clamp(84px, 12vw, 140px) 0 54px; text-align: center; }
+.practice-complete h1 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(54px, 8vw, 86px); font-weight: 450; letter-spacing: -.05em; margin: 20px 0; }
+.practice-complete p { color: var(--muted); line-height: 1.7; }
+.practice-complete-actions { display: flex; gap: 12px; justify-content: center; }
+.practice-complete-actions .link-button { margin-top: 0; }
+.practice-recap { border-bottom: 1px solid var(--line); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); }
+.practice-recap article { display: grid; gap: 5px; padding: 22px; }
+.practice-recap article + article { border-left: 1px solid var(--line); }
+.practice-recap span, .practice-recap small { color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.practice-recap strong { font-family: var(--font-serif), Georgia, serif; font-size: 22px; }
+
 .progress-shell { min-height: 100vh; padding: 0 clamp(24px, 6vw, 92px) 90px; }
 .brand-link { color: var(--ink); text-decoration: none; }
 .dashboard-loading { color: var(--muted); padding: 20vh 0; text-align: center; }
@@ -203,6 +230,8 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 @media (max-width: 720px) {
   .feature-grid, .metric-grid, .report-grid { grid-template-columns: 1fr; }
   .dashboard-metrics, .dashboard-grid, .category-progress { grid-template-columns: 1fr; }
+  .practice-recap { grid-template-columns: repeat(2, 1fr); }
+  .practice-recap article:nth-child(odd) { border-left: 0; }
   .dashboard-head { align-items: flex-start; flex-direction: column; gap: 22px; }
   .feature-grid article + article { border-left: 0; border-top: 1px solid var(--line); }
   .results-head { align-items: flex-start; flex-direction: column; gap: 36px; }
