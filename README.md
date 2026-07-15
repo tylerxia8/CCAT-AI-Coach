@@ -55,6 +55,8 @@ The deterministic coaching engine classifies pacing, confidence calibration, cat
 
 Prescribed drills open a separate eight-question practice set with per-question pace targets. Answers are checked on the server, and verified corrective feedback is released only after each answer is committed.
 
+Active drills resume after refresh with committed feedback intact. Completed drills are recorded idempotently, and drill count and aggregate practice accuracy appear on the progress dashboard.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.

@@ -215,7 +215,7 @@ export function DiagnosticExperience() {
         <section className="drill-card">
           <div className="drill-marker">Next drill</div>
           <div><div className="section-label">Prescribed practice</div><h2>{result.coaching.drill.title}</h2><p>{result.coaching.drill.instructions}</p></div>
-          <div className="drill-target"><small>Completion target</small><strong>{result.coaching.drill.target}</strong><Link className="secondary drill-link" href={`/practice?focus=${result.coaching.bottleneck}`}>Start prescribed drill</Link></div>
+          <div className="drill-target"><small>Completion target</small><strong>{result.coaching.drill.target}</strong><Link className="secondary drill-link" href={`/practice?focus=${result.coaching.bottleneck}&new=1`}>Start prescribed drill</Link></div>
         </section>
         <QuestionReview reviews={result.reviews} />
       </main>

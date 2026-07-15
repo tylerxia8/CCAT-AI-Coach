@@ -204,7 +204,7 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .link-button { display: inline-block; margin-top: 22px; text-decoration: none; }
 .dashboard-head { align-items: flex-end; display: flex; justify-content: space-between; padding: 76px 0 54px; }
 .dashboard-head h1 { font-size: clamp(50px, 7vw, 80px); }
-.dashboard-metrics { background: var(--line); border: 1px solid var(--line); display: grid; gap: 1px; grid-template-columns: repeat(3, 1fr); }
+.dashboard-metrics { background: var(--line); border: 1px solid var(--line); display: grid; gap: 1px; grid-template-columns: repeat(4, 1fr); }
 .dashboard-metrics article { background: var(--card); padding: 26px; }
 .dashboard-metrics small, .dashboard-metrics span { color: var(--muted); display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 .dashboard-metrics strong { display: block; font-family: var(--font-serif), Georgia, serif; font-size: 48px; font-weight: 500; margin: 10px 0 5px; }

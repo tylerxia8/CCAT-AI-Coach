@@ -3,14 +3,17 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { addHistoryEntry, HISTORY_STORAGE_KEY, parseHistory, summarizeProgress, type DiagnosticHistory, type DiagnosticHistoryEntry } from "@/lib/history-store";
+import { parsePracticeHistory, PRACTICE_HISTORY_KEY, type PracticeHistory } from "@/lib/practice-store";
 
 function percent(value: number) { return `${Math.round(value * 100)}%`; }
 
 export function ProgressDashboard() {
   const [history, setHistory] = useState<DiagnosticHistory | null>(null);
   const [source, setSource] = useState<"browser" | "cloud">("browser");
+  const [practiceHistory, setPracticeHistory] = useState<PracticeHistory>({ version: 1, entries: [] });
   useEffect(() => {
     const local = parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY));
+    setPracticeHistory(parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY)));
     setHistory(local);
     fetch("/api/progress")
       .then((response) => response.ok ? response.json() as Promise<{ entries: DiagnosticHistoryEntry[]; source: string }> : null)
@@ -25,6 +28,8 @@ export function ProgressDashboard() {
   }, []);
   if (!history) return <main className="progress-shell"><div className="dashboard-loading">Loading progress…</div></main>;
   const summary = summarizeProgress(history);
+  const practiceCorrect = practiceHistory.entries.reduce((total, entry) => total + entry.correct, 0);
+  const practiceTotal = practiceHistory.entries.reduce((total, entry) => total + entry.total, 0);
 
   if (!summary) {
     return (
@@ -43,6 +48,7 @@ export function ProgressDashboard() {
         <article><small>Latest accuracy</small><strong>{percent(summary.latestAccuracy)}</strong><span>{summary.accuracyChange === null ? "Baseline established" : `${summary.accuracyChange >= 0 ? "+" : ""}${Math.round(summary.accuracyChange * 100)} points from baseline`}</span></article>
         <article><small>On-target pace</small><strong>{percent(summary.latestPaceScore)}</strong><span>Latest session</span></article>
         <article><small>Confidence fit</small><strong>{percent(summary.latestConfidenceScore)}</strong><span>Latest session</span></article>
+        <article><small>Practice drills</small><strong>{practiceHistory.entries.length}</strong><span>{practiceTotal ? `${Math.round((practiceCorrect / practiceTotal) * 100)}% drill accuracy` : "No drills completed"}</span></article>
       </section>
       <section className="dashboard-grid">
         <article className="trend-card"><div className="section-label">Accuracy by session</div><div className="trend-chart">{history.entries.map((entry, index) => <div className="trend-column" key={entry.sessionId}><div className="trend-value">{percent(entry.accuracy)}</div><div className="trend-track"><i style={{ height: percent(entry.accuracy) }} /></div><span>{index + 1}</span></div>)}</div></article>
