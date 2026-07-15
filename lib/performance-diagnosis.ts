@@ -41,11 +41,15 @@ export function inferQuestionSkill(question: Pick<Question, "category" | "prompt
     return "vocabulary";
   }
   if (question.category === "Logic") {
+    if (prompt.includes("first two statements")) return "deductive reasoning";
     if (prompt.includes("all ") || prompt.includes("no ") || prompt.includes("some ") || prompt.includes("every ")) return "syllogisms";
     if (prompt.includes("before") || prompt.includes("older") || prompt.includes("taller") || prompt.includes("ordered")) return "ordering logic";
     return "deductive reasoning";
   }
-  return prompt.includes("turn") || prompt.includes("rotat") ? "mental rotation" : "spatial movement";
+  if (prompt.includes("matrix") || prompt.includes("2×2")) return "figure matrices";
+  if (prompt.includes("different") || prompt.includes("not a rotation")) return "figure classification";
+  if (prompt.includes("rotat") || /[↖↗↘↙▲▶▼◀]/.test(question.prompt)) return "mental rotation";
+  return "visual sequences";
 }
 
 export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagnosis {

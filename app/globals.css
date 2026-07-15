@@ -79,6 +79,8 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .choices button:hover, .choices button.selected { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
 .choices button.selected { background: #eff5ed; }
 .choices button span { align-items: center; background: var(--paper); border-radius: 50%; display: inline-flex; font-size: 11px; font-weight: 800; height: 30px; justify-content: center; margin-right: 14px; width: 30px; }
+.spatial-question h1 { letter-spacing: 0; }
+.spatial-question .choices button { font-size: 21px; letter-spacing: .08em; }
 .confidence-row { align-items: center; border-bottom: 1px solid var(--line); border-top: 1px solid var(--line); display: flex; gap: 8px; margin-top: 28px; padding: 20px 0; }
 .confidence-row > span { color: var(--muted); font-size: 12px; margin-right: auto; }
 .confidence-row button { background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-size: 11px; padding: 8px 12px; }

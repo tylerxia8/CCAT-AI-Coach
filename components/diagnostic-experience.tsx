@@ -245,7 +245,7 @@ export function DiagnosticExperience() {
         <div className={`timer ${remaining < 60 ? "urgent" : ""}`}><span>Time remaining</span><strong>{formatTime(remaining)}</strong></div>
       </header>
       <div className="progress"><i style={{ width: `${((index + 1) / QUESTIONS.length) * 100}%` }} /></div>
-      <section className="question-wrap">
+      <section className={`question-wrap ${question.category === "Spatial" ? "spatial-question" : ""}`}>
         <div className="question-meta"><span>{question.category}</span><span>Target pace · {question.targetSeconds}s</span></div>
         <h1>{question.prompt}</h1>
         <div className="choices">

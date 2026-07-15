@@ -1,11 +1,11 @@
 import { HISTORY_STORAGE_KEY } from "./history-store";
 import { PRACTICE_HISTORY_KEY, PRACTICE_SESSION_KEY } from "./practice-store";
-import { LEGACY_SESSION_STORAGE_KEY, SESSION_STORAGE_KEY } from "./session-store";
+import { LEGACY_SESSION_STORAGE_KEYS, SESSION_STORAGE_KEY } from "./session-store";
 import { STUDY_PLAN_STATE_KEY } from "./study-plan";
 
 export const USER_DATA_KEYS = [
   SESSION_STORAGE_KEY,
-  LEGACY_SESSION_STORAGE_KEY,
+  ...LEGACY_SESSION_STORAGE_KEYS,
   HISTORY_STORAGE_KEY,
   PRACTICE_SESSION_KEY,
   PRACTICE_HISTORY_KEY,

@@ -55,7 +55,7 @@ The deterministic coaching engine classifies pacing, confidence calibration, cat
 
 Prescribed drills open a separate eight-question practice set with per-question pace targets. Answers are checked on the server, and verified corrective feedback is released only after each answer is committed.
 
-The primary diagnostic is a 50-question, 15-minute assessment spanning numerical, verbal, logic, and spatial reasoning. Its items are original practice content designed to resemble the pace and category mix of a general cognitive aptitude test; it is not an official CCAT exam.
+The primary diagnostic is a 50-question, 15-minute assessment governed by a tested content blueprint: 15 verbal items, 25 math-and-logic items, and 10 spatial items across 17 supported item families. Every item is original practice content; it is not an official CCAT exam and does not reproduce proprietary assessment questions.
 
 Active drills resume after refresh with committed feedback intact. Completed drills are recorded idempotently, and drill count and aggregate practice accuracy appear on the progress dashboard.
 
