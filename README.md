@@ -57,6 +57,8 @@ Prescribed drills open a separate eight-question practice set with per-question 
 
 The primary diagnostic is a 50-question, 15-minute assessment governed by a tested content blueprint: 15 verbal items, 25 math-and-logic items, and 10 spatial items across 17 supported item families. Every item is original practice content; it is not an official CCAT exam and does not reproduce proprietary assessment questions.
 
+The current form deliberately includes a demanding difficulty curve—8 entry, 28 intermediate, and 14 advanced items—so stronger candidates encounter multi-rule and multi-step questions rather than a bank dominated by one-step exercises.
+
 Active drills resume after refresh with committed feedback intact. Completed drills are recorded idempotently, and drill count and aggregate practice accuracy appear on the progress dashboard.
 
 The latest diagnostic generates a persistent five-session study plan tailored to the detected bottleneck: learn the intervention, apply it at pace, review high-information decisions, complete mixed practice, and reassess against a fresh baseline.

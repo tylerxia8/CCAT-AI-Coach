@@ -8,6 +8,9 @@ describe("CCAT form blueprint", () => {
     expect(QUESTIONS.filter((question) => ccatDomainFor(question.category) === "Verbal")).toHaveLength(15);
     expect(QUESTIONS.filter((question) => ccatDomainFor(question.category) === "Math & Logic")).toHaveLength(25);
     expect(QUESTIONS.filter((question) => ccatDomainFor(question.category) === "Spatial")).toHaveLength(10);
+    expect(QUESTIONS.filter((question) => question.difficulty === 1)).toHaveLength(8);
+    expect(QUESTIONS.filter((question) => question.difficulty === 2)).toHaveLength(28);
+    expect(QUESTIONS.filter((question) => question.difficulty === 3)).toHaveLength(14);
   });
 
   it("rejects malformed forms instead of silently shipping them", () => {
