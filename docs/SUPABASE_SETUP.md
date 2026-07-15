@@ -13,7 +13,7 @@
 - Without environment values, sessions remain in versioned browser storage.
 - With Supabase configured but no authenticated user, completed results invite the learner to sign in.
 - After authentication, the completed session and its telemetry events are upserted using stable client-generated IDs.
-- Attempts will be synchronized after the reviewed question bank is seeded and local slugs are mapped to database question-version IDs.
+- Question-level attempts are mapped to immutable database versions and synchronized before the database finalizes the score.
 
 ## Security checks before production
 

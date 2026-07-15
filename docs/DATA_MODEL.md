@@ -19,7 +19,10 @@ Until a Supabase project is configured, the browser stores the active diagnostic
 
 1. Provision development and production Supabase projects.
 2. Configure email authentication and profile creation.
-3. Add server-side session synchronization with idempotency keys.
-4. Seed reviewed question versions and an active diagnostic form.
-5. Restrict content authoring to explicit admin roles.
-6. Add database tests for row-level security and score reconstruction.
+3. Restrict content authoring to explicit admin roles.
+4. Add database tests for row-level security and score reconstruction.
+5. Move assessment delivery behind a server endpoint so answer keys are not included in the client bundle.
+
+## Scoring integrity
+
+Migration `0002_seed_diagnostic_and_score.sql` seeds an immutable diagnostic form and adds two database controls. A trigger calculates attempt correctness from the stored question version, ignoring any client-provided correctness value. The authenticated `finalize_session` function then derives the session score only from persisted attempts owned by the current user.
