@@ -1,6 +1,7 @@
 import type { Bottleneck } from "./coaching";
 import type { Category, ScoredDiagnosticResult } from "./diagnostic";
 import type { PerformanceCause } from "./performance-diagnosis";
+import type { SkillMastery } from "./performance-diagnosis";
 
 export const HISTORY_STORAGE_KEY = "aptitude-coach:history:v1";
 
@@ -18,6 +19,7 @@ export type DiagnosticHistoryEntry = {
   coachingTitle: string;
   primaryCause?: PerformanceCause;
   weakestSkill?: string | null;
+  skillResults?: SkillMastery[];
 };
 
 export type DiagnosticHistory = {
@@ -33,6 +35,7 @@ export type ProgressSummary = {
   latestConfidenceScore: number;
   categoryAccuracy: Array<{ category: Category; accuracy: number; attempts: number }>;
   bottlenecks: Array<{ bottleneck: Bottleneck; count: number }>;
+  skillPriorities: Array<{ skill: string; mastery: number; evidence: number }>;
 };
 
 export function createHistoryEntry(sessionId: string, completedAt: string, result: ScoredDiagnosticResult): DiagnosticHistoryEntry {
@@ -50,11 +53,14 @@ export function createHistoryEntry(sessionId: string, completedAt: string, resul
     coachingTitle: result.coaching.title,
     primaryCause: result.diagnosis.primaryCause,
     weakestSkill: result.diagnosis.weakestSkill,
+    skillResults: result.diagnosis.skillBreakdown,
   };
 }
 
 export function addHistoryEntry(history: DiagnosticHistory, entry: DiagnosticHistoryEntry): DiagnosticHistory {
-  const entries = [...history.entries.filter((existing) => existing.sessionId !== entry.sessionId), entry]
+  const existing = history.entries.find((candidate) => candidate.sessionId === entry.sessionId);
+  const enrichedEntry = existing?.skillResults && !entry.skillResults ? { ...entry, skillResults: existing.skillResults, primaryCause: entry.primaryCause ?? existing.primaryCause, weakestSkill: entry.weakestSkill ?? existing.weakestSkill } : entry;
+  const entries = [...history.entries.filter((candidate) => candidate.sessionId !== entry.sessionId), enrichedEntry]
     .sort((a, b) => a.completedAt.localeCompare(b.completedAt));
   return { version: 1, entries };
 }
@@ -77,11 +83,16 @@ export function summarizeProgress(history: DiagnosticHistory): ProgressSummary |
   const first = history.entries[0];
   const categoryTotals = new Map<Category, { correct: number; total: number }>();
   const bottleneckCounts = new Map<Bottleneck, number>();
+  const skillTotals = new Map<string, { weightedMastery: number; evidence: number }>();
   for (const entry of history.entries) {
     bottleneckCounts.set(entry.bottleneck, (bottleneckCounts.get(entry.bottleneck) ?? 0) + 1);
     for (const category of entry.categoryResults) {
       const current = categoryTotals.get(category.category) ?? { correct: 0, total: 0 };
       categoryTotals.set(category.category, { correct: current.correct + category.correct, total: current.total + category.total });
+    }
+    for (const skill of entry.skillResults ?? []) {
+      const current = skillTotals.get(skill.skill) ?? { weightedMastery: 0, evidence: 0 };
+      skillTotals.set(skill.skill, { weightedMastery: current.weightedMastery + skill.mastery * skill.total, evidence: current.evidence + skill.total });
     }
   }
   return {
@@ -92,6 +103,7 @@ export function summarizeProgress(history: DiagnosticHistory): ProgressSummary |
     latestConfidenceScore: latest.confidenceScore,
     categoryAccuracy: [...categoryTotals.entries()].map(([category, value]) => ({ category, accuracy: value.total ? value.correct / value.total : 0, attempts: value.total })),
     bottlenecks: [...bottleneckCounts.entries()].map(([bottleneck, count]) => ({ bottleneck, count })).sort((a, b) => b.count - a.count),
+    skillPriorities: [...skillTotals.entries()].map(([skill, value]) => ({ skill, mastery: Math.round(value.weightedMastery / value.evidence), evidence: value.evidence })).sort((a, b) => a.mastery - b.mastery || b.evidence - a.evidence).slice(0, 3),
   };
 }
 

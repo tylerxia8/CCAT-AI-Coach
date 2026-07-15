@@ -22,8 +22,11 @@ export type PerformanceDiagnosis = {
   causes: CauseDiagnosis[];
   prescriptions: TrainingPrescription[];
   weakestSkill: string | null;
-  skillBreakdown: Array<{ skill: string; correct: number; total: number; averageSeconds: number; slow: number; changed: number }>;
+  skillBreakdown: SkillMastery[];
+  nextActivity: { title: string; reason: string; target: string; href: string };
 };
+
+export type SkillMastery = { skill: string; correct: number; total: number; averageSeconds: number; slow: number; changed: number; mastery: number; level: "needs_work" | "developing" | "secure" };
 
 export function inferQuestionSkill(question: Pick<Question, "category" | "prompt" | "stimulus" | "itemFamily">) {
   const prompt = question.prompt.toLowerCase();
@@ -86,13 +89,18 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
   const skillBreakdown = [...skillTotals.entries()].map(([skill, total]) => {
     const items = reviews.filter((review) => review.skill === skill);
     const answeredItems = items.filter((review) => review.selectedAnswer !== null);
+    const correct = items.filter((review) => review.isCorrect).length;
+    const slow = items.filter((review) => review.pace === "slow").length;
+    const mastery = Math.round(((correct + 1) / (total + 2) * 0.75 + (1 - slow / total) * 0.25) * 100);
     return {
       skill,
-      correct: items.filter((review) => review.isCorrect).length,
+      correct,
       total,
       averageSeconds: answeredItems.length ? Math.round(answeredItems.reduce((sum, review) => sum + review.elapsedSeconds, 0) / answeredItems.length) : 0,
-      slow: items.filter((review) => review.pace === "slow").length,
+      slow,
       changed: items.filter((review) => review.answerChanges > 0).length,
+      mastery,
+      level: mastery >= 75 ? "secure" as const : mastery >= 55 ? "developing" as const : "needs_work" as const,
     };
   }).sort((a, b) => (b.total - b.correct) - (a.total - a.correct) || b.slow - a.slow || a.skill.localeCompare(b.skill));
 
@@ -127,6 +135,7 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
     : variation >= 0.65 && slowStreak < 3
       ? "rhythm"
       : causes[0]?.score >= 0.18 ? causes[0].cause : "refinement";
+  const focusSkill = skillBreakdown[0]?.skill ?? weakestSkill ?? "mixed reasoning";
   return {
     primaryCause,
     summary: summaryFor(primaryCause, weakestSkill),
@@ -134,7 +143,17 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
     prescriptions: prescriptionsFor(primaryCause, weakestSkill),
     weakestSkill,
     skillBreakdown,
+    nextActivity: nextActivityFor(primaryCause, focusSkill),
   };
+}
+
+function nextActivityFor(cause: PerformanceCause, skill: string) {
+  const encodedSkill = encodeURIComponent(skill);
+  if (cause === "knowledge") return { title: `Learn and apply ${skill}`, reason: "Accuracy is the limiting signal, so method instruction should come before speed work.", target: "4 of 5 unseen examples correct", href: `/practice?focus=knowledge&skill=${encodedSkill}&new=1` };
+  if (cause === "speed") return { title: `Build ${skill} fluency`, reason: "The method is producing correct answers, but it consumes too much test time.", target: "80% correct within 18 seconds", href: `/practice?focus=speed&skill=${encodedSkill}&new=1` };
+  if (cause === "rhythm") return { title: "Run a three-question cadence block", reason: "Uneven decision times are disrupting the overall test rhythm.", target: "Finish each block within 54 seconds", href: `/practice?focus=rhythm&skill=${encodedSkill}&new=1` };
+  if (cause === "second_guessing") return { title: "Practice evidence-based commitment", reason: "Answer changes are costing more points than they recover.", target: "No correct-to-wrong changes", href: `/practice?focus=second_guessing&skill=${encodedSkill}&new=1` };
+  return { title: "Complete a mixed transfer set", reason: "No single bottleneck dominates, so the next step is maintaining performance across formats.", target: "80% correct at target pace", href: `/practice?focus=refinement&skill=${encodedSkill}&new=1` };
 }
 
 function makeCause(cause: PerformanceCause, score: number, evidence: string[], observations: number): CauseDiagnosis {

@@ -36,7 +36,9 @@ export function PracticeExperience() {
       return;
     }
     const requested = parameters.get("focus");
-    const selectedFocus = requested && /^[a-z]+$/.test(requested) ? `${requested} practice` : "focused practice";
+    const requestedSkill = parameters.get("skill");
+    const skillLabel = requestedSkill && /^[a-z0-9 &-]{2,40}$/i.test(requestedSkill) ? ` · ${requestedSkill}` : "";
+    const selectedFocus = requested && /^[a-z_]+$/.test(requested) ? `${requested} practice${skillLabel}` : "focused practice";
     const session = createPracticeSession(selectedFocus);
     setSessionId(session.id);
     setFocus(session.focus);

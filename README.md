@@ -65,6 +65,8 @@ Active drills resume after refresh with committed feedback intact. Completed dri
 
 The latest diagnostic generates a persistent five-session study plan tailored to the detected bottleneck: learn the intervention, apply it at pace, review high-information decisions, complete mixed practice, and reassess against a fresh baseline.
 
+The results experience also maintains conservative skill-mastery estimates from accuracy and pace evidence, selects one highest-value next activity with an explicit advancement criterion, and keeps the full diagnostic evidence collapsed until requested. The progress dashboard carries forward only the three highest curriculum priorities so the interface stays focused.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.

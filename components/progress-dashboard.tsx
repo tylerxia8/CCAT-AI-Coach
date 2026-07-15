@@ -55,6 +55,7 @@ export function ProgressDashboard() {
         <article className="bottleneck-card"><div className="section-label">Recurring bottlenecks</div>{summary.bottlenecks.map((item) => <div className="bottleneck-row" key={item.bottleneck}><span>{item.bottleneck}</span><strong>{item.count}×</strong></div>)}<p>Repeated findings matter more than a single session. Use these to choose where practice time goes.</p></article>
       </section>
       <section className="category-progress"><div><div className="section-label">Cumulative category performance</div><h2>Where your points come from.</h2></div>{summary.categoryAccuracy.map((item) => <div className="category-progress-row" key={item.category}><span>{item.category}<small>{item.attempts} attempts</small></span><div className="bar"><i style={{ width: percent(item.accuracy) }} /></div><strong>{percent(item.accuracy)}</strong></div>)}</section>
+      {summary.skillPriorities.length > 0 && <section className="priority-strip"><div><div className="section-label">Curriculum priorities</div><h2>Focus on these next.</h2></div>{summary.skillPriorities.map((item) => <div key={item.skill}><strong>{item.skill}</strong><span>{item.mastery}% mastery estimate · {item.evidence} observations</span></div>)}</section>}
     </main>
   );
 }

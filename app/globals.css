@@ -148,6 +148,14 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .diagnosis-heading { align-items: flex-end; display: flex; justify-content: space-between; gap: 32px; }
 .diagnosis-heading h2 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(34px, 5vw, 52px); font-weight: 450; letter-spacing: -.04em; margin: 14px 0 0; max-width: 760px; }
 .diagnosis-heading p { color: var(--muted); font-size: 11px; line-height: 1.6; max-width: 340px; }
+.adaptive-next { align-items: center; background: #e8edcf; border-radius: 16px; display: grid; gap: 34px; grid-template-columns: 1.4fr .6fr; margin-top: 28px; padding: 28px; }
+.adaptive-next h3 { font-family: var(--font-serif), Georgia, serif; font-size: 32px; font-weight: 500; margin: 9px 0; }
+.adaptive-next p { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0; }
+.adaptive-next > div:last-child { border-left: 1px solid #c8cfaa; display: grid; gap: 9px; padding-left: 26px; }
+.adaptive-next small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.adaptive-next .link-button { justify-self: start; margin-top: 6px; padding: 11px 15px; }
+.diagnostic-details { margin-top: 14px; }
+.diagnostic-details > summary { color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 800; padding: 14px 4px; }
 .cause-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, 1fr); margin-top: 28px; }
 .cause-grid article { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
 .cause-grid article.primary-cause { border-color: var(--green); box-shadow: inset 0 3px 0 var(--green); }
@@ -303,6 +311,11 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .dashboard-metrics strong { display: block; font-family: var(--font-serif), Georgia, serif; font-size: 48px; font-weight: 500; margin: 10px 0 5px; }
 .dashboard-grid { display: grid; gap: 24px; grid-template-columns: 1.4fr .6fr; margin-top: 24px; }
 .dashboard-grid > article, .category-progress { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 30px; }
+.priority-strip { align-items: center; background: #e8edcf; border-radius: 18px; display: grid; gap: 18px; grid-template-columns: 1.2fr repeat(3, 1fr); margin-top: 24px; padding: 28px 30px; }
+.priority-strip h2 { font-family: var(--font-serif), Georgia, serif; font-size: 28px; font-weight: 500; margin: 8px 0 0; }
+.priority-strip > div:not(:first-child) { display: grid; gap: 6px; }
+.priority-strip > div:not(:first-child) strong { font-size: 12px; text-transform: capitalize; }
+.priority-strip span { color: var(--muted); font-size: 9px; }
 .trend-chart { align-items: flex-end; display: flex; gap: 14px; height: 230px; margin-top: 34px; overflow-x: auto; }
 .trend-column { align-items: center; display: flex; flex: 1 0 42px; flex-direction: column; height: 100%; justify-content: flex-end; }
 .trend-value { color: var(--muted); font-size: 9px; margin-bottom: 6px; }
@@ -322,7 +335,7 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 
 @media (max-width: 720px) {
   .feature-grid, .metric-grid, .report-grid { grid-template-columns: 1fr; }
-  .dashboard-metrics, .dashboard-grid, .category-progress { grid-template-columns: 1fr; }
+  .dashboard-metrics, .dashboard-grid, .category-progress, .priority-strip { grid-template-columns: 1fr; }
   .practice-recap { grid-template-columns: repeat(2, 1fr); }
   .practice-recap article:nth-child(odd) { border-left: 0; }
   .dashboard-head { align-items: flex-start; flex-direction: column; gap: 22px; }
@@ -350,6 +363,8 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   .pie-layout { grid-template-columns: 110px 1fr; }
   .diagnosis-heading { align-items: start; flex-direction: column; }
   .cause-grid, .prescription-grid { grid-template-columns: 1fr; }
+  .adaptive-next { grid-template-columns: 1fr; }
+  .adaptive-next > div:last-child { border-left: 0; border-top: 1px solid #c8cfaa; padding: 20px 0 0; }
   .skill-diagnostics { grid-template-columns: 1fr; }
   .skill-diagnostic-list > div { grid-template-columns: 1.5fr 1fr 1fr; }
 }

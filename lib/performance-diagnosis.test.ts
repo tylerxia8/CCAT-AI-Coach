@@ -31,6 +31,8 @@ describe("diagnosePerformance", () => {
     expect(diagnosis.primaryCause).toBe("knowledge");
     expect(diagnosis.weakestSkill).toBe("percentages");
     expect(diagnosis.prescriptions[0].mode).toBe("learn");
+    expect(diagnosis.nextActivity).toMatchObject({ title: "Learn and apply percentages", target: "4 of 5 unseen examples correct" });
+    expect(diagnosis.skillBreakdown[0]).toMatchObject({ skill: "percentages", level: "developing" });
   });
 
   it("recognizes correct but slow work as a fluency problem", () => {
