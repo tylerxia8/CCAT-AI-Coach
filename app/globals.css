@@ -238,6 +238,9 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .privacy-note { max-width: 800px; padding: 44px 0; }
 .privacy-note h2 { font-size: 24px; }
 .privacy-note p { font-size: 12px; }
+.cloud-delete { margin-top: 0; }
+.deletion-success { color: var(--green) !important; font-weight: 800; }
+.deletion-error { color: #9a3f2d !important; font-weight: 800; }
 
 .progress-shell { min-height: 100vh; padding: 0 clamp(24px, 6vw, 92px) 90px; }
 .brand-link { color: var(--ink); text-decoration: none; }

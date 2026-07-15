@@ -22,3 +22,5 @@
 - Set production redirect URLs exactly; do not use wildcard hosts.
 - Configure rate limits and bot protection for email authentication.
 - Confirm that the browser receives only the anonymous key, never a service-role key.
+- Apply and test the authenticated `delete_my_learning_data` function with two users, confirming that one user cannot affect the other's records.
+- Implement privileged Supabase Auth identity deletion separately if the product offers full account deletion.

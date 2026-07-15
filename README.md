@@ -68,3 +68,5 @@ Run the complete local quality gate with `npm run check`. The same test, lint, b
 Runtime hardening includes centralized browser security headers, disabled framework identification, non-cacheable private API responses, and a privacy-safe `/api/health` liveness endpoint.
 
 The settings page lets learners inspect stored data groups, export a versioned JSON copy, clear application-owned data from the current browser, and sign out of a configured cloud account.
+
+Signed-in learners can also delete their synchronized learning records through an authenticated, least-privilege database function. This removes activity data while deliberately keeping identity deletion as a separate privileged operation.

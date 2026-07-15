@@ -14,7 +14,7 @@ The settings page can export these application-owned records as versioned JSON o
 
 When Supabase is configured and the learner signs in, the application can store the account email, completed sessions, attempts, telemetry, and compact diagnostic summaries. Row-level security restricts learner-facing access to the authenticated owner.
 
-Clearing a device does not delete synchronized cloud data. Production launch requires an authenticated account-deletion workflow and a documented retention schedule before cloud synchronization is presented as generally available.
+Clearing a device does not delete synchronized cloud data. Signed-in learners can separately invoke `delete_my_learning_data`, which removes their telemetry, sessions, cascading attempts and diagnostic summaries, and profile under their own authenticated database permissions. It does not delete the Supabase Auth identity; full identity deletion requires a privileged server-side workflow and a documented retention schedule before production launch.
 
 ## Interpretation boundary
 
