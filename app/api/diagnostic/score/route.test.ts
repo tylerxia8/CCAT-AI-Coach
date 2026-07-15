@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { POST } from "./route";
-import { QUESTIONS } from "@/lib/diagnostic";
+import { normalizeCompletedAttempts, QUESTIONS } from "@/lib/diagnostic";
 import { DIAGNOSTIC_ANSWER_KEY } from "@/lib/question-bank.server";
 
 function request(body: unknown) {
@@ -21,6 +21,7 @@ describe("diagnostic scoring API", () => {
     }));
     const response = await POST(request({ attempts }));
     expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toContain("no-store");
     const result = await response.json();
     expect(result).toMatchObject({ correct: QUESTIONS.length, accuracy: 1 });
     expect(result.reviews).toHaveLength(QUESTIONS.length);
@@ -30,9 +31,11 @@ describe("diagnostic scoring API", () => {
   });
 
   it("rejects duplicate question attempts", async () => {
-    const attempt = { questionId: QUESTIONS[0].id, answerIndex: 0, elapsedSeconds: 10, confidence: 2 };
-    const response = await POST(request({ attempts: [attempt, attempt] }));
+    const attempts = normalizeCompletedAttempts(QUESTIONS, []);
+    attempts[attempts.length - 1] = { ...attempts[0] };
+    const response = await POST(request({ attempts }));
     expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "Duplicate attempts" });
   });
 
   it("rejects unknown questions and unreasonable timings", async () => {
@@ -43,8 +46,15 @@ describe("diagnostic scoring API", () => {
   });
 
   it("marks omitted questions without inventing timing or confidence", async () => {
-    const response = await POST(request({ attempts: [] }));
+    const response = await POST(request({ attempts: normalizeCompletedAttempts(QUESTIONS, []) }));
     const result = await response.json();
     expect(result.reviews[0]).toMatchObject({ selectedAnswer: null, isCorrect: false, pace: "unanswered", elapsedSeconds: 0, confidence: null });
+  });
+
+  it("refuses to release scoring or explanations for a partial form", async () => {
+    const partial = [{ questionId: QUESTIONS[0].id, answerIndex: null, elapsedSeconds: 0, confidence: null }];
+    const response = await POST(request({ attempts: partial }));
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "Invalid attempts" });
   });
 });

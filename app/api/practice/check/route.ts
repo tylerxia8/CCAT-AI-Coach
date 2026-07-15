@@ -16,5 +16,5 @@ export async function POST(request: Request) {
     isCorrect: answer.correctIndex === answerIndex,
     correctAnswer: question.choices[answer.correctIndex],
     explanation: answer.explanation,
-  });
+  }, { headers: { "cache-control": "private, no-store, max-age=0", pragma: "no-cache" } });
 }

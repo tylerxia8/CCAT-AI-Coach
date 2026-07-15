@@ -20,6 +20,10 @@ const privateFragments = [
   "Dividing 30 by the original 120",
 ];
 
+if (new Set(privateFragments).size !== privateFragments.length) {
+  throw new Error("Bundle privacy fragments must be unique.");
+}
+
 const files = await walk(clientRoot);
 const violations = [];
 for (const file of files) {

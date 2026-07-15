@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const attempts = (body as { attempts?: unknown })?.attempts;
-  if (!Array.isArray(attempts) || attempts.length > QUESTIONS.length || !attempts.every(isAttempt)) {
+  if (!Array.isArray(attempts) || attempts.length !== QUESTIONS.length || !attempts.every(isAttempt)) {
     return NextResponse.json({ error: "Invalid attempts" }, { status: 400 });
   }
   if (new Set(attempts.map((attempt) => attempt.questionId)).size !== attempts.length) {
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       selectedAnswer: attempt?.answerIndex == null ? null : question.choices[attempt.answerIndex] ?? null,
       correctAnswer: question.choices[answer.correctIndex],
       isCorrect: attempt?.answerIndex === answer.correctIndex,
-      pace: !attempt ? "unanswered" as const : attempt.elapsedSeconds <= question.targetSeconds ? "on_target" as const : "slow" as const,
+      pace: !attempt || attempt.answerIndex === null ? "unanswered" as const : attempt.elapsedSeconds <= question.targetSeconds ? "on_target" as const : "slow" as const,
       elapsedSeconds: attempt?.elapsedSeconds ?? 0,
       targetSeconds: question.targetSeconds,
       confidence: attempt?.confidence ?? null,
@@ -52,5 +52,5 @@ export async function POST(request: Request) {
     };
   });
   const result: ScoredDiagnosticResult = { ...score, reviews, coaching: buildCoachingPlan(score, reviews) };
-  return NextResponse.json(result);
+  return NextResponse.json(result, { headers: { "cache-control": "private, no-store, max-age=0", pragma: "no-cache" } });
 }

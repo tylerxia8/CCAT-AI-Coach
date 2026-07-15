@@ -115,6 +115,16 @@ export const QUESTIONS: Question[] = [
   },
 ];
 
+export function normalizeCompletedAttempts(questions: Question[], attempts: Attempt[]): Attempt[] {
+  const attemptById = new Map(attempts.map((attempt) => [attempt.questionId, attempt]));
+  return questions.map((question) => attemptById.get(question.id) ?? {
+    questionId: question.id,
+    answerIndex: null,
+    elapsedSeconds: 0,
+    confidence: null,
+  });
+}
+
 export function scoreDiagnostic(questions: Question[], attempts: Attempt[], answerKey: AnswerKey): DiagnosticResult {
   const attemptById = new Map(attempts.map((attempt) => [attempt.questionId, attempt]));
   let correct = 0;

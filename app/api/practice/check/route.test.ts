@@ -12,6 +12,7 @@ describe("practice answer API", () => {
     const question = PRACTICE_QUESTIONS[0];
     const response = await POST(request({ questionId: question.id, answerIndex: PRACTICE_ANSWER_KEY[question.id].correctIndex }));
     expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toContain("no-store");
     expect(await response.json()).toMatchObject({ questionId: question.id, isCorrect: true, correctAnswer: "400" });
   });
 

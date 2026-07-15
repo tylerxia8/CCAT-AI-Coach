@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Attempt, QUESTIONS, ScoredDiagnosticResult } from "@/lib/diagnostic";
+import { Attempt, normalizeCompletedAttempts, QUESTIONS, ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { appendEvent, createSession, parseSession, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
 import { CloudSyncStatus } from "@/components/cloud-sync-status";
 import { QuestionReview } from "@/components/question-review";
@@ -68,7 +68,7 @@ export function DiagnosticExperience() {
     fetch("/api/diagnostic/score", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ attempts }),
+      body: JSON.stringify({ attempts: normalizeCompletedAttempts(QUESTIONS, attempts) }),
       signal: controller.signal,
     })
       .then((response) => {

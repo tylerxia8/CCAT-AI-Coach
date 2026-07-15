@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Attempt, QUESTIONS, scoreDiagnostic } from "./diagnostic";
+import { Attempt, normalizeCompletedAttempts, QUESTIONS, scoreDiagnostic } from "./diagnostic";
 import { DIAGNOSTIC_ANSWER_KEY } from "./question-bank.server";
 
 describe("scoreDiagnostic", () => {
@@ -32,5 +32,13 @@ describe("scoreDiagnostic", () => {
     expect(result.correct).toBe(0);
     expect(result.total).toBe(QUESTIONS.length);
     expect(result.accuracy).toBe(0);
+  });
+
+  it("normalizes missing questions into explicit unanswered records", () => {
+    const attempts: Attempt[] = [{ questionId: QUESTIONS[0].id, answerIndex: 2, elapsedSeconds: 20, confidence: 3 }];
+    const normalized = normalizeCompletedAttempts(QUESTIONS, attempts);
+    expect(normalized).toHaveLength(QUESTIONS.length);
+    expect(normalized[0]).toEqual(attempts[0]);
+    expect(normalized[1]).toMatchObject({ questionId: QUESTIONS[1].id, answerIndex: null, elapsedSeconds: 0, confidence: null });
   });
 });

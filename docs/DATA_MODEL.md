@@ -29,4 +29,6 @@ Migration `0002_seed_diagnostic_and_score.sql` seeds an immutable diagnostic for
 
 The browser bundle contains only prompts, choices, difficulty, and target pace. The private answer bank is imported only by the server scoring route. That route validates question IDs, answer ranges, timing bounds, confidence values, and duplicate attempts before returning a diagnostic result.
 
+Before submission, the browser normalizes the form to exactly one record per question, explicitly representing omissions. The scoring endpoint rejects partial forms, missing records, extra records, and duplicates; answer-bearing responses use private `no-store` cache headers.
+
 Migration `0003_diagnostic_results.sql` stores a compact, user-owned result summary after server finalization. The authenticated progress endpoint validates these rows before merging them into versioned browser history, allowing the dashboard to work across devices while retaining an offline/local fallback.
