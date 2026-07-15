@@ -45,6 +45,7 @@ export type QuestionReview = {
 
 export type ScoredDiagnosticResult = DiagnosticResult & {
   reviews: QuestionReview[];
+  coaching: import("./coaching").CoachingPlan;
 };
 
 export const QUESTIONS: Question[] = [

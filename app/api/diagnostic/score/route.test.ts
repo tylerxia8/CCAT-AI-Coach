@@ -26,6 +26,7 @@ describe("diagnostic scoring API", () => {
     expect(result.reviews).toHaveLength(QUESTIONS.length);
     expect(result.reviews[0]).toMatchObject({ isCorrect: true, pace: "on_target" });
     expect(result.reviews[0].explanation).toContain("five 8-hour blocks");
+    expect(result.coaching).toMatchObject({ bottleneck: "refinement" });
   });
 
   it("rejects duplicate question attempts", async () => {

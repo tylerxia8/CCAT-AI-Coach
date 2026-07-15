@@ -50,3 +50,5 @@ The first vertical slice is implemented: a responsive timed diagnostic, determin
 Answer keys and explanations are excluded from the browser bundle. Completed attempts are validated and scored through a server-only endpoint before results are displayed.
 
 After scoring, learners receive a verified question-by-question review showing their answer, the correct answer, explanation, pace against target, and confidence rating.
+
+The deterministic coaching engine classifies pacing, confidence calibration, category weakness, late-test endurance, or general refinement. Every recommendation includes observed evidence, a strategy, and a measurable next drill.

@@ -112,6 +112,15 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .coach-card h2 { font-family: var(--font-serif), Georgia, serif; font-size: 34px; font-weight: 500; line-height: 1.05; }
 .coach-card p { color: #dfe9e3; font-size: 14px; line-height: 1.7; }
 .coach-card button { margin-top: 12px; }
+.coach-evidence { color: #dfe9e3; display: grid; font-size: 12px; gap: 8px; line-height: 1.5; margin: 18px 0; padding-left: 18px; }
+.drill-card { align-items: center; background: #e8edcf; border: 1px solid #d4dab9; border-radius: 18px; display: grid; gap: 28px; grid-template-columns: 70px 1fr minmax(220px, .6fr); margin-top: 24px; padding: 28px; }
+.drill-marker { align-items: center; aspect-ratio: 1; background: var(--lime); border-radius: 50%; display: flex; font-size: 9px; font-weight: 800; justify-content: center; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+.drill-card h2 { font-family: var(--font-serif), Georgia, serif; font-size: 32px; font-weight: 500; margin: 10px 0 8px; }
+.drill-card p { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; }
+.drill-target { border-left: 1px solid #c8cfaa; display: grid; gap: 8px; padding-left: 28px; }
+.drill-target small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.drill-target strong { font-size: 13px; line-height: 1.45; }
+.drill-target button { justify-self: start; margin-top: 8px; padding: 11px 15px; }
 .review-section { margin-top: 82px; }
 .review-heading { align-items: flex-end; display: flex; justify-content: space-between; margin-bottom: 28px; }
 .review-heading h2 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(36px, 5vw, 54px); font-weight: 450; letter-spacing: -.04em; margin: 14px 0 0; }
@@ -161,6 +170,8 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   .feature-grid article + article { border-left: 0; border-top: 1px solid var(--line); }
   .results-head { align-items: flex-start; flex-direction: column; gap: 36px; }
   .review-heading { align-items: flex-start; flex-direction: column; }
+  .drill-card { align-items: start; grid-template-columns: 50px 1fr; }
+  .drill-target { border-left: 0; border-top: 1px solid #c8cfaa; grid-column: 1 / -1; padding: 20px 0 0; }
   .review-item summary { grid-template-columns: 34px 1fr; }
   .review-outcome { grid-column: 2; justify-self: start; }
   .review-body { margin-left: 0; }

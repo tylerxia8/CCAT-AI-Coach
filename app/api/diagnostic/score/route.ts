@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { QUESTIONS, scoreDiagnostic, type Attempt, type ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { DIAGNOSTIC_ANSWER_KEY } from "@/lib/question-bank.server";
+import { buildCoachingPlan } from "@/lib/coaching";
 
 const questionIds = new Set(QUESTIONS.map((question) => question.id));
 
@@ -50,6 +51,6 @@ export async function POST(request: Request) {
       explanation: answer.explanation,
     };
   });
-  const result: ScoredDiagnosticResult = { ...score, reviews };
+  const result: ScoredDiagnosticResult = { ...score, reviews, coaching: buildCoachingPlan(score, reviews) };
   return NextResponse.json(result);
 }

@@ -202,7 +202,17 @@ export function DiagnosticExperience() {
         </section>
         <section className="report-grid">
           <article className="category-card"><div className="section-label">Category performance</div>{result.categoryResults.filter((item) => item.total).map((item) => <div className="category-row" key={item.category}><span>{item.category}</span><div className="bar"><i style={{ width: `${(item.correct / item.total) * 100}%` }} /></div><b>{item.correct}/{item.total}</b></div>)}</article>
-          <article className="coach-card"><div className="section-label">Coach recommendation</div><h2>{result.priority}</h2><p>Run a focused set at a fixed pace, then review only the questions where your answer or confidence changed. The goal is a consistent decision rhythm—not rushing.</p><button className="secondary" onClick={restart}>Retake preview</button></article>
+          <article className="coach-card">
+            <div className="section-label">Highest-impact bottleneck · {result.coaching.bottleneck}</div>
+            <h2>{result.coaching.title}</h2>
+            <ul className="coach-evidence">{result.coaching.evidence.map((item) => <li key={item}>{item}</li>)}</ul>
+            <p>{result.coaching.strategy}</p>
+          </article>
+        </section>
+        <section className="drill-card">
+          <div className="drill-marker">Next drill</div>
+          <div><div className="section-label">Prescribed practice</div><h2>{result.coaching.drill.title}</h2><p>{result.coaching.drill.instructions}</p></div>
+          <div className="drill-target"><small>Completion target</small><strong>{result.coaching.drill.target}</strong><button className="secondary" onClick={restart}>Start a fresh diagnostic</button></div>
         </section>
         <QuestionReview reviews={result.reviews} />
       </main>
