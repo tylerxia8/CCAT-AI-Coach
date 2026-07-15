@@ -9,7 +9,13 @@ export type Question = {
   choices: string[];
   difficulty: 1 | 2 | 3;
   targetSeconds: number;
+  stimulus?: DataStimulus;
+  itemFamily?: string;
 };
+
+export type DataStimulus =
+  | { kind: "bar" | "line"; title: string; labels: string[]; values: number[]; unit?: string }
+  | { kind: "table"; title: string; columns: string[]; rows: Array<{ label: string; values: number[] }> };
 
 export type AnswerKey = Record<string, { correctIndex: number; explanation: string }>;
 
@@ -135,10 +141,10 @@ export const QUESTIONS: Question[] = [
   { id: "num-08", category: "Numerical", prompt: "If 2(x - 3) = 3x - 11, what is 4x?", choices: ["12", "16", "20", "24", "28"], difficulty: 3, targetSeconds: 18 },
   { id: "spa-04", category: "Spatial", prompt: "Which symbol completes the sequence? ◐  ◓  ◑  ?", choices: ["◐", "◒", "◓", "◑", "●"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-08", category: "Verbal", prompt: "Which word does not belong?", choices: ["Taciturn", "Reticent", "Reserved", "Garrulous", "Uncommunicative"], difficulty: 3, targetSeconds: 18 },
-  { id: "num-09", category: "Numerical", prompt: "A $60 item is marked down by 15%. What is the sale price?", choices: ["$45", "$48", "$49", "$51", "$54"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-09", category: "Numerical", prompt: "By what percentage did output increase from Q1 to Q4?", choices: ["25%", "33%", "40%", "50%", "60%"], difficulty: 2, targetSeconds: 18, stimulus: { kind: "bar", title: "Quarterly output", labels: ["Q1", "Q2", "Q3", "Q4"], values: [120, 150, 135, 180], unit: "units" } },
   { id: "log-05", category: "Logic", prompt: "All Ruds are Pims. Some Ruds are Naks. Which conclusion is certain?", choices: ["Some Pims are Naks", "All Pims are Naks", "No Pims are Naks", "All Naks are Ruds", "Some Naks are not Ruds"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-09", category: "Verbal", prompt: "TEMPORARY is to PERMANENT as SHALLOW is to:", choices: ["Narrow", "Deep", "Brief", "Broad", "Low"], difficulty: 1, targetSeconds: 18 },
-  { id: "num-10", category: "Numerical", prompt: "The average of five numbers is 18. If one of the numbers is 26, what is the average of the other four?", choices: ["14", "15", "16", "17", "18"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-10", category: "Numerical", prompt: "What is the average response time for Tuesday and Thursday?", choices: ["16", "17", "18", "19", "20"], difficulty: 2, targetSeconds: 18, itemFamily: "averages", stimulus: { kind: "line", title: "Average response time", labels: ["Mon", "Tue", "Wed", "Thu", "Fri"], values: [24, 20, 18, 16, 12], unit: "minutes" } },
   { id: "spa-05", category: "Spatial", prompt: "Which figure continues the alternating pattern? △  ■  ▽  □  △  ?", choices: ["■", "□", "▽", "▲", "○"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-10", category: "Verbal", prompt: "FRUGAL most nearly means:", choices: ["Wasteful", "Economical", "Generous", "Unusual", "Hungry"], difficulty: 2, targetSeconds: 18 },
   { id: "num-11", category: "Numerical", prompt: "What number comes next? 2, 3, 5, 9, 17, ?", choices: ["25", "31", "33", "34", "35"], difficulty: 2, targetSeconds: 18 },
@@ -150,7 +156,7 @@ export const QUESTIONS: Question[] = [
   { id: "num-13", category: "Numerical", prompt: "A box contains 3 red, 5 blue, and 2 green balls. What fraction are blue?", choices: ["1/5", "1/3", "2/5", "1/2", "3/5"], difficulty: 2, targetSeconds: 18 },
   { id: "log-07", category: "Logic", prompt: "Jae ranks above Kira. Milo ranks below Nia but above Jae. Who ranks second among the four?", choices: ["Jae", "Kira", "Milo", "Nia", "Cannot tell"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-13", category: "Spatial", prompt: "Which figure is not a rotation of the same arrangement?", choices: ["▲○", "▶○", "▼○", "◀○", "▲●"], difficulty: 2, targetSeconds: 18 },
-  { id: "num-14", category: "Numerical", prompt: "What is 7 squared minus 5 squared?", choices: ["12", "20", "24", "28", "32"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-14", category: "Numerical", prompt: "Which region had the highest hiring rate?", choices: ["North", "South", "East", "West", "All were equal"], difficulty: 2, targetSeconds: 18, stimulus: { kind: "table", title: "Hiring results", columns: ["Applicants", "Hired"], rows: [{ label: "North", values: [80, 20] }, { label: "South", values: [120, 24] }, { label: "East", values: [90, 27] }, { label: "West", values: [150, 30] }] } },
   { id: "log-08", category: "Spatial", prompt: "Complete the pattern: ○□, □△, △◇, ?", choices: ["◇○", "○◇", "◇△", "□○", "△□"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-14", category: "Verbal", prompt: "LUCID most nearly means:", choices: ["Clear", "Lengthy", "Unusual", "Doubtful", "Forceful"], difficulty: 2, targetSeconds: 18 },
   { id: "num-15", category: "Spatial", prompt: "Which figure completes the size sequence? ●  ◉  ○  ●  ◉  ?", choices: ["●", "◉", "○", "◎", "■"], difficulty: 2, targetSeconds: 18 },

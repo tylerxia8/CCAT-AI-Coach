@@ -59,6 +59,8 @@ The primary diagnostic is a 50-question, 15-minute assessment governed by a test
 
 The current form deliberately includes a demanding difficulty curve—8 entry, 28 intermediate, and 14 advanced items—so stronger candidates encounter multi-rule and multi-step questions rather than a bank dominated by one-step exercises.
 
+Math-and-logic coverage includes responsive bar-chart, line-graph, and table interpretation items. Visual data is represented as structured application data and rendered accessibly rather than stored as opaque screenshots.
+
 Active drills resume after refresh with committed feedback intact. Completed drills are recorded idempotently, and drill count and aggregate practice accuracy appear on the progress dashboard.
 
 The latest diagnostic generates a persistent five-session study plan tailored to the detected bottleneck: learn the intervention, apply it at pace, review high-information decisions, complete mixed practice, and reassess against a fresh baseline.

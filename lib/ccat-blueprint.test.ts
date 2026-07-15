@@ -17,4 +17,10 @@ describe("CCAT form blueprint", () => {
     expect(validateCcatForm(QUESTIONS.slice(0, 49))).not.toEqual([]);
     expect(validateCcatForm([{ ...QUESTIONS[0], choices: ["A", "B"] }, ...QUESTIONS.slice(1)])).toContain("num-01 must have exactly five choices.");
   });
+
+  it("includes native chart, graph, and table questions", () => {
+    expect(QUESTIONS.filter((question) => question.stimulus?.kind === "bar")).toHaveLength(1);
+    expect(QUESTIONS.filter((question) => question.stimulus?.kind === "line")).toHaveLength(1);
+    expect(QUESTIONS.filter((question) => question.stimulus?.kind === "table")).toHaveLength(1);
+  });
 });

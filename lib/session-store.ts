@@ -1,8 +1,8 @@
 import type { Attempt } from "./diagnostic";
 import { DIAGNOSTIC_SECONDS } from "./diagnostic";
 
-export const SESSION_STORAGE_KEY = "aptitude-coach:diagnostic:v4";
-export const LEGACY_SESSION_STORAGE_KEYS = ["aptitude-coach:diagnostic:v1", "aptitude-coach:diagnostic:v2", "aptitude-coach:diagnostic:v3"] as const;
+export const SESSION_STORAGE_KEY = "aptitude-coach:diagnostic:v5";
+export const LEGACY_SESSION_STORAGE_KEYS = ["aptitude-coach:diagnostic:v1", "aptitude-coach:diagnostic:v2", "aptitude-coach:diagnostic:v3", "aptitude-coach:diagnostic:v4"] as const;
 
 export type TelemetryEventName =
   | "session_start"
@@ -21,7 +21,7 @@ export type TelemetryEvent = {
 };
 
 export type StoredDiagnosticSession = {
-  version: 4;
+  version: 5;
   id: string;
   status: "active" | "completed";
   startedAt: string;
@@ -38,7 +38,7 @@ export type StoredDiagnosticSession = {
 export function createSession(now = new Date()): StoredDiagnosticSession {
   const timestamp = now.toISOString();
   return {
-    version: 4,
+    version: 5,
     id: globalThis.crypto?.randomUUID?.() ?? `${now.getTime()}-${Math.random().toString(16).slice(2)}`,
     status: "active",
     startedAt: timestamp,
@@ -86,7 +86,7 @@ export function parseSession(value: string | null): StoredDiagnosticSession | nu
   try {
     const candidate = JSON.parse(value) as Partial<StoredDiagnosticSession>;
     if (
-      candidate.version !== 4 ||
+      candidate.version !== 5 ||
       typeof candidate.id !== "string" ||
       (candidate.status !== "active" && candidate.status !== "completed") ||
       typeof candidate.currentIndex !== "number" ||

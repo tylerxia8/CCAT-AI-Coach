@@ -24,8 +24,10 @@ export type PerformanceDiagnosis = {
   weakestSkill: string | null;
 };
 
-export function inferQuestionSkill(question: Pick<Question, "category" | "prompt">) {
+export function inferQuestionSkill(question: Pick<Question, "category" | "prompt" | "stimulus" | "itemFamily">) {
   const prompt = question.prompt.toLowerCase();
+  if (question.itemFamily) return question.itemFamily;
+  if (question.stimulus) return "data interpretation";
   if (question.category === "Numerical") {
     if (prompt.includes("comes next")) return "number sequences";
     if (prompt.includes("percent") || prompt.includes("marked down") || prompt.includes("discount")) return "percentages";

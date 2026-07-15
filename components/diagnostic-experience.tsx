@@ -8,6 +8,7 @@ import { CloudSyncStatus } from "@/components/cloud-sync-status";
 import { QuestionReview } from "@/components/question-review";
 import { addHistoryEntry, createHistoryEntry, HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
 import { PerformanceDiagnosis } from "@/components/performance-diagnosis";
+import { QuestionStimulus } from "@/components/question-stimulus";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -247,6 +248,7 @@ export function DiagnosticExperience() {
       <div className="progress"><i style={{ width: `${((index + 1) / QUESTIONS.length) * 100}%` }} /></div>
       <section className={`question-wrap ${question.category === "Spatial" ? "spatial-question" : ""}`}>
         <div className="question-meta"><span>{question.category}</span><span>Target pace · {question.targetSeconds}s</span></div>
+        {question.stimulus && <QuestionStimulus stimulus={question.stimulus} />}
         <h1>{question.prompt}</h1>
         <div className="choices">
           {question.choices.map((choice, choiceIndex) => (

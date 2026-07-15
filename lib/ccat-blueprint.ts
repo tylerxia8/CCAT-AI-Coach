@@ -12,7 +12,7 @@ export const CCAT_FORM_BLUEPRINT: Record<CcatDomain, number> = {
 export const DIFFICULTY_BLUEPRINT = { 1: 8, 2: 28, 3: 14 } as const;
 
 export const REQUIRED_ITEM_FAMILIES = [
-  "number sequences", "percentages", "averages", "fractions and proportions", "basic algebra", "rates and arithmetic",
+  "number sequences", "percentages", "averages", "fractions and proportions", "basic algebra", "rates and arithmetic", "data interpretation",
   "antonyms", "word classification", "verbal analogies", "vocabulary",
   "syllogisms", "ordering logic", "deductive reasoning",
   "figure matrices", "figure classification", "mental rotation", "visual sequences",
