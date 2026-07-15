@@ -6,6 +6,7 @@ import { Attempt, QUESTIONS, ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { appendEvent, createSession, parseSession, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
 import { CloudSyncStatus } from "@/components/cloud-sync-status";
 import { QuestionReview } from "@/components/question-review";
+import { addHistoryEntry, createHistoryEntry, HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -74,12 +75,19 @@ export function DiagnosticExperience() {
         if (!response.ok) throw new Error("Scoring failed");
         return response.json() as Promise<ScoredDiagnosticResult>;
       })
-      .then(setResult)
+      .then((value) => {
+        setResult(value);
+        if (storedSession) {
+          const history = parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY));
+          const entry = createHistoryEntry(storedSession.id, storedSession.updatedAt, value);
+          window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(addHistoryEntry(history, entry)));
+        }
+      })
       .catch((error: unknown) => {
         if (!(error instanceof DOMException && error.name === "AbortError")) setScoreError(true);
       });
     return () => controller.abort();
-  }, [attempts, stage]);
+  }, [attempts, stage, storedSession]);
 
   useEffect(() => {
     if (stage !== "test") return;
@@ -159,7 +167,7 @@ export function DiagnosticExperience() {
   if (stage === "welcome") {
     return (
       <main className="shell welcome-shell">
-        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><Link className="nav-link" href="/auth">Sign in</Link></nav>
+        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/progress">Progress</Link><Link className="nav-link" href="/auth">Sign in</Link></div></nav>
         <section className="hero">
           <div className="eyebrow">Diagnostic session · 6 minutes</div>
           <h1>Find the points you’re <em>leaving on the clock.</em></h1>
@@ -190,7 +198,7 @@ export function DiagnosticExperience() {
     }
     return (
       <main className="shell results-shell">
-        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><Link className="nav-link" href="/auth">Save progress</Link></nav>
+        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/progress">View progress</Link><Link className="nav-link" href="/auth">Save progress</Link></div></nav>
         <section className="results-head">
           <div><div className="eyebrow">Your starting point</div><h1>{result.correct} of {result.total} correct</h1><p>Your highest-impact next move is to <strong>{result.priority.toLowerCase()}</strong>.</p><CloudSyncStatus session={storedSession} /></div>
           <div className="score-ring"><strong>{Math.round(result.accuracy * 100)}</strong><span>% accuracy</span></div>

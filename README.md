@@ -52,3 +52,5 @@ Answer keys and explanations are excluded from the browser bundle. Completed att
 After scoring, learners receive a verified question-by-question review showing their answer, the correct answer, explanation, pace against target, and confidence rating.
 
 The deterministic coaching engine classifies pacing, confidence calibration, category weakness, late-test endurance, or general refinement. Every recommendation includes observed evidence, a strategy, and a measurable next drill.
+
+Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
