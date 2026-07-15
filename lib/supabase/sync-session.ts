@@ -1,5 +1,5 @@
 import type { StoredDiagnosticSession } from "@/lib/session-store";
-import type { ScoredDiagnosticResult } from "@/lib/diagnostic";
+import { DIAGNOSTIC_SECONDS, type ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { getQuestionVersionId } from "@/lib/question-version-ids";
 import { createClient } from "./client";
 
@@ -16,7 +16,7 @@ export async function syncCompletedSession(session: StoredDiagnosticSession, res
   if (userError) return { status: "error", message: userError.message };
   if (!user) return { status: "signed_out" };
 
-  const durationSeconds = Math.max(0, 360 - session.remainingSeconds);
+  const durationSeconds = Math.max(0, DIAGNOSTIC_SECONDS - session.remainingSeconds);
   const { error: sessionError } = await supabase.from("sessions").upsert({
     id: session.id,
     user_id: user.id,

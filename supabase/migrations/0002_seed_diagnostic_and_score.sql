@@ -40,7 +40,7 @@ values
 on conflict (id) do nothing;
 
 insert into public.assessment_forms (id, slug, title, version, time_limit_seconds, is_active)
-values ('20000000-0000-4000-8000-000000000001', 'diagnostic-preview-v1', 'Diagnostic Preview', 1, 360, true)
+values ('20000000-0000-4000-8000-000000000001', 'diagnostic-full-v1', 'Full Diagnostic', 1, 900, true)
 on conflict (id) do update set is_active = excluded.is_active;
 
 insert into public.assessment_form_items (form_id, question_version_id, position) values

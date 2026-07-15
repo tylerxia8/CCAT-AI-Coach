@@ -1,5 +1,7 @@
 export type Category = "Numerical" | "Verbal" | "Logic" | "Spatial";
 
+export const DIAGNOSTIC_SECONDS = 15 * 60;
+
 export type Question = {
   id: string;
   category: Category;
@@ -55,7 +57,7 @@ export const QUESTIONS: Question[] = [
     prompt: "A team completes 3 reports every 8 hours. At the same rate, how many reports will it complete in 40 hours?",
     choices: ["10", "12", "15", "18", "24"],
     difficulty: 1,
-    targetSeconds: 36,
+    targetSeconds: 18,
   },
   {
     id: "ver-01",
@@ -63,7 +65,7 @@ export const QUESTIONS: Question[] = [
     prompt: "FRAIL is to STURDY as SCARCE is to:",
     choices: ["Rare", "Plentiful", "Costly", "Hidden", "Fragile"],
     difficulty: 1,
-    targetSeconds: 24,
+    targetSeconds: 18,
   },
   {
     id: "log-01",
@@ -71,7 +73,7 @@ export const QUESTIONS: Question[] = [
     prompt: "All Kems are Rals. No Rals are Tovs. Which statement must be true?",
     choices: ["No Kems are Tovs", "Some Kems are Tovs", "All Tovs are Kems", "No Kems are Rals", "Some Rals are not Kems"],
     difficulty: 2,
-    targetSeconds: 38,
+    targetSeconds: 18,
   },
   {
     id: "num-02",
@@ -79,7 +81,7 @@ export const QUESTIONS: Question[] = [
     prompt: "What number comes next? 4, 7, 13, 25, 49, ?",
     choices: ["73", "81", "89", "97", "101"],
     difficulty: 2,
-    targetSeconds: 34,
+    targetSeconds: 18,
   },
   {
     id: "spa-01",
@@ -87,7 +89,7 @@ export const QUESTIONS: Question[] = [
     prompt: "An arrow points north. It rotates 90° clockwise, then 180° counterclockwise. Which direction does it point?",
     choices: ["North", "Northeast", "East", "South", "West"],
     difficulty: 1,
-    targetSeconds: 26,
+    targetSeconds: 18,
   },
   {
     id: "ver-02",
@@ -95,7 +97,7 @@ export const QUESTIONS: Question[] = [
     prompt: "Choose the word that does not belong with the others.",
     choices: ["Conclude", "Infer", "Deduce", "Observe", "Reason"],
     difficulty: 2,
-    targetSeconds: 28,
+    targetSeconds: 18,
   },
   {
     id: "log-02",
@@ -103,7 +105,7 @@ export const QUESTIONS: Question[] = [
     prompt: "If the first two statements are true, is the final statement true? Liam is older than Noor. Noor is older than Priya. Priya is older than Liam.",
     choices: ["True", "False", "Uncertain", "Only sometimes", "Not enough information"],
     difficulty: 1,
-    targetSeconds: 25,
+    targetSeconds: 18,
   },
   {
     id: "num-03",
@@ -111,8 +113,50 @@ export const QUESTIONS: Question[] = [
     prompt: "A jacket priced at $80 is discounted by 25%, then the sale price is increased by 10%. What is the final price?",
     choices: ["$60", "$64", "$66", "$68", "$70"],
     difficulty: 3,
-    targetSeconds: 42,
+    targetSeconds: 18,
   },
+  { id: "ver-03", category: "Verbal", prompt: "BENEVOLENT most nearly means:", choices: ["Kind", "Cautious", "Forceful", "Wealthy", "Uncertain"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-04", category: "Numerical", prompt: "What is 35% of 240?", choices: ["72", "78", "84", "88", "96"], difficulty: 1, targetSeconds: 18 },
+  { id: "spa-02", category: "Spatial", prompt: "A square has a dot in its upper-left corner. After a 180-degree rotation, where is the dot?", choices: ["Upper-left", "Upper-right", "Lower-left", "Lower-right", "Center"], difficulty: 1, targetSeconds: 18 },
+  { id: "ver-04", category: "Verbal", prompt: "BIRD is to FLOCK as FISH is to:", choices: ["Nest", "School", "Herd", "Pack", "Swarm"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-05", category: "Numerical", prompt: "Which fraction is largest?", choices: ["3/5", "5/8", "7/12", "2/3", "9/16"], difficulty: 2, targetSeconds: 18 },
+  { id: "log-03", category: "Logic", prompt: "Some Vens are Lops. All Lops are Mirs. Which statement must be true?", choices: ["All Vens are Mirs", "Some Vens are Mirs", "No Vens are Mirs", "All Mirs are Vens", "Some Mirs are not Lops"], difficulty: 2, targetSeconds: 18 },
+  { id: "ver-05", category: "Verbal", prompt: "Choose the word most nearly opposite to EXPAND.", choices: ["Extend", "Contract", "Explain", "Increase", "Explore"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-06", category: "Numerical", prompt: "What number comes next? 2, 6, 12, 20, 30, ?", choices: ["36", "40", "42", "44", "48"], difficulty: 2, targetSeconds: 18 },
+  { id: "spa-03", category: "Spatial", prompt: "You face south, turn left, then turn right twice. Which direction do you face?", choices: ["North", "East", "South", "West", "Northeast"], difficulty: 1, targetSeconds: 18 },
+  { id: "ver-06", category: "Verbal", prompt: "DOCTOR is to HOSPITAL as TEACHER is to:", choices: ["Book", "Student", "School", "Lesson", "Office"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-07", category: "Numerical", prompt: "A car travels 150 miles in 3 hours. At the same rate, how far does it travel in 5 hours?", choices: ["200", "225", "250", "275", "300"], difficulty: 1, targetSeconds: 18 },
+  { id: "log-04", category: "Logic", prompt: "Ana finishes before Bo. Cal finishes after Bo. Who must finish first?", choices: ["Ana", "Bo", "Cal", "Ana or Cal", "Cannot tell"], difficulty: 1, targetSeconds: 18 },
+  { id: "ver-07", category: "Verbal", prompt: "METICULOUS most nearly means:", choices: ["Careless", "Thorough", "Rapid", "Friendly", "Ordinary"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-08", category: "Numerical", prompt: "If x + 7 = 19, what is 3x?", choices: ["24", "30", "33", "36", "42"], difficulty: 1, targetSeconds: 18 },
+  { id: "spa-04", category: "Spatial", prompt: "A triangle points up. After three 90-degree clockwise turns, which way does it point?", choices: ["Up", "Right", "Down", "Left", "It returns up"], difficulty: 1, targetSeconds: 18 },
+  { id: "ver-08", category: "Verbal", prompt: "Which word does not belong?", choices: ["Copper", "Iron", "Silver", "Glass", "Gold"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-09", category: "Numerical", prompt: "A $60 item is marked down by 15%. What is the sale price?", choices: ["$45", "$48", "$49", "$51", "$54"], difficulty: 2, targetSeconds: 18 },
+  { id: "log-05", category: "Logic", prompt: "All Ruds are Pims. Some Ruds are Naks. Which conclusion is certain?", choices: ["Some Pims are Naks", "All Pims are Naks", "No Pims are Naks", "All Naks are Ruds", "Some Naks are not Ruds"], difficulty: 2, targetSeconds: 18 },
+  { id: "ver-09", category: "Verbal", prompt: "TEMPORARY is to PERMANENT as SHALLOW is to:", choices: ["Narrow", "Deep", "Brief", "Broad", "Low"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-10", category: "Numerical", prompt: "What is the average of 12, 18, 20, and 30?", choices: ["18", "19", "20", "21", "22"], difficulty: 1, targetSeconds: 18 },
+  { id: "spa-05", category: "Spatial", prompt: "A clock's minute hand points at 3. After a half-turn clockwise, where does it point?", choices: ["12", "3", "6", "9", "10"], difficulty: 1, targetSeconds: 18 },
+  { id: "ver-10", category: "Verbal", prompt: "FRUGAL most nearly means:", choices: ["Wasteful", "Economical", "Generous", "Unusual", "Hungry"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-11", category: "Numerical", prompt: "What number comes next? 81, 27, 9, 3, ?", choices: ["0", "1", "1.5", "2", "6"], difficulty: 1, targetSeconds: 18 },
+  { id: "log-06", category: "Logic", prompt: "No Zets are Fars. Every Kim is a Zet. Which statement is true?", choices: ["Some Kims are Fars", "No Kims are Fars", "All Fars are Kims", "No Kims are Zets", "Some Zets are Kims"], difficulty: 2, targetSeconds: 18 },
+  { id: "ver-11", category: "Verbal", prompt: "SEED is to PLANT as EGG is to:", choices: ["Nest", "Bird", "Shell", "Feather", "Wing"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-12", category: "Numerical", prompt: "If 4 notebooks cost $10, how much do 10 notebooks cost at the same rate?", choices: ["$20", "$22", "$25", "$28", "$30"], difficulty: 1, targetSeconds: 18 },
+  { id: "spa-06", category: "Spatial", prompt: "A shape moves two spaces right, one down, then two left. Relative to its start, where is it?", choices: ["One up", "One down", "Two right", "Two left", "Same place"], difficulty: 1, targetSeconds: 18 },
+  { id: "ver-12", category: "Verbal", prompt: "Choose the word most nearly opposite to OBSCURE.", choices: ["Hidden", "Faint", "Clear", "Complex", "Remote"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-13", category: "Numerical", prompt: "A box contains 3 red, 5 blue, and 2 green balls. What fraction are blue?", choices: ["1/5", "1/3", "2/5", "1/2", "3/5"], difficulty: 2, targetSeconds: 18 },
+  { id: "log-07", category: "Logic", prompt: "Dara is taller than Eli. Finn is shorter than Eli. Who is tallest?", choices: ["Dara", "Eli", "Finn", "Dara or Finn", "Cannot tell"], difficulty: 1, targetSeconds: 18 },
+  { id: "ver-13", category: "Verbal", prompt: "Which word does not belong?", choices: ["Whisper", "Murmur", "Shout", "Mumble", "Mutter"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-14", category: "Numerical", prompt: "What is 7 squared minus 5 squared?", choices: ["12", "20", "24", "28", "32"], difficulty: 2, targetSeconds: 18 },
+  { id: "log-08", category: "Logic", prompt: "If today is Wednesday, what day will it be 10 days from today?", choices: ["Friday", "Saturday", "Sunday", "Monday", "Tuesday"], difficulty: 1, targetSeconds: 18 },
+  { id: "ver-14", category: "Verbal", prompt: "RELUCTANT most nearly means:", choices: ["Unwilling", "Excited", "Prepared", "Certain", "Careless"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-15", category: "Numerical", prompt: "A recipe uses 2 cups of flour for 3 batches. How many cups are needed for 12 batches?", choices: ["6", "8", "9", "10", "12"], difficulty: 1, targetSeconds: 18 },
+  { id: "log-09", category: "Logic", prompt: "All Dels are Wiks. Some Wiks are Bors. What can be concluded about Dels and Bors?", choices: ["All Dels are Bors", "Some Dels are Bors", "No Dels are Bors", "Nothing definite", "All Bors are Dels"], difficulty: 2, targetSeconds: 18 },
+  { id: "ver-15", category: "Verbal", prompt: "PAINTER is to BRUSH as WRITER is to:", choices: ["Paper", "Book", "Pen", "Reader", "Story"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-16", category: "Numerical", prompt: "What number comes next? 5, 10, 8, 16, 14, ?", choices: ["18", "24", "26", "28", "30"], difficulty: 2, targetSeconds: 18 },
+  { id: "log-10", category: "Logic", prompt: "Four tasks are ordered J, K, L, M. K must follow J, and M must precede L. Which order is possible?", choices: ["K J M L", "J K L M", "M J K L", "L M J K", "J L M K"], difficulty: 3, targetSeconds: 18 },
+  { id: "ver-16", category: "Verbal", prompt: "Choose the word most nearly opposite to VIGOROUS.", choices: ["Active", "Strong", "Frail", "Rapid", "Bold"], difficulty: 1, targetSeconds: 18 },
+  { id: "num-17", category: "Numerical", prompt: "A worker earns $18 per hour for 35 hours. What is the total pay?", choices: ["$590", "$610", "$630", "$650", "$680"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-18", category: "Numerical", prompt: "If 3y - 4 = 17, what is y?", choices: ["5", "6", "7", "8", "9"], difficulty: 2, targetSeconds: 18 },
 ];
 
 export function normalizeCompletedAttempts(questions: Question[], attempts: Attempt[]): Attempt[] {

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Attempt, normalizeCompletedAttempts, QUESTIONS, ScoredDiagnosticResult } from "@/lib/diagnostic";
+import { Attempt, DIAGNOSTIC_SECONDS, normalizeCompletedAttempts, QUESTIONS, ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { appendEvent, createSession, parseSession, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
 import { CloudSyncStatus } from "@/components/cloud-sync-status";
 import { QuestionReview } from "@/components/question-review";
@@ -10,7 +10,7 @@ import { addHistoryEntry, createHistoryEntry, HISTORY_STORAGE_KEY, parseHistory 
 
 type Stage = "welcome" | "test" | "results";
 
-const TEST_SECONDS = 6 * 60;
+const TEST_SECONDS = DIAGNOSTIC_SECONDS;
 
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -165,12 +165,12 @@ export function DiagnosticExperience() {
       <main className="shell welcome-shell">
         <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-text-link" href="/progress">Progress</Link><Link className="nav-link" href="/auth">Sign in</Link></div></nav>
         <section className="hero">
-          <div className="eyebrow">Diagnostic session · 6 minutes</div>
+          <div className="eyebrow">Full diagnostic · 15 minutes</div>
           <h1>Find the points you’re <em>leaving on the clock.</em></h1>
           <p className="hero-copy">This short diagnostic measures more than right and wrong. It looks at your pace, confidence, and decision patterns to identify the most useful next drill.</p>
           <div className="hero-actions">
             <button className="primary" onClick={start}>Begin diagnostic <span>→</span></button>
-            <span className="quiet">8 original practice questions</span>
+            <span className="quiet">50 original aptitude questions</span>
           </div>
         </section>
         <section className="feature-grid">

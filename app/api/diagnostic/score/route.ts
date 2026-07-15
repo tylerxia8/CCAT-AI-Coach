@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { QUESTIONS, scoreDiagnostic, type Attempt, type ScoredDiagnosticResult } from "@/lib/diagnostic";
+import { DIAGNOSTIC_SECONDS, QUESTIONS, scoreDiagnostic, type Attempt, type ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { DIAGNOSTIC_ANSWER_KEY } from "@/lib/question-bank.server";
 import { buildCoachingPlan } from "@/lib/coaching";
 
@@ -14,7 +14,7 @@ function isAttempt(value: unknown): value is Attempt {
     && typeof attempt.elapsedSeconds === "number"
     && Number.isFinite(attempt.elapsedSeconds)
     && attempt.elapsedSeconds >= 0
-    && attempt.elapsedSeconds <= 360
+    && attempt.elapsedSeconds <= DIAGNOSTIC_SECONDS
     && (attempt.confidence === null || attempt.confidence === 1 || attempt.confidence === 2 || attempt.confidence === 3);
 }
 

@@ -7,12 +7,12 @@ describe("session store", () => {
     const restored = parseSession(serializeSession(session));
     expect(restored?.id).toBe(session.id);
     expect(restored?.status).toBe("active");
-    expect(restored?.remainingSeconds).toBe(360);
+    expect(restored?.remainingSeconds).toBe(900);
   });
 
   it("rejects malformed or incompatible data", () => {
     expect(parseSession("not-json")).toBeNull();
-    expect(parseSession(JSON.stringify({ version: 2 }))).toBeNull();
+    expect(parseSession(JSON.stringify({ version: 1 }))).toBeNull();
   });
 
   it("appends versioned telemetry without mutating the original session", () => {

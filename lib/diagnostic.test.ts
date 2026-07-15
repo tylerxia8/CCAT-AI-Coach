@@ -3,6 +3,27 @@ import { Attempt, normalizeCompletedAttempts, QUESTIONS, scoreDiagnostic } from 
 import { DIAGNOSTIC_ANSWER_KEY } from "./question-bank.server";
 
 describe("scoreDiagnostic", () => {
+  it("ships a balanced 50-question, 15-minute full diagnostic", () => {
+    expect(QUESTIONS).toHaveLength(50);
+    expect(Object.keys(DIAGNOSTIC_ANSWER_KEY)).toHaveLength(50);
+    expect(new Set(QUESTIONS.map((question) => question.id)).size).toBe(50);
+    expect(QUESTIONS.reduce((total, question) => total + question.targetSeconds, 0)).toBe(900);
+    expect(QUESTIONS.filter((question) => question.category === "Numerical")).toHaveLength(18);
+    expect(QUESTIONS.filter((question) => question.category === "Verbal")).toHaveLength(16);
+    expect(QUESTIONS.filter((question) => question.category === "Logic")).toHaveLength(10);
+    expect(QUESTIONS.filter((question) => question.category === "Spatial")).toHaveLength(6);
+  });
+
+  it("keeps every answer key within its question's choice range", () => {
+    for (const question of QUESTIONS) {
+      const answer = DIAGNOSTIC_ANSWER_KEY[question.id];
+      expect(answer, question.id).toBeDefined();
+      expect(answer.correctIndex).toBeGreaterThanOrEqual(0);
+      expect(answer.correctIndex).toBeLessThan(question.choices.length);
+      expect(answer.explanation.length).toBeGreaterThan(20);
+    }
+  });
+
   it("scores a fully correct, on-pace diagnostic deterministically", () => {
     const attempts: Attempt[] = QUESTIONS.map((question) => ({
       questionId: question.id,
