@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { DIAGNOSTIC_SECONDS, QUESTIONS, scoreDiagnostic, type Attempt, type ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { DIAGNOSTIC_ANSWER_KEY } from "@/lib/question-bank.server";
 import { buildCoachingPlan } from "@/lib/coaching";
+import { diagnosePerformance, inferQuestionSkill } from "@/lib/performance-diagnosis";
 
 const questionIds = new Set(QUESTIONS.map((question) => question.id));
 
@@ -15,6 +16,7 @@ function isAttempt(value: unknown): value is Attempt {
     && Number.isFinite(attempt.elapsedSeconds)
     && attempt.elapsedSeconds >= 0
     && attempt.elapsedSeconds <= DIAGNOSTIC_SECONDS
+    && (attempt.answerChanges === undefined || (Number.isInteger(attempt.answerChanges) && attempt.answerChanges >= 0 && attempt.answerChanges <= 20))
     && (attempt.confidence === null || attempt.confidence === 1 || attempt.confidence === 2 || attempt.confidence === 3);
 }
 
@@ -48,9 +50,11 @@ export async function POST(request: Request) {
       elapsedSeconds: attempt?.elapsedSeconds ?? 0,
       targetSeconds: question.targetSeconds,
       confidence: attempt?.confidence ?? null,
+      answerChanges: attempt?.answerChanges ?? 0,
+      skill: inferQuestionSkill(question),
       explanation: answer.explanation,
     };
   });
-  const result: ScoredDiagnosticResult = { ...score, reviews, coaching: buildCoachingPlan(score, reviews) };
+  const result: ScoredDiagnosticResult = { ...score, reviews, coaching: buildCoachingPlan(score, reviews), diagnosis: diagnosePerformance(reviews) };
   return NextResponse.json(result, { headers: { "cache-control": "private, no-store, max-age=0", pragma: "no-cache" } });
 }

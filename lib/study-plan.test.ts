@@ -32,6 +32,10 @@ describe("study plan", () => {
     expect(buildStudyPlan(baseline("endurance")).title).toContain("final question");
   });
 
+  it("prefers the inferred cause when behavior evidence is available", () => {
+    expect(buildStudyPlan({ ...baseline("category"), primaryCause: "speed", weakestSkill: "percentages" }).title).toContain("fast methods");
+  });
+
   it("tracks completion and advances the next action", () => {
     const plan = buildStudyPlan(baseline());
     let state = parseStudyPlanState(null, plan.baselineSessionId);

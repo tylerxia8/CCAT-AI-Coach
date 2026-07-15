@@ -1,5 +1,6 @@
 import type { Bottleneck } from "./coaching";
 import type { Category, ScoredDiagnosticResult } from "./diagnostic";
+import type { PerformanceCause } from "./performance-diagnosis";
 
 export const HISTORY_STORAGE_KEY = "aptitude-coach:history:v1";
 
@@ -15,6 +16,8 @@ export type DiagnosticHistoryEntry = {
   categoryResults: Array<{ category: Category; correct: number; total: number }>;
   bottleneck: Bottleneck;
   coachingTitle: string;
+  primaryCause?: PerformanceCause;
+  weakestSkill?: string | null;
 };
 
 export type DiagnosticHistory = {
@@ -45,6 +48,8 @@ export function createHistoryEntry(sessionId: string, completedAt: string, resul
     categoryResults: result.categoryResults,
     bottleneck: result.coaching.bottleneck,
     coachingTitle: result.coaching.title,
+    primaryCause: result.diagnosis.primaryCause,
+    weakestSkill: result.diagnosis.weakestSkill,
   };
 }
 

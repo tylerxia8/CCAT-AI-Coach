@@ -7,6 +7,7 @@ import { appendEvent, createSession, parseSession, restoreRemainingSeconds, seri
 import { CloudSyncStatus } from "@/components/cloud-sync-status";
 import { QuestionReview } from "@/components/question-review";
 import { addHistoryEntry, createHistoryEntry, HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
+import { PerformanceDiagnosis } from "@/components/performance-diagnosis";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -24,6 +25,7 @@ export function DiagnosticExperience() {
   const [remaining, setRemaining] = useState(TEST_SECONDS);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [confidence, setConfidence] = useState<Record<string, 1 | 2 | 3>>({});
+  const [answerChanges, setAnswerChanges] = useState<Record<string, number>>({});
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [result, setResult] = useState<ScoredDiagnosticResult | null>(null);
   const [scoreError, setScoreError] = useState(false);
@@ -44,6 +46,7 @@ export function DiagnosticExperience() {
       deadlineAt.current = Date.now() + restoredRemaining * 1000;
       setAnswers(restored.answers);
       setConfidence(restored.confidence);
+      setAnswerChanges(restored.answerChanges);
       setAttempts(restored.attempts);
       setStage(restored.status === "completed" ? "results" : "test");
       questionStartedAt.current = Date.now();
@@ -59,11 +62,12 @@ export function DiagnosticExperience() {
       remainingSeconds: remaining,
       answers,
       confidence,
+      answerChanges,
       attempts,
       updatedAt: new Date().toISOString(),
     };
     window.localStorage.setItem(SESSION_STORAGE_KEY, serializeSession(nextSession));
-  }, [answers, attempts, confidence, hydrated, index, remaining, storedSession]);
+  }, [answerChanges, answers, attempts, confidence, hydrated, index, remaining, storedSession]);
 
   useEffect(() => {
     if (stage !== "results") return;
@@ -102,6 +106,7 @@ export function DiagnosticExperience() {
         answerIndex: answers[question.id] ?? null,
         confidence: confidence[question.id] ?? null,
         elapsedSeconds,
+        answerChanges: answerChanges[question.id] ?? 0,
       };
       setAttempts((current) => [...current.filter((attempt) => attempt.questionId !== question.id), timedAttempt]);
       setStoredSession((current) => current ? {
@@ -115,7 +120,7 @@ export function DiagnosticExperience() {
       setRemaining(Math.max(0, Math.ceil((deadlineAt.current - Date.now()) / 1000)));
     }, 250);
     return () => window.clearInterval(timer);
-  }, [answers, confidence, question, remaining, stage]);
+  }, [answerChanges, answers, confidence, question, remaining, stage]);
 
   function start() {
     const session = appendEvent(createSession(), "session_start");
@@ -140,6 +145,7 @@ export function DiagnosticExperience() {
         answerIndex: answers[question.id] ?? null,
         confidence: confidence[question.id] ?? null,
         elapsedSeconds,
+        answerChanges: answerChanges[question.id] ?? 0,
       }];
     });
     setIndex(nextIndex);
@@ -156,6 +162,7 @@ export function DiagnosticExperience() {
       answerIndex: answers[question.id] ?? null,
       confidence: confidence[question.id] ?? null,
       elapsedSeconds,
+      answerChanges: answerChanges[question.id] ?? 0,
     });
     setAttempts(finalAttempts);
     setStoredSession((current) => {
@@ -224,6 +231,7 @@ export function DiagnosticExperience() {
           <div><div className="section-label">Prescribed practice</div><h2>{result.coaching.drill.title}</h2><p>{result.coaching.drill.instructions}</p></div>
           <div className="drill-target"><small>Completion target</small><strong>{result.coaching.drill.target}</strong><Link className="secondary drill-link" href={`/practice?focus=${result.coaching.bottleneck}&new=1`}>Start prescribed drill</Link></div>
         </section>
+        <PerformanceDiagnosis diagnosis={result.diagnosis} />
         <QuestionReview reviews={result.reviews} />
       </main>
     );
@@ -242,7 +250,14 @@ export function DiagnosticExperience() {
         <h1>{question.prompt}</h1>
         <div className="choices">
           {question.choices.map((choice, choiceIndex) => (
-            <button key={choice} className={answers[question.id] === choiceIndex ? "selected" : ""} onClick={() => { setAnswers((current) => ({ ...current, [question.id]: choiceIndex })); track("answer_select", { questionId: question.id, payload: { answerIndex: choiceIndex } }); }}>
+            <button key={choice} className={answers[question.id] === choiceIndex ? "selected" : ""} onClick={() => {
+              const previousAnswer = answers[question.id];
+              if (previousAnswer !== undefined && previousAnswer !== choiceIndex) {
+                setAnswerChanges((current) => ({ ...current, [question.id]: (current[question.id] ?? 0) + 1 }));
+              }
+              setAnswers((current) => ({ ...current, [question.id]: choiceIndex }));
+              track("answer_select", { questionId: question.id, payload: { answerIndex: choiceIndex, changed: previousAnswer !== undefined && previousAnswer !== choiceIndex } });
+            }}>
               <span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}
             </button>
           ))}

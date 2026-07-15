@@ -30,6 +30,7 @@ export type StoredDiagnosticSession = {
   remainingSeconds: number;
   answers: Record<string, number>;
   confidence: Record<string, 1 | 2 | 3>;
+  answerChanges: Record<string, number>;
   attempts: Attempt[];
   events: TelemetryEvent[];
 };
@@ -46,6 +47,7 @@ export function createSession(now = new Date()): StoredDiagnosticSession {
     remainingSeconds: DIAGNOSTIC_SECONDS,
     answers: {},
     confidence: {},
+    answerChanges: {},
     attempts: [],
     events: [],
   };
@@ -94,7 +96,7 @@ export function parseSession(value: string | null): StoredDiagnosticSession | nu
       !Array.isArray(candidate.attempts) ||
       !Array.isArray(candidate.events)
     ) return null;
-    return candidate as StoredDiagnosticSession;
+    return { ...candidate, answerChanges: candidate.answerChanges ?? {} } as StoredDiagnosticSession;
   } catch {
     return null;
   }

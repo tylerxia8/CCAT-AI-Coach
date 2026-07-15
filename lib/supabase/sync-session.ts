@@ -38,6 +38,7 @@ export async function syncCompletedSession(session: StoredDiagnosticSession, res
       answer_index: attempt.answerIndex,
       elapsed_seconds: attempt.elapsedSeconds,
       confidence: attempt.confidence,
+      answer_changes: attempt.answerChanges ?? 0,
     }] : [];
   });
   if (synchronizedAttempts.length) {
@@ -77,6 +78,9 @@ export async function syncCompletedSession(session: StoredDiagnosticSession, res
     category_results: result.categoryResults,
     bottleneck: result.coaching.bottleneck,
     coaching_title: result.coaching.title,
+    primary_cause: result.diagnosis.primaryCause,
+    weakest_skill: result.diagnosis.weakestSkill,
+    diagnosis: result.diagnosis,
     completed_at: session.updatedAt,
     updated_at: new Date().toISOString(),
   });

@@ -30,6 +30,8 @@ function review(index: number, overrides: Partial<QuestionReview> = {}): Questio
     elapsedSeconds: 20,
     targetSeconds: 30,
     confidence: 2,
+    answerChanges: 0,
+    skill: "deductive reasoning",
     explanation: "Verified explanation.",
     ...overrides,
   };

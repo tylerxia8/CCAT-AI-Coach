@@ -18,6 +18,7 @@ export type Attempt = {
   answerIndex: number | null;
   elapsedSeconds: number;
   confidence: 1 | 2 | 3 | null;
+  answerChanges?: number;
 };
 
 export type DiagnosticResult = {
@@ -42,12 +43,15 @@ export type QuestionReview = {
   elapsedSeconds: number;
   targetSeconds: number;
   confidence: 1 | 2 | 3 | null;
+  answerChanges: number;
+  skill: string;
   explanation: string;
 };
 
 export type ScoredDiagnosticResult = DiagnosticResult & {
   reviews: QuestionReview[];
   coaching: import("./coaching").CoachingPlan;
+  diagnosis: import("./performance-diagnosis").PerformanceDiagnosis;
 };
 
 export const QUESTIONS: Question[] = [
@@ -166,6 +170,7 @@ export function normalizeCompletedAttempts(questions: Question[], attempts: Atte
     answerIndex: null,
     elapsedSeconds: 0,
     confidence: null,
+    answerChanges: 0,
   });
 }
 

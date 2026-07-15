@@ -1,5 +1,6 @@
 import type { Bottleneck } from "./coaching";
 import type { DiagnosticHistoryEntry } from "./history-store";
+import type { PerformanceCause } from "./performance-diagnosis";
 
 export const STUDY_PLAN_STATE_KEY = "aptitude-coach:study-plan:v1";
 
@@ -16,7 +17,7 @@ export type StudyPlanSession = {
 export type StudyPlan = {
   version: 1;
   baselineSessionId: string;
-  focus: Bottleneck;
+  focus: Bottleneck | PerformanceCause;
   title: string;
   sessions: StudyPlanSession[];
 };
@@ -35,9 +36,17 @@ const focusCopy: Record<Bottleneck, { title: string; skill: string; application:
   refinement: { title: "Extend strong performance under pressure", skill: "Review only slow correct answers, changed answers, and confident misses.", application: "Increase set length without changing your reliable method." },
 };
 
+const causeCopy: Record<PerformanceCause, { title: string; skill: string; application: string }> = {
+  knowledge: { title: "Repair the underlying skill gap", skill: "Study worked examples and explain the governing rule before solving.", application: "Retrieve the rule on unseen examples, then mix it with neighboring skills." },
+  speed: { title: "Turn correct methods into fast methods", skill: "Build fluency with shrinking time caps after accuracy is stable.", application: "Recognize and execute the method within the 18-second decision target." },
+  rhythm: { title: "Build a consistent test cadence", skill: "Practice three-question blocks against fixed checkpoints.", application: "Recover immediately after a difficult item instead of carrying the delay forward." },
+  second_guessing: { title: "Make cleaner final decisions", skill: "Change an answer only when you can name specific contradictory evidence.", application: "Compare the accuracy of changed and unchanged answers under time pressure." },
+  refinement: { title: "Extend strong performance under pressure", skill: "Use longer mixed sets without changing reliable methods.", application: "Maintain accuracy and cadence across the full set." },
+};
+
 export function buildStudyPlan(baseline: DiagnosticHistoryEntry): StudyPlan {
-  const copy = focusCopy[baseline.bottleneck];
-  const focus = baseline.bottleneck;
+  const focus = baseline.primaryCause ?? baseline.bottleneck;
+  const copy = baseline.primaryCause ? causeCopy[baseline.primaryCause] : focusCopy[baseline.bottleneck];
   return {
     version: 1,
     baselineSessionId: baseline.sessionId,

@@ -15,8 +15,10 @@ export function PracticeExperience() {
   const [focus, setFocus] = useState("focused practice");
   const [sessionId, setSessionId] = useState("");
   const [hydrated, setHydrated] = useState(false);
+  const [selectionChanges, setSelectionChanges] = useState(0);
   const startedAt = useRef(Date.now());
   const question = PRACTICE_QUESTIONS[index];
+  const training = trainingConfig(focus, question?.targetSeconds ?? 18);
 
   useEffect(() => {
     const parameters = new URLSearchParams(window.location.search);
@@ -82,7 +84,7 @@ export function PracticeExperience() {
       const result = await response.json() as PracticeFeedback;
       const elapsedSeconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
       setFeedback(result);
-      setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: question.targetSeconds }]);
+      setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: training.targetSeconds }]);
     } catch {
       setError(true);
     } finally {
@@ -94,6 +96,7 @@ export function PracticeExperience() {
     setIndex((current) => current + 1);
     setSelected(null);
     setFeedback(null);
+    setSelectionChanges(0);
     startedAt.current = Date.now();
   }
 
@@ -119,10 +122,11 @@ export function PracticeExperience() {
       <PracticeNav />
       <div className="practice-progress"><i style={{ width: `${((index + (feedback ? 1 : 0)) / PRACTICE_QUESTIONS.length) * 100}%` }} /></div>
       <section className="practice-card">
+        <div className="training-directive"><strong>{training.title}</strong><span>{training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span></div>
         <div className="question-meta"><span>{focus} · {question.category}</span><span>Target · {question.targetSeconds}s</span></div>
         <h1>{question.prompt}</h1>
         <div className="choices">
-          {question.choices.map((choice, choiceIndex) => <button key={choice} disabled={Boolean(feedback)} className={selected === choiceIndex ? "selected" : ""} onClick={() => setSelected(choiceIndex)}><span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}</button>)}
+          {question.choices.map((choice, choiceIndex) => <button key={choice} disabled={Boolean(feedback)} className={selected === choiceIndex ? "selected" : ""} onClick={() => { if (selected !== null && selected !== choiceIndex) setSelectionChanges((value) => value + 1); setSelected(choiceIndex); }}><span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}</button>)}
         </div>
         {feedback && <div className={`feedback-card ${feedback.isCorrect ? "correct" : "incorrect"}`}><div className="feedback-label">{feedback.isCorrect ? "Correct" : `Correct answer · ${feedback.correctAnswer}`}</div><p>{feedback.explanation}</p></div>}
         {error && <p className="practice-error">We couldn’t check that answer. Your selection is still here—please try again.</p>}
@@ -130,6 +134,14 @@ export function PracticeExperience() {
       </section>
     </main>
   );
+}
+
+function trainingConfig(focus: string, baseTarget: number) {
+  if (focus.startsWith("knowledge")) return { title: "Accuracy first · no time pressure", instruction: "Name the pattern before solving. Study the feedback before moving on.", targetSeconds: 120 };
+  if (focus.startsWith("speed")) { const targetSeconds = Math.max(12, Math.round(baseTarget * 0.7)); return { title: `Fluency target · ${targetSeconds} seconds`, instruction: "Use the shortest reliable method and commit when the pattern is clear.", targetSeconds }; }
+  if (focus.startsWith("rhythm")) return { title: "Cadence target · 18 seconds per decision", instruction: "Treat every three questions as one block. Do not let one hard item delay the next.", targetSeconds: 18 };
+  if (focus.startsWith("second_guessing")) return { title: "Commitment target · no unsupported changes", instruction: "Change your first choice only when you can name a specific contradiction.", targetSeconds: 18 };
+  return { title: "Mixed transfer practice", instruction: "Recognize the question family, choose a method, and execute at pace.", targetSeconds: baseTarget };
 }
 
 function PracticeNav() {

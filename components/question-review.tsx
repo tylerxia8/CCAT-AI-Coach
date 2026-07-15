@@ -19,7 +19,7 @@ export function QuestionReview({ reviews }: { reviews: Review[] }) {
           <details className={`review-item ${review.isCorrect ? "correct" : "incorrect"}`} key={review.questionId}>
             <summary>
               <span className="review-index">{String(index + 1).padStart(2, "0")}</span>
-              <span className="review-summary"><small>{review.category}</small><strong>{review.prompt}</strong></span>
+              <span className="review-summary"><small>{review.category} · {review.skill}</small><strong>{review.prompt}</strong></span>
               <span className="review-outcome">{review.isCorrect ? "Correct" : review.selectedAnswer ? "Review" : "Skipped"}</span>
             </summary>
             <div className="review-body">
@@ -28,7 +28,12 @@ export function QuestionReview({ reviews }: { reviews: Review[] }) {
                 <div><small>Correct answer</small><strong>{review.correctAnswer}</strong></div>
               </div>
               <p>{review.explanation}</p>
-              <div className="review-signals"><span>{review.elapsedSeconds}s taken · {review.targetSeconds}s target</span><span className={review.pace === "slow" ? "signal-warn" : ""}>{review.pace === "slow" ? "Slower than target" : review.pace === "unanswered" ? "No timing recorded" : "On-target pace"}</span><span>{confidenceLabel(review.confidence)}</span></div>
+              <div className="review-signals">
+                <span>{review.elapsedSeconds}s taken · {review.targetSeconds}s target</span>
+                <span className={review.pace === "slow" ? "signal-warn" : ""}>{review.pace === "slow" ? "Slower than target" : review.pace === "unanswered" ? "No timing recorded" : "On-target pace"}</span>
+                <span>{confidenceLabel(review.confidence)}</span>
+                <span>{review.answerChanges ? `${review.answerChanges} answer change${review.answerChanges === 1 ? "" : "s"}` : "No answer changes"}</span>
+              </div>
             </div>
           </details>
         ))}
