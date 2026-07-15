@@ -54,3 +54,5 @@ After scoring, learners receive a verified question-by-question review showing t
 The deterministic coaching engine classifies pacing, confidence calibration, category weakness, late-test endurance, or general refinement. Every recommendation includes observed evidence, a strategy, and a measurable next drill.
 
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
+
+Run the complete local quality gate with `npm run check`. The same test, lint, build, client-bundle privacy scan, and dependency audit run in GitHub Actions on every pull request and push to `main`.

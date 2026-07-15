@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "check": "npm run test && npm run lint && npm run build && npm run verify:bundle && npm audit --audit-level=moderate",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "verify:bundle": "node scripts/verify-client-bundle.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
