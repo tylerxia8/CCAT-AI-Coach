@@ -18,9 +18,16 @@ describe("CCAT form blueprint", () => {
     expect(validateCcatForm([{ ...QUESTIONS[0], choices: ["A", "B"] }, ...QUESTIONS.slice(1)])).toContain("num-01 must have exactly five choices.");
   });
 
-  it("includes native chart, graph, and table questions", () => {
+  it("includes native chart, graph, table, and pie-chart questions", () => {
     expect(QUESTIONS.filter((question) => question.stimulus?.kind === "bar")).toHaveLength(1);
     expect(QUESTIONS.filter((question) => question.stimulus?.kind === "line")).toHaveLength(1);
     expect(QUESTIONS.filter((question) => question.stimulus?.kind === "table")).toHaveLength(1);
+    expect(QUESTIONS.filter((question) => question.stimulus?.kind === "pie")).toHaveLength(1);
+  });
+
+  it("covers the expanded CCAT-style item formats", () => {
+    for (const family of ["sentence completion", "attention to detail", "letter series", "reflection"]) {
+      expect(QUESTIONS.some((question) => question.itemFamily === family)).toBe(true);
+    }
   });
 });

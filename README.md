@@ -59,7 +59,7 @@ The primary diagnostic is a 50-question, 15-minute assessment governed by a test
 
 The current form deliberately includes a demanding difficulty curve—8 entry, 28 intermediate, and 14 advanced items—so stronger candidates encounter multi-rule and multi-step questions rather than a bank dominated by one-step exercises.
 
-Math-and-logic coverage includes responsive bar-chart, line-graph, and table interpretation items. Visual data is represented as structured application data and rendered accessibly rather than stored as opaque screenshots.
+Math-and-logic coverage includes responsive bar-chart, line-graph, table, and pie-chart interpretation items. The bank also covers sentence completion, exact-match attention, letter series, and reflection. Every item is original and uses common CCAT-style formats rather than copied proprietary questions. Visual data is represented as structured application data and rendered accessibly rather than stored as opaque screenshots.
 
 Active drills resume after refresh with committed feedback intact. Completed drills are recorded idempotently, and drill count and aggregate practice accuracy appear on the progress dashboard.
 

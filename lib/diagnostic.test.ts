@@ -8,9 +8,9 @@ describe("scoreDiagnostic", () => {
     expect(Object.keys(DIAGNOSTIC_ANSWER_KEY)).toHaveLength(50);
     expect(new Set(QUESTIONS.map((question) => question.id)).size).toBe(50);
     expect(QUESTIONS.reduce((total, question) => total + question.targetSeconds, 0)).toBe(900);
-    expect(QUESTIONS.filter((question) => question.category === "Numerical")).toHaveLength(16);
+    expect(QUESTIONS.filter((question) => question.category === "Numerical")).toHaveLength(15);
     expect(QUESTIONS.filter((question) => question.category === "Verbal")).toHaveLength(15);
-    expect(QUESTIONS.filter((question) => question.category === "Logic")).toHaveLength(9);
+    expect(QUESTIONS.filter((question) => question.category === "Logic")).toHaveLength(10);
     expect(QUESTIONS.filter((question) => question.category === "Spatial")).toHaveLength(10);
   });
 

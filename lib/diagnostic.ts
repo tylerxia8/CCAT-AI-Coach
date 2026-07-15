@@ -14,7 +14,7 @@ export type Question = {
 };
 
 export type DataStimulus =
-  | { kind: "bar" | "line"; title: string; labels: string[]; values: number[]; unit?: string }
+  | { kind: "bar" | "line" | "pie"; title: string; labels: string[]; values: number[]; unit?: string }
   | { kind: "table"; title: string; columns: string[]; rows: Array<{ label: string; values: number[] }> };
 
 export type AnswerKey = Record<string, { correctIndex: number; explanation: string }>;
@@ -104,8 +104,9 @@ export const QUESTIONS: Question[] = [
   {
     id: "ver-02",
     category: "Verbal",
-    prompt: "Choose the word that does not belong with the others.",
-    choices: ["Conclude", "Infer", "Deduce", "Observe", "Reason"],
+    prompt: "Although the proposal appeared ___, its assumptions were so ___ that the committee rejected it.",
+    choices: ["ordinary · practical", "promising · flawed", "costly · detailed", "brief · familiar", "novel · proven"],
+    itemFamily: "sentence completion",
     difficulty: 2,
     targetSeconds: 18,
   },
@@ -145,15 +146,15 @@ export const QUESTIONS: Question[] = [
   { id: "log-05", category: "Logic", prompt: "All Ruds are Pims. Some Ruds are Naks. Which conclusion is certain?", choices: ["Some Pims are Naks", "All Pims are Naks", "No Pims are Naks", "All Naks are Ruds", "Some Naks are not Ruds"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-09", category: "Verbal", prompt: "TEMPORARY is to PERMANENT as SHALLOW is to:", choices: ["Narrow", "Deep", "Brief", "Broad", "Low"], difficulty: 1, targetSeconds: 18 },
   { id: "num-10", category: "Numerical", prompt: "What is the average response time for Tuesday and Thursday?", choices: ["16", "17", "18", "19", "20"], difficulty: 2, targetSeconds: 18, itemFamily: "averages", stimulus: { kind: "line", title: "Average response time", labels: ["Mon", "Tue", "Wed", "Thu", "Fri"], values: [24, 20, 18, 16, 12], unit: "minutes" } },
-  { id: "spa-05", category: "Spatial", prompt: "Which figure continues the alternating pattern? △  ■  ▽  □  △  ?", choices: ["■", "□", "▽", "▲", "○"], difficulty: 2, targetSeconds: 18 },
-  { id: "ver-10", category: "Verbal", prompt: "FRUGAL most nearly means:", choices: ["Wasteful", "Economical", "Generous", "Unusual", "Hungry"], difficulty: 2, targetSeconds: 18 },
+  { id: "spa-05", category: "Spatial", prompt: "A vertical mirror is placed to the right of ↗●. Which image appears in the mirror?", choices: ["●↖", "↖●", "●↗", "↙●", "●↘"], difficulty: 2, targetSeconds: 18, itemFamily: "reflection" },
+  { id: "ver-10", category: "Verbal", prompt: "Which pair is exactly the same?", choices: ["K7M4Q2 · K7N4Q2", "B93L6A · B93LGA", "R5T88C · R5T8BC", "P4X72N · P4X72N", "D61V9K · D16V9K"], difficulty: 2, targetSeconds: 18, itemFamily: "attention to detail" },
   { id: "num-11", category: "Numerical", prompt: "What number comes next? 2, 3, 5, 9, 17, ?", choices: ["25", "31", "33", "34", "35"], difficulty: 2, targetSeconds: 18 },
   { id: "log-06", category: "Logic", prompt: "No Zets are Fars. Every Kim is a Zet. Which statement is true?", choices: ["Some Kims are Fars", "No Kims are Fars", "All Fars are Kims", "No Kims are Zets", "Some Zets are Kims"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-11", category: "Verbal", prompt: "SEED is to PLANT as EGG is to:", choices: ["Nest", "Bird", "Shell", "Feather", "Wing"], difficulty: 1, targetSeconds: 18 },
   { id: "num-12", category: "Numerical", prompt: "A price is increased by 20% and then reduced by 20%. The final price is $96. What was the original price?", choices: ["$96", "$98", "$100", "$102", "$104"], difficulty: 3, targetSeconds: 18 },
   { id: "spa-06", category: "Spatial", prompt: "Complete the matrix: top row ▲, ▶, ▼; bottom row ◓, ◑, ?", choices: ["◐", "◓", "◒", "◑", "●"], difficulty: 3, targetSeconds: 18 },
   { id: "ver-12", category: "Verbal", prompt: "Choose the word most nearly opposite to OBSCURE.", choices: ["Hidden", "Faint", "Clear", "Complex", "Remote"], difficulty: 2, targetSeconds: 18 },
-  { id: "num-13", category: "Numerical", prompt: "A box contains 3 red, 5 blue, and 2 green balls. What fraction are blue?", choices: ["1/5", "1/3", "2/5", "1/2", "3/5"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-13", category: "Numerical", prompt: "If the total budget is $240,000, how much more is allocated to Operations than Administration?", choices: ["$36,000", "$42,000", "$48,000", "$54,000", "$60,000"], difficulty: 2, targetSeconds: 18, itemFamily: "data interpretation", stimulus: { kind: "pie", title: "Annual budget", labels: ["Operations", "Product", "Sales", "Administration"], values: [35, 30, 20, 15], unit: "%" } },
   { id: "log-07", category: "Logic", prompt: "Jae ranks above Kira. Milo ranks below Nia but above Jae. Who ranks second among the four?", choices: ["Jae", "Kira", "Milo", "Nia", "Cannot tell"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-13", category: "Spatial", prompt: "Which figure is not a rotation of the same arrangement?", choices: ["▲○", "▶○", "▼○", "◀○", "▲●"], difficulty: 2, targetSeconds: 18 },
   { id: "num-14", category: "Numerical", prompt: "Which region had the highest hiring rate?", choices: ["North", "South", "East", "West", "All were equal"], difficulty: 2, targetSeconds: 18, stimulus: { kind: "table", title: "Hiring results", columns: ["Applicants", "Hired"], rows: [{ label: "North", values: [80, 20] }, { label: "South", values: [120, 24] }, { label: "East", values: [90, 27] }, { label: "West", values: [150, 30] }] } },
@@ -162,7 +163,7 @@ export const QUESTIONS: Question[] = [
   { id: "num-15", category: "Spatial", prompt: "Which figure completes the size sequence? ●  ◉  ○  ●  ◉  ?", choices: ["●", "◉", "○", "◎", "■"], difficulty: 2, targetSeconds: 18 },
   { id: "log-09", category: "Logic", prompt: "All Dels are Wiks. Some Wiks are Bors. What can be concluded about Dels and Bors?", choices: ["All Dels are Bors", "Some Dels are Bors", "No Dels are Bors", "Nothing definite", "All Bors are Dels"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-15", category: "Verbal", prompt: "BAROMETER is to PRESSURE as SEISMOGRAPH is to:", choices: ["Temperature", "Wind", "Earthquakes", "Altitude", "Distance"], difficulty: 2, targetSeconds: 18 },
-  { id: "num-16", category: "Numerical", prompt: "What number comes next? 5, 10, 8, 16, 14, ?", choices: ["18", "24", "26", "28", "30"], difficulty: 2, targetSeconds: 18 },
+  { id: "num-16", category: "Logic", prompt: "Which letter comes next? A, C, F, J, O, ?", choices: ["S", "T", "U", "V", "W"], difficulty: 2, targetSeconds: 18, itemFamily: "letter series" },
   { id: "log-10", category: "Logic", prompt: "Four tasks are ordered J, K, L, M. K must follow J, and M must precede L. Which order is possible?", choices: ["K J M L", "J K L M", "M J K L", "L M J K", "J L M K"], difficulty: 3, targetSeconds: 18 },
   { id: "ver-16", category: "Verbal", prompt: "Choose the word most nearly opposite to TRANSIENT.", choices: ["Permanent", "Distant", "Mobile", "Uncertain", "Brief"], difficulty: 3, targetSeconds: 18 },
   { id: "num-17", category: "Spatial", prompt: "Which symbol completes the sequence? ↖  ↗  ↘  ?", choices: ["↖", "↗", "↘", "↙", "↑"], difficulty: 1, targetSeconds: 18 },

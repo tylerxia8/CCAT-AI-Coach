@@ -86,6 +86,11 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .data-stimulus table { border-collapse: collapse; font-size: 12px; margin-top: 14px; width: 100%; }
 .data-stimulus th, .data-stimulus td { border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: right; }
 .data-stimulus th:first-child { text-align: left; }
+.pie-layout { align-items: center; display: grid; gap: 28px; grid-template-columns: 150px 1fr; margin-top: 18px; }
+.pie-chart { aspect-ratio: 1; border: 8px solid var(--card); border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
+.pie-layout ul { display: grid; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.pie-layout li { align-items: center; display: grid; font-size: 11px; gap: 8px; grid-template-columns: 10px 1fr auto; }
+.pie-layout li i { border-radius: 2px; height: 10px; width: 10px; }
 .choices { display: grid; gap: 10px; }
 .choices button { align-items: center; background: white; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); cursor: pointer; display: flex; padding: 14px 18px; text-align: left; }
 .choices button:hover, .choices button.selected { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
@@ -336,6 +341,7 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   .confidence-row { align-items: flex-start; flex-wrap: wrap; }
   .confidence-row > span { flex-basis: 100%; }
   .test-header { grid-template-columns: auto 1fr auto; }
+  .pie-layout { grid-template-columns: 110px 1fr; }
   .diagnosis-heading { align-items: start; flex-direction: column; }
   .cause-grid, .prescription-grid { grid-template-columns: 1fr; }
 }

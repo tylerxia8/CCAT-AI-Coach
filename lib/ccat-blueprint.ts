@@ -13,9 +13,9 @@ export const DIFFICULTY_BLUEPRINT = { 1: 8, 2: 28, 3: 14 } as const;
 
 export const REQUIRED_ITEM_FAMILIES = [
   "number sequences", "percentages", "averages", "fractions and proportions", "basic algebra", "rates and arithmetic", "data interpretation",
-  "antonyms", "word classification", "verbal analogies", "vocabulary",
+  "antonyms", "word classification", "verbal analogies", "vocabulary", "sentence completion", "attention to detail",
   "syllogisms", "ordering logic", "deductive reasoning",
-  "figure matrices", "figure classification", "mental rotation", "visual sequences",
+  "letter series", "figure matrices", "figure classification", "mental rotation", "visual sequences", "reflection",
 ] as const;
 
 export function ccatDomainFor(category: Category): CcatDomain {
