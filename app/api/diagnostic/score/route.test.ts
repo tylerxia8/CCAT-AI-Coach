@@ -21,7 +21,11 @@ describe("diagnostic scoring API", () => {
     }));
     const response = await POST(request({ attempts }));
     expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({ correct: QUESTIONS.length, accuracy: 1 });
+    const result = await response.json();
+    expect(result).toMatchObject({ correct: QUESTIONS.length, accuracy: 1 });
+    expect(result.reviews).toHaveLength(QUESTIONS.length);
+    expect(result.reviews[0]).toMatchObject({ isCorrect: true, pace: "on_target" });
+    expect(result.reviews[0].explanation).toContain("five 8-hour blocks");
   });
 
   it("rejects duplicate question attempts", async () => {
@@ -35,5 +39,11 @@ describe("diagnostic scoring API", () => {
     const unreasonable = await POST(request({ attempts: [{ questionId: QUESTIONS[0].id, answerIndex: 0, elapsedSeconds: 999, confidence: 2 }] }));
     expect(unknown.status).toBe(400);
     expect(unreasonable.status).toBe(400);
+  });
+
+  it("marks omitted questions without inventing timing or confidence", async () => {
+    const response = await POST(request({ attempts: [] }));
+    const result = await response.json();
+    expect(result.reviews[0]).toMatchObject({ selectedAnswer: null, isCorrect: false, pace: "unanswered", elapsedSeconds: 0, confidence: null });
   });
 });

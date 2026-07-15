@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Attempt, DiagnosticResult, QUESTIONS } from "@/lib/diagnostic";
+import { Attempt, QUESTIONS, ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { appendEvent, createSession, parseSession, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
 import { CloudSyncStatus } from "@/components/cloud-sync-status";
+import { QuestionReview } from "@/components/question-review";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -23,7 +24,7 @@ export function DiagnosticExperience() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [confidence, setConfidence] = useState<Record<string, 1 | 2 | 3>>({});
   const [attempts, setAttempts] = useState<Attempt[]>([]);
-  const [result, setResult] = useState<DiagnosticResult | null>(null);
+  const [result, setResult] = useState<ScoredDiagnosticResult | null>(null);
   const [scoreError, setScoreError] = useState(false);
   const [storedSession, setStoredSession] = useState<StoredDiagnosticSession | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -71,7 +72,7 @@ export function DiagnosticExperience() {
     })
       .then((response) => {
         if (!response.ok) throw new Error("Scoring failed");
-        return response.json() as Promise<DiagnosticResult>;
+        return response.json() as Promise<ScoredDiagnosticResult>;
       })
       .then(setResult)
       .catch((error: unknown) => {
@@ -203,6 +204,7 @@ export function DiagnosticExperience() {
           <article className="category-card"><div className="section-label">Category performance</div>{result.categoryResults.filter((item) => item.total).map((item) => <div className="category-row" key={item.category}><span>{item.category}</span><div className="bar"><i style={{ width: `${(item.correct / item.total) * 100}%` }} /></div><b>{item.correct}/{item.total}</b></div>)}</article>
           <article className="coach-card"><div className="section-label">Coach recommendation</div><h2>{result.priority}</h2><p>Run a focused set at a fixed pace, then review only the questions where your answer or confidence changed. The goal is a consistent decision rhythm—not rushing.</p><button className="secondary" onClick={restart}>Retake preview</button></article>
         </section>
+        <QuestionReview reviews={result.reviews} />
       </main>
     );
   }

@@ -1,0 +1,38 @@
+import type { QuestionReview as Review } from "@/lib/diagnostic";
+
+function confidenceLabel(value: Review["confidence"]) {
+  if (value === 3) return "High confidence";
+  if (value === 2) return "Medium confidence";
+  if (value === 1) return "Low confidence";
+  return "No confidence rating";
+}
+
+export function QuestionReview({ reviews }: { reviews: Review[] }) {
+  return (
+    <section className="review-section">
+      <div className="review-heading">
+        <div><div className="section-label">Verified review</div><h2>Learn from each decision.</h2></div>
+        <p>Correct answers and explanations are released only after the diagnostic is complete.</p>
+      </div>
+      <div className="review-list">
+        {reviews.map((review, index) => (
+          <details className={`review-item ${review.isCorrect ? "correct" : "incorrect"}`} key={review.questionId}>
+            <summary>
+              <span className="review-index">{String(index + 1).padStart(2, "0")}</span>
+              <span className="review-summary"><small>{review.category}</small><strong>{review.prompt}</strong></span>
+              <span className="review-outcome">{review.isCorrect ? "Correct" : review.selectedAnswer ? "Review" : "Skipped"}</span>
+            </summary>
+            <div className="review-body">
+              <div className="answer-grid">
+                <div><small>Your answer</small><strong>{review.selectedAnswer ?? "No answer"}</strong></div>
+                <div><small>Correct answer</small><strong>{review.correctAnswer}</strong></div>
+              </div>
+              <p>{review.explanation}</p>
+              <div className="review-signals"><span>{review.elapsedSeconds}s taken · {review.targetSeconds}s target</span><span className={review.pace === "slow" ? "signal-warn" : ""}>{review.pace === "slow" ? "Slower than target" : review.pace === "unanswered" ? "No timing recorded" : "On-target pace"}</span><span>{confidenceLabel(review.confidence)}</span></div>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}

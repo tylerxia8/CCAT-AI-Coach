@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { QUESTIONS, scoreDiagnostic, type Attempt } from "@/lib/diagnostic";
+import { QUESTIONS, scoreDiagnostic, type Attempt, type ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { DIAGNOSTIC_ANSWER_KEY } from "@/lib/question-bank.server";
 
 const questionIds = new Set(QUESTIONS.map((question) => question.id));
@@ -31,5 +31,25 @@ export async function POST(request: Request) {
   if (new Set(attempts.map((attempt) => attempt.questionId)).size !== attempts.length) {
     return NextResponse.json({ error: "Duplicate attempts" }, { status: 400 });
   }
-  return NextResponse.json(scoreDiagnostic(QUESTIONS, attempts, DIAGNOSTIC_ANSWER_KEY));
+  const score = scoreDiagnostic(QUESTIONS, attempts, DIAGNOSTIC_ANSWER_KEY);
+  const attemptById = new Map(attempts.map((attempt) => [attempt.questionId, attempt]));
+  const reviews = QUESTIONS.map((question) => {
+    const attempt = attemptById.get(question.id);
+    const answer = DIAGNOSTIC_ANSWER_KEY[question.id];
+    return {
+      questionId: question.id,
+      category: question.category,
+      prompt: question.prompt,
+      selectedAnswer: attempt?.answerIndex == null ? null : question.choices[attempt.answerIndex] ?? null,
+      correctAnswer: question.choices[answer.correctIndex],
+      isCorrect: attempt?.answerIndex === answer.correctIndex,
+      pace: !attempt ? "unanswered" as const : attempt.elapsedSeconds <= question.targetSeconds ? "on_target" as const : "slow" as const,
+      elapsedSeconds: attempt?.elapsedSeconds ?? 0,
+      targetSeconds: question.targetSeconds,
+      confidence: attempt?.confidence ?? null,
+      explanation: answer.explanation,
+    };
+  });
+  const result: ScoredDiagnosticResult = { ...score, reviews };
+  return NextResponse.json(result);
 }

@@ -29,6 +29,24 @@ export type DiagnosticResult = {
   priority: string;
 };
 
+export type QuestionReview = {
+  questionId: string;
+  category: Category;
+  prompt: string;
+  selectedAnswer: string | null;
+  correctAnswer: string;
+  isCorrect: boolean;
+  pace: "on_target" | "slow" | "unanswered";
+  elapsedSeconds: number;
+  targetSeconds: number;
+  confidence: 1 | 2 | 3 | null;
+  explanation: string;
+};
+
+export type ScoredDiagnosticResult = DiagnosticResult & {
+  reviews: QuestionReview[];
+};
+
 export const QUESTIONS: Question[] = [
   {
     id: "num-01",

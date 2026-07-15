@@ -112,6 +112,29 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .coach-card h2 { font-family: var(--font-serif), Georgia, serif; font-size: 34px; font-weight: 500; line-height: 1.05; }
 .coach-card p { color: #dfe9e3; font-size: 14px; line-height: 1.7; }
 .coach-card button { margin-top: 12px; }
+.review-section { margin-top: 82px; }
+.review-heading { align-items: flex-end; display: flex; justify-content: space-between; margin-bottom: 28px; }
+.review-heading h2 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(36px, 5vw, 54px); font-weight: 450; letter-spacing: -.04em; margin: 14px 0 0; }
+.review-heading p { color: var(--muted); font-size: 12px; line-height: 1.6; max-width: 330px; }
+.review-list { border-top: 1px solid var(--line); }
+.review-item { border-bottom: 1px solid var(--line); }
+.review-item summary { align-items: center; cursor: pointer; display: grid; gap: 20px; grid-template-columns: 42px 1fr auto; list-style: none; padding: 22px 4px; }
+.review-item summary::-webkit-details-marker { display: none; }
+.review-index { color: var(--muted); font-family: var(--font-serif), Georgia, serif; font-size: 18px; }
+.review-summary { display: grid; gap: 4px; }
+.review-summary small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.review-summary strong { font-size: 13px; font-weight: 650; line-height: 1.4; }
+.review-outcome { border: 1px solid var(--line); border-radius: 999px; font-size: 10px; font-weight: 800; min-width: 68px; padding: 7px 10px; text-align: center; text-transform: uppercase; }
+.review-item.correct .review-outcome { background: #e4efdf; border-color: #cadfc2; color: var(--green); }
+.review-item.incorrect .review-outcome { background: #f6e7dd; border-color: #eccfbf; color: #95492f; }
+.review-body { background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin: 0 0 22px 62px; padding: 24px; }
+.answer-grid { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+.answer-grid div { background: var(--paper); border-radius: 10px; display: grid; gap: 7px; padding: 14px; }
+.answer-grid small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.answer-grid strong { font-size: 13px; }
+.review-body > p { font-family: var(--font-serif), Georgia, serif; font-size: 20px; line-height: 1.45; margin: 24px 0; }
+.review-signals { border-top: 1px solid var(--line); color: var(--muted); display: flex; flex-wrap: wrap; font-size: 10px; gap: 20px; padding-top: 16px; text-transform: uppercase; }
+.review-signals .signal-warn { color: #95492f; font-weight: 800; }
 
 .auth-shell { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 70px 24px; position: relative; }
 .back-link { left: clamp(24px, 6vw, 92px); position: absolute; top: 36px; }
@@ -137,6 +160,11 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   .feature-grid, .metric-grid, .report-grid { grid-template-columns: 1fr; }
   .feature-grid article + article { border-left: 0; border-top: 1px solid var(--line); }
   .results-head { align-items: flex-start; flex-direction: column; gap: 36px; }
+  .review-heading { align-items: flex-start; flex-direction: column; }
+  .review-item summary { grid-template-columns: 34px 1fr; }
+  .review-outcome { grid-column: 2; justify-self: start; }
+  .review-body { margin-left: 0; }
+  .answer-grid { grid-template-columns: 1fr; }
   .score-ring { min-width: 140px; }
   .confidence-row { align-items: flex-start; flex-wrap: wrap; }
   .confidence-row > span { flex-basis: 100%; }
