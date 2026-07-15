@@ -74,6 +74,11 @@ export function serializeSession(session: StoredDiagnosticSession) {
   return JSON.stringify(session);
 }
 
+export function restoreRemainingSeconds(session: StoredDiagnosticSession, now = new Date()) {
+  const inactiveSeconds = Math.max(0, Math.floor((now.getTime() - new Date(session.updatedAt).getTime()) / 1000));
+  return Math.max(0, Math.min(DIAGNOSTIC_SECONDS, session.remainingSeconds - inactiveSeconds));
+}
+
 export function parseSession(value: string | null): StoredDiagnosticSession | null {
   if (!value) return null;
   try {

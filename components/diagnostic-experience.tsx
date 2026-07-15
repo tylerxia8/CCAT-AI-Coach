@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Attempt, DIAGNOSTIC_SECONDS, normalizeCompletedAttempts, QUESTIONS, ScoredDiagnosticResult } from "@/lib/diagnostic";
-import { appendEvent, createSession, parseSession, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
+import { appendEvent, createSession, parseSession, restoreRemainingSeconds, serializeSession, SESSION_STORAGE_KEY, StoredDiagnosticSession } from "@/lib/session-store";
 import { CloudSyncStatus } from "@/components/cloud-sync-status";
 import { QuestionReview } from "@/components/question-review";
 import { addHistoryEntry, createHistoryEntry, HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
@@ -30,6 +30,7 @@ export function DiagnosticExperience() {
   const [storedSession, setStoredSession] = useState<StoredDiagnosticSession | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const questionStartedAt = useRef(Date.now());
+  const deadlineAt = useRef(Date.now() + TEST_SECONDS * 1000);
 
   const question = QUESTIONS[index];
   useEffect(() => {
@@ -38,7 +39,9 @@ export function DiagnosticExperience() {
     if (restored) {
       setStoredSession(restored);
       setIndex(Math.min(restored.currentIndex, QUESTIONS.length - 1));
-      setRemaining(restored.remainingSeconds);
+      const restoredRemaining = restoreRemainingSeconds(restored);
+      setRemaining(restoredRemaining);
+      deadlineAt.current = Date.now() + restoredRemaining * 1000;
       setAnswers(restored.answers);
       setConfidence(restored.confidence);
       setAttempts(restored.attempts);
@@ -108,7 +111,9 @@ export function DiagnosticExperience() {
       setStage("results");
       return;
     }
-    const timer = window.setInterval(() => setRemaining((value) => value - 1), 1000);
+    const timer = window.setInterval(() => {
+      setRemaining(Math.max(0, Math.ceil((deadlineAt.current - Date.now()) / 1000)));
+    }, 250);
     return () => window.clearInterval(timer);
   }, [answers, confidence, question, remaining, stage]);
 
@@ -118,6 +123,7 @@ export function DiagnosticExperience() {
     setStoredSession(withQuestionView);
     window.localStorage.setItem(SESSION_STORAGE_KEY, serializeSession(withQuestionView));
     setStage("test");
+    deadlineAt.current = Date.now() + TEST_SECONDS * 1000;
     questionStartedAt.current = Date.now();
   }
 
