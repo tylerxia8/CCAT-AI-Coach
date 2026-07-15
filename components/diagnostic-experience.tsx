@@ -33,6 +33,7 @@ export function DiagnosticExperience() {
 
   const question = QUESTIONS[index];
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("new") === "1") window.localStorage.removeItem(SESSION_STORAGE_KEY);
     const restored = parseSession(window.localStorage.getItem(SESSION_STORAGE_KEY));
     if (restored) {
       setStoredSession(restored);
@@ -162,7 +163,7 @@ export function DiagnosticExperience() {
   if (stage === "welcome") {
     return (
       <main className="shell welcome-shell">
-        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/progress">Progress</Link><Link className="nav-link" href="/auth">Sign in</Link></div></nav>
+        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-text-link" href="/progress">Progress</Link><Link className="nav-link" href="/auth">Sign in</Link></div></nav>
         <section className="hero">
           <div className="eyebrow">Diagnostic session · 6 minutes</div>
           <h1>Find the points you’re <em>leaving on the clock.</em></h1>

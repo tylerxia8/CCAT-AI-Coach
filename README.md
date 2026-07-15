@@ -57,6 +57,8 @@ Prescribed drills open a separate eight-question practice set with per-question 
 
 Active drills resume after refresh with committed feedback intact. Completed drills are recorded idempotently, and drill count and aggregate practice accuracy appear on the progress dashboard.
 
+The latest diagnostic generates a persistent five-session study plan tailored to the detected bottleneck: learn the intervention, apply it at pace, review high-information decisions, complete mixed practice, and reassess against a fresh baseline.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.
