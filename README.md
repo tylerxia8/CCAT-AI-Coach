@@ -75,6 +75,8 @@ Guided mode also supports explicit answer elimination. Learners can cross out op
 
 Timed forms produce a conservative practice-readiness indicator based on accuracy, on-target pace, confidence calibration, and evidence volume. It is explicitly a training signal—not a hiring-score or pass prediction—and always provides the next measurable evidence gate.
 
+The MVP closes the training loop with a three-part results summary, cause-specific drills that advance through Learn, Control, and Transfer gates, and full-diagnostic reassessment against the user's first baseline. Automated bank validation rejects duplicate prompts or choices, malformed answer mappings, untagged blank-completion items, and explanations too short to audit.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.

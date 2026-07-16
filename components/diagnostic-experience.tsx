@@ -10,6 +10,9 @@ import { addHistoryEntry, createHistoryEntry, HISTORY_STORAGE_KEY, parseHistory 
 import { PerformanceDiagnosis } from "@/components/performance-diagnosis";
 import { QuestionStimulus } from "@/components/question-stimulus";
 import { SimulationReadiness } from "@/components/simulation-readiness";
+import { ResultSummary } from "@/components/result-summary";
+import { ReassessmentComparison } from "@/components/reassessment-comparison";
+import { compareWithBaseline, type ReassessmentComparison as Comparison } from "@/lib/reassessment";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -36,6 +39,7 @@ export function DiagnosticExperience() {
   const [scoreError, setScoreError] = useState(false);
   const [storedSession, setStoredSession] = useState<StoredDiagnosticSession | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [comparison, setComparison] = useState<Comparison | null>(null);
   const questionStartedAt = useRef(Date.now());
   const deadlineAt = useRef(Date.now() + TEST_SECONDS * 1000);
 
@@ -103,7 +107,9 @@ export function DiagnosticExperience() {
         if (storedSession) {
           const history = parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY));
           const entry = createHistoryEntry(storedSession.id, storedSession.updatedAt, value);
-          window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(addHistoryEntry(history, entry)));
+          const updatedHistory = addHistoryEntry(history, entry);
+          window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updatedHistory));
+          setComparison(compareWithBaseline(updatedHistory.entries, entry.sessionId));
         }
       })
       .catch((error: unknown) => {
@@ -242,6 +248,10 @@ export function DiagnosticExperience() {
           <div><div className="eyebrow">Your starting point</div><h1>{result.correct} of {result.total} correct</h1><p>Your highest-impact next move is to <strong>{result.priority.toLowerCase()}</strong>.</p><CloudSyncStatus session={storedSession} diagnosticResult={result} /></div>
           <div className="score-ring"><strong>{Math.round(result.accuracy * 100)}</strong><span>% accuracy</span></div>
         </section>
+        <ReassessmentComparison comparison={comparison} />
+        <ResultSummary result={result} />
+        <details className="results-details">
+          <summary>View complete performance report and question review</summary>
         <section className="metric-grid">
           <article><span>Average pace</span><strong>{result.averageSeconds}s</strong><small>per question</small></article>
           <article><span>On-target pace</span><strong>{Math.round(result.paceScore * 100)}%</strong><small>within target time</small></article>
@@ -264,6 +274,7 @@ export function DiagnosticExperience() {
         </section>
         <PerformanceDiagnosis diagnosis={result.diagnosis} />
         <QuestionReview reviews={result.reviews} />
+        </details>
       </main>
     );
   }

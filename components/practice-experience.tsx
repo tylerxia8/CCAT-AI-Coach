@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { PRACTICE_QUESTIONS, type PracticeFeedback } from "@/lib/practice";
 import { addPracticeHistory, completePracticeSession, createPracticeSession, parsePracticeHistory, parsePracticeSession, PRACTICE_HISTORY_KEY, PRACTICE_SESSION_KEY, type PracticeRecord } from "@/lib/practice-store";
+import { drillProgression, meetsStageGate, targetForStage, type DrillProgression } from "@/lib/adaptive-practice";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -16,14 +17,16 @@ export function PracticeExperience() {
   const [sessionId, setSessionId] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [selectionChanges, setSelectionChanges] = useState(0);
+  const [progression, setProgression] = useState<DrillProgression>(() => drillProgression("focused practice", { version: 1, entries: [] }));
   const startedAt = useRef(Date.now());
   const question = PRACTICE_QUESTIONS[index];
-  const training = trainingConfig(focus, question?.targetSeconds ?? 18);
+  const training = trainingConfig(focus, question?.targetSeconds ?? 18, progression);
 
   useEffect(() => {
     const parameters = new URLSearchParams(window.location.search);
     if (parameters.get("new") === "1") window.localStorage.removeItem(PRACTICE_SESSION_KEY);
     const restored = parsePracticeSession(window.localStorage.getItem(PRACTICE_SESSION_KEY));
+    const practiceHistory = parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY));
     if (restored) {
       setSessionId(restored.id);
       setFocus(restored.focus);
@@ -31,6 +34,7 @@ export function PracticeExperience() {
       setSelected(restored.selected);
       setFeedback(restored.feedback);
       setRecords(restored.records);
+      setProgression(drillProgression(restored.focus, practiceHistory));
       startedAt.current = restored.questionStartedAt;
       setHydrated(true);
       return;
@@ -42,6 +46,7 @@ export function PracticeExperience() {
     const session = createPracticeSession(selectedFocus);
     setSessionId(session.id);
     setFocus(session.focus);
+    setProgression(drillProgression(selectedFocus, practiceHistory));
     startedAt.current = session.questionStartedAt;
     window.localStorage.setItem(PRACTICE_SESSION_KEY, JSON.stringify(session));
     setHydrated(true);
@@ -110,10 +115,11 @@ export function PracticeExperience() {
   if (index >= PRACTICE_QUESTIONS.length) {
     const correct = records.filter((record) => record.isCorrect).length;
     const onPace = records.filter((record) => record.elapsedSeconds <= record.targetSeconds).length;
+    const gateMet = meetsStageGate({ sessionId, completedAt: new Date().toISOString(), focus, correct, total: records.length, onPace }, progression.stage);
     return (
       <main className="practice-shell">
         <PracticeNav />
-        <section className="practice-complete"><div className="eyebrow">Drill complete</div><h1>{correct} of {records.length} correct</h1><p>{onPace} decisions landed within target pace. Use the review below to decide whether to repeat the drill or return to a full diagnostic.</p><div className="practice-complete-actions"><button className="primary" onClick={repeat}>Repeat drill</button><Link className="secondary link-button" href="/">Take diagnostic</Link></div></section>
+        <section className="practice-complete"><div className="eyebrow">{progression.label} stage complete</div><h1>{correct} of {records.length} correct</h1><p>{onPace} decisions landed within target pace. {gateMet ? progression.stage === 3 ? "Transfer gate met—verify the gain on a full diagnostic." : "Gate met—your next set adds more time pressure." : `Stay at this stage until you ${progression.gate.toLowerCase()}`}</p><div className="practice-complete-actions"><button className="primary" onClick={repeat}>{gateMet && progression.stage < 3 ? "Continue to next stage" : "Repeat stage"}</button><Link className="secondary link-button" href="/?new=1">Reassess</Link></div></section>
         <section className="practice-recap">{records.map((record, recordIndex) => <article key={record.questionId}><span>{String(recordIndex + 1).padStart(2, "0")}</span><strong>{record.isCorrect ? "Correct" : "Review"}</strong><small>{record.elapsedSeconds}s · {record.elapsedSeconds <= record.targetSeconds ? "on pace" : "slow"}</small></article>)}</section>
       </main>
     );
@@ -124,8 +130,8 @@ export function PracticeExperience() {
       <PracticeNav />
       <div className="practice-progress"><i style={{ width: `${((index + (feedback ? 1 : 0)) / PRACTICE_QUESTIONS.length) * 100}%` }} /></div>
       <section className="practice-card">
-        <div className="training-directive"><strong>{training.title}</strong><span>{training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span></div>
-        <div className="question-meta"><span>{focus} · {question.category}</span><span>Target · {question.targetSeconds}s</span></div>
+        <div className="training-directive"><strong>Stage {progression.stage} · {progression.label} · {training.title}</strong><span>{progression.purpose} {training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span><small>Advance when: {progression.gate}</small></div>
+        <div className="question-meta"><span>{focus} · {question.category}</span><span>Target · {training.targetSeconds}s</span></div>
         <h1>{question.prompt}</h1>
         <div className="choices">
           {question.choices.map((choice, choiceIndex) => <button key={choice} disabled={Boolean(feedback)} className={selected === choiceIndex ? "selected" : ""} onClick={() => { if (selected !== null && selected !== choiceIndex) setSelectionChanges((value) => value + 1); setSelected(choiceIndex); }}><span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}</button>)}
@@ -138,13 +144,14 @@ export function PracticeExperience() {
   );
 }
 
-function trainingConfig(focus: string, baseTarget: number) {
-  if (focus.startsWith("knowledge")) return { title: "Accuracy first · no time pressure", instruction: "Name the pattern before solving. Study the feedback before moving on.", targetSeconds: 120 };
-  if (focus.startsWith("rushing")) return { title: "Fast-but-clean · verify before committing", instruction: "Name the rule, then check the exact value, direction, or character being asked for.", targetSeconds: baseTarget };
-  if (focus.startsWith("speed")) { const targetSeconds = Math.max(12, Math.round(baseTarget * 0.7)); return { title: `Fluency target · ${targetSeconds} seconds`, instruction: "Use the shortest reliable method and commit when the pattern is clear.", targetSeconds }; }
-  if (focus.startsWith("rhythm")) return { title: "Cadence target · 18 seconds per decision", instruction: "Treat every three questions as one block. Do not let one hard item delay the next.", targetSeconds: 18 };
-  if (focus.startsWith("second_guessing")) return { title: "Commitment target · no unsupported changes", instruction: "Change your first choice only when you can name a specific contradiction.", targetSeconds: 18 };
-  return { title: "Mixed transfer practice", instruction: "Recognize the question family, choose a method, and execute at pace.", targetSeconds: baseTarget };
+function trainingConfig(focus: string, baseTarget: number, progression: DrillProgression) {
+  const targetSeconds = targetForStage(baseTarget, progression.stage, focus);
+  if (focus.startsWith("knowledge")) return { title: `Accuracy target · ${targetSeconds} seconds`, instruction: "Name the pattern before solving. Study the feedback before moving on.", targetSeconds };
+  if (focus.startsWith("rushing")) return { title: "Fast-but-clean · verify before committing", instruction: "Name the rule, then check the exact value, direction, or character being asked for.", targetSeconds };
+  if (focus.startsWith("speed")) return { title: `Fluency target · ${targetSeconds} seconds`, instruction: "Use the shortest reliable method and commit when the pattern is clear.", targetSeconds };
+  if (focus.startsWith("rhythm")) return { title: `Cadence target · ${targetSeconds} seconds`, instruction: "Treat every three questions as one block. Do not let one hard item delay the next.", targetSeconds };
+  if (focus.startsWith("second_guessing")) return { title: "Commitment target · no unsupported changes", instruction: "Change your first choice only when you can name a specific contradiction.", targetSeconds };
+  return { title: "Mixed transfer practice", instruction: "Recognize the question family, choose a method, and execute at pace.", targetSeconds };
 }
 
 function PracticeNav() {
