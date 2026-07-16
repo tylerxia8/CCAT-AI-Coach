@@ -172,7 +172,7 @@ export const QUESTIONS: Question[] = [
   { id: "ver-15", category: "Verbal", prompt: "BAROMETER is to PRESSURE as SEISMOGRAPH is to:", choices: ["Temperature", "Wind", "Earthquakes", "Altitude", "Distance"], difficulty: 2, targetSeconds: 18 },
   { id: "num-16", category: "Logic", prompt: "Which letter comes next? A, C, F, J, O, ?", choices: ["S", "T", "U", "V", "W"], difficulty: 2, targetSeconds: 18, itemFamily: "letter series" },
   { id: "log-10", category: "Logic", prompt: "Four tasks are ordered J, K, L, M. K must follow J, and M must precede L. Which order is possible?", choices: ["K J M L", "J K L M", "M J K L", "L M J K", "J L M K"], difficulty: 3, targetSeconds: 18 },
-  { id: "ver-16", category: "Verbal", prompt: "Choose the word most nearly opposite to TRANSIENT.", choices: ["Permanent", "Distant", "Mobile", "Uncertain", "Brief"], difficulty: 3, targetSeconds: 18 },
+  { id: "ver-16", category: "Verbal", prompt: "Because the witness gave a deliberately ___ account, investigators could not determine what had actually occurred.", choices: ["lucid", "equivocal", "meticulous", "candid", "concise"], itemFamily: "sentence completion", difficulty: 3, targetSeconds: 18 },
   { id: "num-17", category: "Spatial", prompt: "Which symbol completes the sequence? ↖  ↗  ↘  ?", choices: ["↖", "↗", "↘", "↙", "↑"], difficulty: 1, targetSeconds: 18 },
   { id: "num-18", category: "Numerical", prompt: "If 3y + 2 = 2(y + 7), what is 5y - 3?", choices: ["42", "47", "52", "57", "62"], difficulty: 3, targetSeconds: 18 },
 ];

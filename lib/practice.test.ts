@@ -17,4 +17,8 @@ describe("practice bank", () => {
   it("covers all four reasoning categories", () => {
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.category))).toEqual(new Set(["Numerical", "Verbal", "Logic", "Spatial"]));
   });
+
+  it("includes a contextual sentence-completion drill", () => {
+    expect(PRACTICE_QUESTIONS.some((question) => question.id === "practice-ver-03" && question.prompt.includes("___"))).toBe(true);
+  });
 });

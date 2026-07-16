@@ -35,9 +35,9 @@ export const PRACTICE_TEST_ANSWER_KEY: AnswerKey = {
       "The subtractions increase from 5 through 8; subtract 9 next to get 17.",
   },
   "pt-ver-03": {
-    correctIndex: 0,
+    correctIndex: 1,
     explanation:
-      "Sparse means thinly distributed; dense is its closest opposite.",
+      "Lucid means clear and easy to understand, which matches the result described in the sentence.",
   },
   "pt-spa-02": {
     correctIndex: 0,

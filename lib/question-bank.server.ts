@@ -48,7 +48,7 @@ export const DIAGNOSTIC_ANSWER_KEY: AnswerKey = {
   "ver-15": { correctIndex: 2, explanation: "A barometer records atmospheric pressure, while a seismograph records earthquake motion." },
   "num-16": { correctIndex: 2, explanation: "The letter-position jumps increase by one: plus 2, 3, 4, and 5. The next jump is plus 6, taking O to U." },
   "log-10": { correctIndex: 2, explanation: "M J K L places K after J and M before L, satisfying both rules." },
-  "ver-16": { correctIndex: 0, explanation: "Transient means temporary or short-lived; permanent is its closest opposite." },
+  "ver-16": { correctIndex: 1, explanation: "Equivocal means deliberately ambiguous. That meaning explains why investigators could not determine what had occurred." },
   "num-17": { correctIndex: 3, explanation: "The arrow rotates one quarter-turn clockwise each time: upper-left, upper-right, lower-right, then lower-left." },
   "num-18": { correctIndex: 3, explanation: "Expanding gives 3y plus 2 equals 2y plus 14, so y equals 12. Five times 12 minus 3 is 57." },
 };

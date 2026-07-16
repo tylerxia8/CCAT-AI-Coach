@@ -30,5 +30,6 @@ describe("CCAT form blueprint", () => {
       expect(QUESTIONS.some((question) => question.itemFamily === family)).toBe(true);
     }
     expect(QUESTIONS.filter((question) => question.itemFamily === "attention to detail")).toHaveLength(3);
+    expect(QUESTIONS.filter((question) => question.itemFamily === "sentence completion")).toHaveLength(2);
   });
 });

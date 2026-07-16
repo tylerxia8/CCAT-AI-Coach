@@ -7,4 +7,5 @@ export const PRACTICE_ANSWER_KEY: Record<string, { correctIndex: number; explana
   "practice-ver-02": { correctIndex: 2, explanation: "Concise means brief and economical with words. Verbose means using more words than necessary." },
   "practice-log-02": { correctIndex: 2, explanation: "The order includes Mara before Theo before Jin before Sal, so both Mara and Theo must arrive before Jin." },
   "practice-num-03": { correctIndex: 1, explanation: "The increase is 30. Dividing 30 by the original 120 gives 0.25, or 25%." },
+  "practice-ver-03": { correctIndex: 1, explanation: "Although signals a contrast: the evidence was initially inconclusive, but later findings made the conclusion nearly certain." },
 };

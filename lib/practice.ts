@@ -24,4 +24,5 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = [
   { id: "practice-ver-02", category: "Verbal", prompt: "Choose the word that is most nearly opposite in meaning to CONCISE.", choices: ["Brief", "Direct", "Verbose", "Accurate", "Simple"], targetSeconds: 22 },
   { id: "practice-log-02", category: "Logic", prompt: "Mara arrives before Theo. Jin arrives after Theo but before Sal. Who must arrive before Jin?", choices: ["Mara only", "Theo only", "Mara and Theo", "Sal and Theo", "Sal only"], targetSeconds: 32 },
   { id: "practice-num-03", category: "Numerical", prompt: "A value increases from 120 to 150. What is the percentage increase?", choices: ["20%", "25%", "30%", "35%", "40%"], targetSeconds: 30 },
+  { id: "practice-ver-03", category: "Verbal", prompt: "Although the initial evidence seemed ___, later findings made the conclusion nearly certain.", choices: ["conclusive", "inconclusive", "irrelevant", "abundant", "consistent"], targetSeconds: 24 },
 ];

@@ -83,11 +83,11 @@ export const PRACTICE_TEST_QUESTIONS = ([
   {
     id: "pt-ver-03",
     category: "Verbal",
-    prompt: "Choose the word most nearly opposite to SPARSE.",
-    choices: ["Dense", "Remote", "Thin", "Scattered", "Small"],
+    prompt: "The manager's explanation was so ___ that even employees unfamiliar with the project understood the decision.",
+    choices: ["opaque", "lucid", "tentative", "redundant", "skeptical"],
     difficulty: 2,
     targetSeconds: 18,
-    itemFamily: "antonyms",
+    itemFamily: "sentence completion",
   },
   {
     id: "pt-spa-02",
