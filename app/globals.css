@@ -76,6 +76,8 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .strategy-cue { background: #e8edcf; border-radius: 10px; display: grid; font-size: 11px; gap: 5px; line-height: 1.5; margin: 18px 0; padding: 13px 15px; }
 .strategy-cue strong { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
 .strategy-cue span { color: var(--muted); }
+.phase-cue { align-items: center; border-bottom: 1px solid var(--line); color: var(--muted); display: flex; font-size: 10px; gap: 12px; justify-content: space-between; margin: 12px 0 4px; padding: 0 0 10px; }
+.phase-cue strong { color: var(--ink); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
 .timer.guided strong { font-size: 15px; }
 .guided-result-note { background: var(--card); border: 1px solid var(--line); border-radius: 12px; color: var(--muted); font-size: 12px; line-height: 1.6; padding: 18px; }
 .question-wrap h1 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(34px, 5vw, 52px); font-weight: 450; letter-spacing: -.035em; line-height: 1.1; margin: 26px 0 42px; }

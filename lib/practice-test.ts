@@ -2,7 +2,7 @@ import type { Question } from "./diagnostic";
 
 export const PRACTICE_TEST_SECONDS = 6 * 60;
 
-export const PRACTICE_TEST_QUESTIONS: Question[] = [
+export const PRACTICE_TEST_QUESTIONS = ([
   {
     id: "pt-ver-01",
     category: "Verbal",
@@ -214,4 +214,4 @@ export const PRACTICE_TEST_QUESTIONS: Question[] = [
     targetSeconds: 18,
     itemFamily: "basic algebra",
   },
-];
+] satisfies Question[]).sort((left, right) => left.difficulty - right.difficulty);

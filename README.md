@@ -69,6 +69,8 @@ The results experience also maintains conservative skill-mastery estimates from 
 
 An additional original Form B practice test provides 20 mixed verbal, numerical, logic, and spatial questions. Learners can choose a six-minute simulation or a self-paced guided mode with question-family strategy cues. Its structure was informed by publicly visible CCAT practice-test format patterns, while all prompts, options, answer keys, and explanations were independently authored. It uses server-only scoring and releases review explanations only after completion.
 
+Form B is difficulty-ramped and gives compact phase guidance during timed work: bank straightforward points early with a verification beat, maintain the 18-second rhythm through the middle, and invest selectively on the hardest closing items. Guided cues teach first-difference checks for series, relationship sentences for analogies, feature isolation for abstract items, and symbolic ordering for logic.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.

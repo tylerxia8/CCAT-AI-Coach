@@ -250,6 +250,7 @@ export function PracticeTestExperience() {
           <span>{question.category}</span>
           <span>Target pace · 18s</span>
         </div>
+        {mode === "timed" && <div className="phase-cue"><strong>{phaseGuidance(index).title}</strong><span>{phaseGuidance(index).instruction}</span></div>}
         {mode === "guided" && <div className="strategy-cue"><strong>Strategy cue</strong><span>{strategyFor(question.itemFamily)}</span></div>}
         {question.stimulus && <QuestionStimulus stimulus={question.stimulus} />}
         <h1>{question.prompt}</h1>
@@ -326,4 +327,10 @@ function strategyFor(family?: string) {
   if (family?.includes("figure") || family === "mental rotation" || family === "visual sequences") return "Track one changing feature at a time: count, direction, position, then shading.";
   if (family === "syllogisms" || family === "ordering logic") return "Write only what must follow; do not add relationships the statements never establish.";
   return "Identify the governing operation, estimate the result, and then calculate only what the prompt requests.";
+}
+
+function phaseGuidance(index: number) {
+  if (index < 5) return { title: "Phase 1 · bank quick points", instruction: "Aim for 10–15 seconds, but take one verification beat before submitting." };
+  if (index < 15) return { title: "Phase 2 · hold your rhythm", instruction: "Stay near 18 seconds. If the method is not emerging, make the best choice and move." };
+  return { title: "Phase 3 · invest selectively", instruction: "Expect harder items. Protect completed points instead of letting one question consume the finish." };
 }

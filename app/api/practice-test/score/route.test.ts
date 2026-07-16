@@ -6,6 +6,12 @@ import { PRACTICE_TEST_QUESTIONS } from "@/lib/practice-test";
 function request(attempts: unknown) { return new Request("http://localhost/api/practice-test/score", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ attempts }) }); }
 
 describe("practice test scoring API", () => {
+  it("uses a 20-question difficulty ramp", () => {
+    expect(PRACTICE_TEST_QUESTIONS).toHaveLength(20);
+    expect(PRACTICE_TEST_QUESTIONS.map((question) => question.difficulty)).toEqual([...PRACTICE_TEST_QUESTIONS.map((question) => question.difficulty)].sort());
+    expect(PRACTICE_TEST_QUESTIONS.filter((question) => question.itemFamily === "attention to detail")).toHaveLength(1);
+  });
+
   it("scores a complete form and releases review only afterward", async () => {
     const attempts = PRACTICE_TEST_QUESTIONS.map((question) => ({ questionId: question.id, answerIndex: PRACTICE_TEST_ANSWER_KEY[question.id].correctIndex, elapsedSeconds: 18, confidence: 3, answerChanges: 0 }));
     const response = await POST(request(attempts));
