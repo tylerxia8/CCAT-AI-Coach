@@ -17,7 +17,7 @@ describe("practice bank", () => {
   it("covers all four reasoning categories", () => {
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.category))).toEqual(new Set(["Numerical", "Verbal", "Logic", "Spatial"]));
     expect(Object.fromEntries(["Numerical", "Verbal", "Logic", "Spatial"].map((category) => [category, PRACTICE_QUESTIONS.filter((question) => question.category === category).length])))
-      .toEqual({ Numerical: 41, Verbal: 38, Logic: 26, Spatial: 25 });
+      .toEqual({ Numerical: 81, Verbal: 98, Logic: 26, Spatial: 25 });
   });
 
   it("maintains depth in the formerly thin skill areas", () => {
@@ -40,7 +40,7 @@ describe("practice bank", () => {
   });
 
   it("tags every drill question for adaptive selection", () => {
-    expect(PRACTICE_QUESTIONS).toHaveLength(130);
+    expect(PRACTICE_QUESTIONS).toHaveLength(230);
     for (const question of PRACTICE_QUESTIONS) {
       expect(question.difficulty).toBeGreaterThanOrEqual(1);
       expect(question.difficulty).toBeLessThanOrEqual(5);
@@ -54,6 +54,23 @@ describe("practice bank", () => {
       expect(PRACTICE_QUESTIONS.filter((question) => question.difficulty === difficulty).length).toBeGreaterThanOrEqual(10);
     }
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.prompt.toLowerCase())).size).toBe(PRACTICE_QUESTIONS.length);
+  });
+
+  it("prioritizes requested vocabulary, comparison, and hard-math coverage", () => {
+    expect(PRACTICE_QUESTIONS.filter((question) => question.skill === "sentence completion").length).toBeGreaterThanOrEqual(40);
+    expect(PRACTICE_QUESTIONS.filter((question) => question.skill === "attention to detail").length).toBeGreaterThanOrEqual(28);
+    const advancedMath = PRACTICE_QUESTIONS.filter((question) => question.category === "Numerical" && question.difficulty >= 4);
+    expect(advancedMath.length).toBeGreaterThanOrEqual(45);
+    const comparisonAnswers = PRACTICE_QUESTIONS
+      .filter((question) => /^practice-ver-(7[4-9]|8\d|9[0-8])$/.test(question.id))
+      .map((question) => question.choices[PRACTICE_ANSWER_KEY[question.id].correctIndex]);
+    expect(new Set(comparisonAnswers)).toEqual(new Set(["1", "2", "3", "4", "5"]));
+
+    const answerPositions = Object.values(PRACTICE_ANSWER_KEY).reduce((counts, answer) => {
+      counts[answer.correctIndex] += 1;
+      return counts;
+    }, [0, 0, 0, 0, 0]);
+    expect(Math.min(...answerPositions)).toBeGreaterThanOrEqual(25);
   });
 
   it("includes a contextual sentence-completion drill", () => {

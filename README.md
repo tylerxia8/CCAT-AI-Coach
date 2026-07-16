@@ -81,7 +81,7 @@ Adaptive drills track conceptual difficulty separately from performance pressure
 
 Speed, rhythm, and rushing drills now apply progressive time constraints: Learn displays a non-punitive clock, Control flags overtime, and Transfer commits the selected answer—or records a skip—at the hard deadline. Timeout counts and on-pace decisions are retained with the practice telemetry.
 
-Practice uses short exposure-aware sets drawn from a 130-item original drill bank, bringing the full app inventory to 200 questions. Completed sets retain question IDs and skill-level outcomes, allowing the next set to favor unseen items and prioritize the latest diagnostic weakness or the skill with the strongest recent miss signal. Previously seen items return only as the rotating bank is exhausted.
+Practice uses short exposure-aware sets drawn from a 230-item original drill bank, bringing the full app inventory to 300 questions. The expanded bank emphasizes contextual sentence completion, exact-pair comparison, and advanced multi-step math while retaining difficulty levels 1–5. Completed sets retain question IDs and skill-level outcomes, allowing the next set to favor unseen items and prioritize the latest diagnostic weakness or the skill with the strongest recent miss signal. Previously seen items return only as the rotating bank is exhausted.
 
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 

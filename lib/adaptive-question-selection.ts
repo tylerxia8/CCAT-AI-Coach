@@ -43,7 +43,16 @@ export function selectAdaptiveSequence(questions: PracticeQuestion[], targetDiff
     const probePosition = question.difficulty === targetDifficulty ? 0 : question.difficulty < targetDifficulty ? 1 : 4;
     sequence.splice(Math.min(probePosition, sequence.length), 0, question);
   }
-  return unique(sequence).slice(0, Math.min(limit, questions.length));
+  const result = unique(sequence).slice(0, Math.min(limit, questions.length));
+  for (const direction of ["lower", "higher"] as const) {
+    const qualifies = (item: PracticeQuestion) => direction === "lower" ? item.difficulty < targetDifficulty : item.difficulty > targetDifficulty;
+    if (result.some(qualifies)) continue;
+    const candidate = [...questions].filter((item) => qualifies(item) && !result.some((selected) => selected.id === item.id)).sort(rank)[0];
+    if (!candidate) continue;
+    const replaceIndex = result.map((item, index) => ({ item, index })).reverse().find(({ item }) => item.skill !== requestedSkill && item.difficulty === targetDifficulty)?.index;
+    if (replaceIndex !== undefined) result[replaceIndex] = candidate;
+  }
+  return result;
 }
 
 function unique(questions: PracticeQuestion[]) {
