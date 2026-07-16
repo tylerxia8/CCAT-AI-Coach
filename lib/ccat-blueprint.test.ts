@@ -29,5 +29,6 @@ describe("CCAT form blueprint", () => {
     for (const family of ["sentence completion", "attention to detail", "letter series", "reflection"]) {
       expect(QUESTIONS.some((question) => question.itemFamily === family)).toBe(true);
     }
+    expect(QUESTIONS.filter((question) => question.itemFamily === "attention to detail")).toHaveLength(3);
   });
 });

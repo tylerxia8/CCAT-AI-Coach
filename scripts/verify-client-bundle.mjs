@@ -29,6 +29,8 @@ const privateFragments = [
   "vertical reflection reverses left and right",
   "reproduced without a substituted, transposed",
   "Operations exceeds Administration by 20 percentage points",
+  "Rows 1, 3, and 5 match exactly",
+  "Only rows 1 and 4 match exactly",
   "satisfying both rules",
   "Thirty-five hours multiplied by $18",
   "Each machine produces 10 parts per hour",

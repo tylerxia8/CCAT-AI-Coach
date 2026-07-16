@@ -1,6 +1,9 @@
 import type { DataStimulus } from "@/lib/diagnostic";
 
 export function QuestionStimulus({ stimulus }: { stimulus: DataStimulus }) {
+  if (stimulus.kind === "pairs") {
+    return <figure className="data-stimulus pair-stimulus"><figcaption>{stimulus.title}</figcaption><ol>{stimulus.pairs.map(([left, right], index) => <li key={`${left}-${index}`}><span>{left}</span><span>{right}</span></li>)}</ol></figure>;
+  }
   if (stimulus.kind === "table") {
     return <figure className="data-stimulus"><figcaption>{stimulus.title}</figcaption><table><thead><tr><th>Region</th>{stimulus.columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{stimulus.rows.map((row) => <tr key={row.label}><th>{row.label}</th>{row.values.map((value, index) => <td key={`${row.label}-${stimulus.columns[index]}`}>{value}</td>)}</tr>)}</tbody></table></figure>;
   }

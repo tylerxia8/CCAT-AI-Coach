@@ -15,7 +15,8 @@ export type Question = {
 
 export type DataStimulus =
   | { kind: "bar" | "line" | "pie"; title: string; labels: string[]; values: number[]; unit?: string }
-  | { kind: "table"; title: string; columns: string[]; rows: Array<{ label: string; values: number[] }> };
+  | { kind: "table"; title: string; columns: string[]; rows: Array<{ label: string; values: number[] }> }
+  | { kind: "pairs"; title: string; pairs: Array<[string, string]> };
 
 export type AnswerKey = Record<string, { correctIndex: number; explanation: string }>;
 
@@ -144,7 +145,7 @@ export const QUESTIONS: Question[] = [
   { id: "ver-06", category: "Verbal", prompt: "CONDUCTOR is to ORCHESTRA as DIRECTOR is to:", choices: ["Script", "Audience", "Cast", "Stage", "Camera"], difficulty: 2, targetSeconds: 18 },
   { id: "num-07", category: "Numerical", prompt: "Four pumps fill 3 tanks in 6 hours. At the same rate, how many tanks can 8 pumps fill in 9 hours?", choices: ["6", "8", "9", "10", "12"], difficulty: 3, targetSeconds: 18 },
   { id: "log-04", category: "Logic", prompt: "Rina arrives before Sol but after Tarek. Uma arrives after Sol. Which order must be true?", choices: ["Tarek, Rina, Sol, Uma", "Rina, Tarek, Uma, Sol", "Tarek, Sol, Rina, Uma", "Uma, Sol, Rina, Tarek", "Sol, Tarek, Rina, Uma"], difficulty: 2, targetSeconds: 18 },
-  { id: "ver-07", category: "Verbal", prompt: "METICULOUS most nearly means:", choices: ["Careless", "Thorough", "Rapid", "Friendly", "Ordinary"], difficulty: 2, targetSeconds: 18 },
+  { id: "ver-07", category: "Verbal", prompt: "How many of these pairs are exactly the same?", choices: ["0", "1", "2", "3", "4"], difficulty: 2, targetSeconds: 18, itemFamily: "attention to detail", stimulus: { kind: "pairs", title: "Compare each row", pairs: [["LQ7-483", "LQ7-483"], ["NP6-219", "NP6-291"], ["TX4-805", "TX4-805"], ["BR9-167", "BR9-176"], ["CM2-744", "CM2-744"]] } },
   { id: "num-08", category: "Numerical", prompt: "If 2(x - 3) = 3x - 11, what is 4x?", choices: ["12", "16", "20", "24", "28"], difficulty: 3, targetSeconds: 18 },
   { id: "spa-04", category: "Spatial", prompt: "Which symbol completes the sequence? ◐  ◓  ◑  ?", choices: ["◐", "◒", "◓", "◑", "●"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-08", category: "Verbal", prompt: "Which word does not belong?", choices: ["Taciturn", "Reticent", "Reserved", "Garrulous", "Uncommunicative"], difficulty: 3, targetSeconds: 18 },
@@ -165,7 +166,7 @@ export const QUESTIONS: Question[] = [
   { id: "ver-13", category: "Spatial", prompt: "Which figure is not a rotation of the same arrangement?", choices: ["▲○", "▶○", "▼○", "◀○", "▲●"], difficulty: 2, targetSeconds: 18 },
   { id: "num-14", category: "Numerical", prompt: "Which region had the highest hiring rate?", choices: ["North", "South", "East", "West", "All were equal"], difficulty: 2, targetSeconds: 18, stimulus: { kind: "table", title: "Hiring results", columns: ["Applicants", "Hired"], rows: [{ label: "North", values: [80, 20] }, { label: "South", values: [120, 24] }, { label: "East", values: [90, 27] }, { label: "West", values: [150, 30] }] } },
   { id: "log-08", category: "Spatial", prompt: "Complete the pattern: ○□, □△, △◇, ?", choices: ["◇○", "○◇", "◇△", "□○", "△□"], difficulty: 2, targetSeconds: 18 },
-  { id: "ver-14", category: "Verbal", prompt: "LUCID most nearly means:", choices: ["Clear", "Lengthy", "Unusual", "Doubtful", "Forceful"], difficulty: 2, targetSeconds: 18 },
+  { id: "ver-14", category: "Verbal", prompt: "How many of these pairs are exactly the same?", choices: ["1", "2", "3", "4", "5"], difficulty: 2, targetSeconds: 18, itemFamily: "attention to detail", stimulus: { kind: "pairs", title: "Compare each row", pairs: [["8RK-41M-762", "8RK-41M-762"], ["Q5B-903-X17", "Q5B-930-X17"], ["6TN-28C-445", "6TN-28G-445"], ["LP4-771-Z09", "LP4-771-Z09"], ["3DV-618-K52", "3DV-681-K52"]] } },
   { id: "num-15", category: "Spatial", prompt: "Which figure completes the size sequence? ●  ◉  ○  ●  ◉  ?", choices: ["●", "◉", "○", "◎", "■"], difficulty: 2, targetSeconds: 18 },
   { id: "log-09", category: "Logic", prompt: "All Dels are Wiks. Some Wiks are Bors. What can be concluded about Dels and Bors?", choices: ["All Dels are Bors", "Some Dels are Bors", "No Dels are Bors", "Nothing definite", "All Bors are Dels"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-15", category: "Verbal", prompt: "BAROMETER is to PRESSURE as SEISMOGRAPH is to:", choices: ["Temperature", "Wind", "Earthquakes", "Altitude", "Distance"], difficulty: 2, targetSeconds: 18 },

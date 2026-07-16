@@ -86,6 +86,9 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .data-stimulus table { border-collapse: collapse; font-size: 12px; margin-top: 14px; width: 100%; }
 .data-stimulus th, .data-stimulus td { border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: right; }
 .data-stimulus th:first-child { text-align: left; }
+.pair-stimulus ol { display: grid; gap: 7px; margin: 14px 0 0; padding-left: 28px; }
+.pair-stimulus li { background: var(--paper); border-radius: 8px; display: grid; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; gap: 18px; grid-template-columns: 1fr 1fr; padding: 9px 12px; }
+.pair-stimulus li::marker { color: var(--muted); font-size: 10px; }
 .pie-layout { align-items: center; display: grid; gap: 28px; grid-template-columns: 150px 1fr; margin-top: 18px; }
 .pie-chart { aspect-ratio: 1; border: 8px solid var(--card); border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
 .pie-layout ul { display: grid; gap: 10px; list-style: none; margin: 0; padding: 0; }
