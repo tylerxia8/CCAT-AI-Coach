@@ -42,6 +42,14 @@ describe("diagnosePerformance", () => {
     expect(diagnosis.prescriptions[0].mode).toBe("fluency");
   });
 
+  it("separates rushed errors from deliberate knowledge misses", () => {
+    const reviews = Array.from({ length: 10 }, (_, index) => review(index, index < 4 ? { isCorrect: false, correctAnswer: "B", elapsedSeconds: 6, firstAnswerSeconds: 5, confidence: 3 } : {}));
+    const diagnosis = diagnosePerformance(reviews);
+    expect(diagnosis.primaryCause).toBe("rushing");
+    expect(diagnosis.nextActivity).toMatchObject({ title: "Add a verification beat to percentages", target: "No fast misses across 5 decisions" });
+    expect(diagnosis.causes.find((cause) => cause.cause === "rushing")?.evidence.join(" ")).toContain("4 of 4 very fast decisions were incorrect");
+  });
+
   it("detects unstable cadence even when average accuracy is strong", () => {
     const times = [4, 35, 5, 38, 4, 36, 5, 40, 4, 37];
     const reviews = times.map((time, index) => review(index, { elapsedSeconds: time, pace: time > 18 ? "slow" : "on_target" }));

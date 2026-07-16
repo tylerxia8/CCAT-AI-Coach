@@ -140,6 +140,7 @@ export function PracticeExperience() {
 
 function trainingConfig(focus: string, baseTarget: number) {
   if (focus.startsWith("knowledge")) return { title: "Accuracy first · no time pressure", instruction: "Name the pattern before solving. Study the feedback before moving on.", targetSeconds: 120 };
+  if (focus.startsWith("rushing")) return { title: "Fast-but-clean · verify before committing", instruction: "Name the rule, then check the exact value, direction, or character being asked for.", targetSeconds: baseTarget };
   if (focus.startsWith("speed")) { const targetSeconds = Math.max(12, Math.round(baseTarget * 0.7)); return { title: `Fluency target · ${targetSeconds} seconds`, instruction: "Use the shortest reliable method and commit when the pattern is clear.", targetSeconds }; }
   if (focus.startsWith("rhythm")) return { title: "Cadence target · 18 seconds per decision", instruction: "Treat every three questions as one block. Do not let one hard item delay the next.", targetSeconds: 18 };
   if (focus.startsWith("second_guessing")) return { title: "Commitment target · no unsupported changes", instruction: "Change your first choice only when you can name a specific contradiction.", targetSeconds: 18 };

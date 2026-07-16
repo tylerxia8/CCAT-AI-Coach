@@ -1,6 +1,6 @@
 import type { Category, Question, QuestionReview } from "./diagnostic";
 
-export type PerformanceCause = "knowledge" | "speed" | "rhythm" | "second_guessing" | "refinement";
+export type PerformanceCause = "knowledge" | "rushing" | "speed" | "rhythm" | "second_guessing" | "refinement";
 
 export type CauseDiagnosis = {
   cause: PerformanceCause;
@@ -10,7 +10,7 @@ export type CauseDiagnosis = {
 };
 
 export type TrainingPrescription = {
-  mode: "learn" | "fluency" | "cadence" | "commitment" | "mixed";
+  mode: "learn" | "control" | "fluency" | "cadence" | "commitment" | "mixed";
   title: string;
   instructions: string;
   target: string;
@@ -63,7 +63,11 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
   const misses = reviews.filter((item) => !item.isCorrect);
   const slow = answered.filter((item) => item.pace === "slow");
   const slowCorrect = slow.filter((item) => item.isCorrect);
-  const normalTimeMisses = misses.filter((item) => item.selectedAnswer !== null && item.elapsedSeconds <= item.targetSeconds * 1.15);
+  const fastDecisions = answered.filter((item) => (item.firstAnswerSeconds ?? item.elapsedSeconds) <= item.targetSeconds * 0.55);
+  const fastMisses = fastDecisions.filter((item) => !item.isCorrect);
+  const highConfidenceFastMisses = fastMisses.filter((item) => item.confidence === 3);
+  const deliberateMisses = misses.filter((item) => item.selectedAnswer !== null && (item.firstAnswerSeconds ?? item.elapsedSeconds) > item.targetSeconds * 0.55 && item.elapsedSeconds <= item.targetSeconds * 1.15);
+  const fastMissStreak = longestStreak(reviews, (item) => item.selectedAnswer !== null && !item.isCorrect && (item.firstAnswerSeconds ?? item.elapsedSeconds) <= item.targetSeconds * 0.55);
   const changed = answered.filter((item) => item.answerChanges > 0);
   const repeatedChanges = answered.filter((item) => item.answerChanges >= 2);
   const changedMisses = changed.filter((item) => !item.isCorrect);
@@ -104,16 +108,22 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
     };
   }).sort((a, b) => (b.total - b.correct) - (a.total - a.correct) || b.slow - a.slow || a.skill.localeCompare(b.skill));
 
-  const knowledgeScore = clamp((normalTimeMisses.length / Math.max(1, reviews.length)) * 2.2 + (weakestSkill ? 0.3 : 0));
+  const knowledgeScore = clamp((deliberateMisses.length / Math.max(1, reviews.length)) * 2.2 + (weakestSkill ? 0.3 : 0));
+  const rushingScore = clamp((fastMisses.length / Math.max(1, fastDecisions.length)) * 0.65 + (highConfidenceFastMisses.length / Math.max(1, answered.length)) * 1.5 + Math.max(0, fastMissStreak - 1) * 0.1);
   const speedScore = clamp((slowCorrect.length / Math.max(1, answered.length)) * 2 + (slow.length >= answered.length * 0.4 ? 0.2 : 0));
   const rhythmScore = clamp(Math.max(0, variation - 0.45) + Math.max(0, slowStreak - 2) * 0.12);
   const secondGuessingScore = clamp(correctToWrong.length / Math.max(1, changed.length) + repeatedChanges.length / Math.max(1, answered.length) * 1.5);
 
   const causes: CauseDiagnosis[] = [
     makeCause("knowledge", knowledgeScore, [
-      `${normalTimeMisses.length} misses occurred without a major time overrun.`,
+      `${deliberateMisses.length} misses occurred after a reasonable amount of working time.`,
       weakestSkill ? `${weakestSkill} was the clearest recurring skill gap.` : "No single skill gap has enough evidence yet.",
-    ], normalTimeMisses.length),
+    ], deliberateMisses.length),
+    makeCause("rushing", rushingScore, [
+      `${fastMisses.length} of ${fastDecisions.length} very fast decisions were incorrect.`,
+      `${highConfidenceFastMisses.length} fast misses carried high confidence.`,
+      `The longest streak of fast misses was ${fastMissStreak} questions.`,
+    ], fastMisses.length),
     makeCause("speed", speedScore, [
       `${slowCorrect.length} correct answers took longer than their target.`,
       `${slow.length} of ${answered.length} answered questions exceeded target pace.`,
@@ -132,6 +142,8 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
 
   const primaryCause: PerformanceCause = correctToWrong.length >= 2 || (repeatedChanges.length >= 3 && changedMisses.length >= Math.ceil(changed.length * 0.5))
     ? "second_guessing"
+    : fastMisses.length >= 3 && fastMisses.length / Math.max(1, fastDecisions.length) >= 0.35
+      ? "rushing"
     : variation >= 0.65 && slowStreak < 3
       ? "rhythm"
       : causes[0]?.score >= 0.18 ? causes[0].cause : "refinement";
@@ -150,6 +162,7 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
 function nextActivityFor(cause: PerformanceCause, skill: string) {
   const encodedSkill = encodeURIComponent(skill);
   if (cause === "knowledge") return { title: `Learn and apply ${skill}`, reason: "Accuracy is the limiting signal, so method instruction should come before speed work.", target: "4 of 5 unseen examples correct", href: `/practice?focus=knowledge&skill=${encodedSkill}&new=1` };
+  if (cause === "rushing") return { title: `Add a verification beat to ${skill}`, reason: "Very fast errors indicate that a brief pattern check can recover points without making the whole test slow.", target: "No fast misses across 5 decisions", href: `/practice?focus=rushing&skill=${encodedSkill}&new=1` };
   if (cause === "speed") return { title: `Build ${skill} fluency`, reason: "The method is producing correct answers, but it consumes too much test time.", target: "80% correct within 18 seconds", href: `/practice?focus=speed&skill=${encodedSkill}&new=1` };
   if (cause === "rhythm") return { title: "Run a three-question cadence block", reason: "Uneven decision times are disrupting the overall test rhythm.", target: "Finish each block within 54 seconds", href: `/practice?focus=rhythm&skill=${encodedSkill}&new=1` };
   if (cause === "second_guessing") return { title: "Practice evidence-based commitment", reason: "Answer changes are costing more points than they recover.", target: "No correct-to-wrong changes", href: `/practice?focus=second_guessing&skill=${encodedSkill}&new=1` };
@@ -164,6 +177,10 @@ function prescriptionsFor(cause: PerformanceCause, skill: string | null): Traini
   if (cause === "knowledge") return [
     { mode: "learn", title: `Learn ${skill ?? "the missed patterns"}`, instructions: "Study a worked example, name the rule, then complete untimed examples with immediate corrective feedback.", target: "80% correct on unseen examples" },
     { mode: "mixed", title: "Prove transfer", instructions: "Mix the repaired skill with neighboring question types so the correct method must be recognized, not prompted.", target: "4 of 5 correct without a hint" },
+  ];
+  if (cause === "rushing") return [
+    { mode: "control", title: "Install a two-second verification beat", instructions: "Before submitting, name the rule and check the exact value, direction, or character that the question asks for.", target: "No fast misses across 5 decisions" },
+    { mode: "mixed", title: "Fast-but-clean sprint", instructions: "Work at target pace, but require one explicit evidence check before every commitment.", target: "80% correct without exceeding 18 seconds" },
   ];
   if (cause === "speed") return [
     { mode: "fluency", title: "Compress the method", instructions: "Repeat one known pattern with a shrinking time cap. Review shortcuts only after accuracy is stable.", target: "80% correct within 18 seconds" },
@@ -182,6 +199,7 @@ function prescriptionsFor(cause: PerformanceCause, skill: string | null): Traini
 
 function summaryFor(cause: PerformanceCause, skill: string | null) {
   if (cause === "knowledge") return `The strongest signal is a knowledge gap${skill ? ` in ${skill}` : ""}.`;
+  if (cause === "rushing") return "You are giving away points on decisions made before a reliable check.";
   if (cause === "speed") return "Your methods are often correct, but they are not yet fast enough.";
   if (cause === "rhythm") return "Your average pace hides an uneven question-to-question cadence.";
   if (cause === "second_guessing") return "Answer changes and repeated reconsideration are costing decisions.";

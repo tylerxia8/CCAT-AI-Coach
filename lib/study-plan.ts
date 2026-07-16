@@ -38,6 +38,7 @@ const focusCopy: Record<Bottleneck, { title: string; skill: string; application:
 
 const causeCopy: Record<PerformanceCause, { title: string; skill: string; application: string }> = {
   knowledge: { title: "Repair the underlying skill gap", skill: "Study worked examples and explain the governing rule before solving.", application: "Retrieve the rule on unseen examples, then mix it with neighboring skills." },
+  rushing: { title: "Turn fast guesses into fast checks", skill: "Add a two-second verification beat before committing.", application: "Name the governing rule and verify the requested value without exceeding target pace." },
   speed: { title: "Turn correct methods into fast methods", skill: "Build fluency with shrinking time caps after accuracy is stable.", application: "Recognize and execute the method within the 18-second decision target." },
   rhythm: { title: "Build a consistent test cadence", skill: "Practice three-question blocks against fixed checkpoints.", application: "Recover immediately after a difficult item instead of carrying the delay forward." },
   second_guessing: { title: "Make cleaner final decisions", skill: "Change an answer only when you can name specific contradictory evidence.", application: "Compare the accuracy of changed and unchanged answers under time pressure." },

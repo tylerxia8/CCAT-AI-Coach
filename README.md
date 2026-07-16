@@ -51,7 +51,7 @@ Answer keys and explanations are excluded from the browser bundle. Completed att
 
 After scoring, learners receive a verified question-by-question review showing their answer, the correct answer, explanation, pace against target, and confidence rating.
 
-The deterministic coaching engine classifies knowledge, speed, cadence, second-guessing, and general refinement. It retains first-choice outcomes, first-selection latency, cumulative time across revisits, and visit counts so it can distinguish productive corrections from correct-to-wrong changes. Results include skill-level accuracy, pace, and decision-change evidence, and every recommendation includes a measurable next drill.
+The deterministic coaching engine classifies knowledge, rushing, speed, cadence, second-guessing, and general refinement. It retains first-choice outcomes, first-selection latency, cumulative time across revisits, and visit counts so it can distinguish productive corrections from correct-to-wrong changes. Rushing uses very fast misses, confidence, and consecutive fast-error evidence rather than treating every quick mistake as a knowledge gap. Results include skill-level accuracy, pace, and decision-change evidence, and every recommendation includes a measurable next drill.
 
 Prescribed drills open a separate eight-question practice set with per-question pace targets. Answers are checked on the server, and verified corrective feedback is released only after each answer is committed.
 
