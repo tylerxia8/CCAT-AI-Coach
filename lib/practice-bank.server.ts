@@ -1,4 +1,7 @@
+import { PRACTICE_EXPANSION_ANSWER_KEY } from "./practice-expansion-bank.server";
+
 export const PRACTICE_ANSWER_KEY: Record<string, { correctIndex: number; explanation: string }> = {
+  ...PRACTICE_EXPANSION_ANSWER_KEY,
   "practice-num-01": { correctIndex: 2, explanation: "Each machine produces 10 parts per hour. Eight machines working for five hours produce 8 × 5 × 10 = 400 parts." },
   "practice-ver-01": { correctIndex: 1, explanation: "Transparent and opaque are opposites. Flexible and rigid have the same opposite relationship." },
   "practice-log-01": { correctIndex: 2, explanation: "The first statement directly guarantees that every Nib is a Pex. The overlap between Pexes and Jors does not establish anything further about Nibs." },

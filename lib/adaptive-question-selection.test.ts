@@ -22,6 +22,7 @@ describe("adaptive question selection", () => {
     expect(sequence).toHaveLength(Math.min(10, PRACTICE_QUESTIONS.length));
     expect(new Set(sequence.map((item) => item.id)).size).toBe(sequence.length);
     expect(sequence.findIndex((item) => item.skill === "sentence completion")).toBeLessThanOrEqual(4);
+    expect(sequence.filter((item) => item.skill === "sentence completion").length).toBeLessThanOrEqual(4);
     expect(sequence.some((item) => item.difficulty < 3)).toBe(true);
     expect(sequence.some((item) => item.difficulty > 3)).toBe(true);
   });

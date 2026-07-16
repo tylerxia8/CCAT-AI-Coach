@@ -16,6 +16,8 @@ describe("practice bank", () => {
 
   it("covers all four reasoning categories", () => {
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.category))).toEqual(new Set(["Numerical", "Verbal", "Logic", "Spatial"]));
+    expect(Object.fromEntries(["Numerical", "Verbal", "Logic", "Spatial"].map((category) => [category, PRACTICE_QUESTIONS.filter((question) => question.category === category).length])))
+      .toEqual({ Numerical: 41, Verbal: 38, Logic: 26, Spatial: 25 });
   });
 
   it("maintains depth in the formerly thin skill areas", () => {
@@ -38,7 +40,7 @@ describe("practice bank", () => {
   });
 
   it("tags every drill question for adaptive selection", () => {
-    expect(PRACTICE_QUESTIONS.length).toBeGreaterThanOrEqual(40);
+    expect(PRACTICE_QUESTIONS).toHaveLength(130);
     for (const question of PRACTICE_QUESTIONS) {
       expect(question.difficulty).toBeGreaterThanOrEqual(1);
       expect(question.difficulty).toBeLessThanOrEqual(5);
@@ -48,6 +50,9 @@ describe("practice bank", () => {
       expect(PRACTICE_ANSWER_KEY[question.id].explanation.length).toBeGreaterThan(20);
     }
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.difficulty)).size).toBeGreaterThanOrEqual(4);
+    for (const difficulty of [1, 2, 3, 4, 5]) {
+      expect(PRACTICE_QUESTIONS.filter((question) => question.difficulty === difficulty).length).toBeGreaterThanOrEqual(10);
+    }
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.prompt.toLowerCase())).size).toBe(PRACTICE_QUESTIONS.length);
   });
 

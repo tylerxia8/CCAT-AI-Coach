@@ -34,10 +34,12 @@ export function estimateAbility(focus: string, stage: DrillStage, history: Pract
 
 export function selectAdaptiveSequence(questions: PracticeQuestion[], targetDifficulty: number, requestedSkill?: string | null, exposures: Record<string, number> = {}, limit = 10) {
   const preferred = requestedSkill ? questions.filter((question) => question.skill === requestedSkill) : [];
-  const remaining = questions.filter((question) => !preferred.some((item) => item.id === question.id));
   const rank = (a: PracticeQuestion, b: PracticeQuestion) => (exposures[a.id] ?? 0) - (exposures[b.id] ?? 0) || Math.abs(a.difficulty - targetDifficulty) - Math.abs(b.difficulty - targetDifficulty) || a.difficulty - b.difficulty || a.id.localeCompare(b.id);
+  const preferredLimit = Math.min(preferred.length, Math.max(1, Math.ceil(limit * .4)));
+  const selectedPreferred = [...preferred].sort(rank).slice(0, preferredLimit);
+  const remaining = questions.filter((question) => !preferred.some((item) => item.id === question.id));
   const sequence = [...remaining].sort(rank);
-  for (const question of [...preferred].sort(rank)) {
+  for (const question of selectedPreferred) {
     const probePosition = question.difficulty === targetDifficulty ? 0 : question.difficulty < targetDifficulty ? 1 : 4;
     sequence.splice(Math.min(probePosition, sequence.length), 0, question);
   }

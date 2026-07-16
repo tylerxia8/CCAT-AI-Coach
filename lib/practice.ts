@@ -1,4 +1,5 @@
 import type { Category, DataStimulus } from "./diagnostic";
+import { PRACTICE_EXPANSION_QUESTIONS } from "./practice-expansion";
 
 export type PracticeQuestion = {
   id: string;
@@ -87,4 +88,5 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = [
   { id: "practice-spa-10", category: "Spatial", prompt: "Complete the matrix: top row ○, ○○, ○○○; bottom row ■, ■■, ?", choices: ["■", "■■", "■■■", "□□□", "●●●"], targetSeconds: 22, difficulty: 2, skill: "figure matrices" },
   { id: "practice-spa-11", category: "Spatial", prompt: "In each row, the third cell combines the first two. Top row: ○, ●, ○●. Bottom row: □, ■, ?", choices: ["□", "■", "□■", "○●", "■■"], targetSeconds: 28, difficulty: 3, skill: "figure matrices" },
   { id: "practice-spa-12", category: "Spatial", prompt: "In each row, rotate the first symbol 90° clockwise, then place it before the second. Top row: ↑, ○, →○. Bottom row: ←, □, ?", choices: ["←□", "↑□", "→□", "↓□", "□↑"], targetSeconds: 34, difficulty: 5, skill: "figure matrices" },
+  ...PRACTICE_EXPANSION_QUESTIONS,
 ];
