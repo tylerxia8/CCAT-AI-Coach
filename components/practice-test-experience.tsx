@@ -28,6 +28,7 @@ export function PracticeTestExperience() {
   const [changes, setChanges] = useState<Record<string, number>>({});
   const [firstAnswers, setFirstAnswers] = useState<Record<string, number>>({});
   const [firstTimes, setFirstTimes] = useState<Record<string, number>>({});
+  const [eliminated, setEliminated] = useState<Record<string, number[]>>({});
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [result, setResult] = useState<ScoredDiagnosticResult | null>(null);
   const startedAt = useRef(Date.now());
@@ -79,6 +80,7 @@ export function PracticeTestExperience() {
   }
 
   function selectAnswer(choiceIndex: number) {
+    if (eliminated[question.id]?.includes(choiceIndex)) return;
     const previous = answers[question.id];
     if (firstAnswers[question.id] === undefined) {
       setFirstAnswers((current) => ({
@@ -99,6 +101,16 @@ export function PracticeTestExperience() {
         [question.id]: (current[question.id] ?? 0) + 1,
       }));
     setAnswers((current) => ({ ...current, [question.id]: choiceIndex }));
+  }
+
+  function toggleElimination(choiceIndex: number) {
+    if (!eliminated[question.id]?.includes(choiceIndex) && answers[question.id] === choiceIndex) {
+      setAnswers((current) => { const next = { ...current }; delete next[question.id]; return next; });
+    }
+    setEliminated((current) => {
+      const values = current[question.id] ?? [];
+      return { ...current, [question.id]: values.includes(choiceIndex) ? values.filter((value) => value !== choiceIndex) : [...values, choiceIndex] };
+    });
   }
 
   function submitTest() {
@@ -251,14 +263,16 @@ export function PracticeTestExperience() {
           <span>Target pace · 18s</span>
         </div>
         {mode === "timed" && <div className="phase-cue"><strong>{phaseGuidance(index).title}</strong><span>{phaseGuidance(index).instruction}</span></div>}
-        {mode === "guided" && <div className="strategy-cue"><strong>Strategy cue</strong><span>{strategyFor(question.itemFamily)}</span></div>}
+        {mode === "guided" && <div className="strategy-cue"><strong>Strategy cue</strong><span>{strategyFor(question.itemFamily, question.prompt)}</span></div>}
         {question.stimulus && <QuestionStimulus stimulus={question.stimulus} />}
         <h1>{question.prompt}</h1>
+        {mode === "guided" && <div className="elimination-toolbar"><span>Eliminate choices</span>{question.choices.map((_, choiceIndex) => <button key={choiceIndex} className={eliminated[question.id]?.includes(choiceIndex) ? "active" : ""} onClick={() => toggleElimination(choiceIndex)}>{String.fromCharCode(65 + choiceIndex)}</button>)}</div>}
         <div className="choices">
           {question.choices.map((choice, choiceIndex) => (
             <button
               key={choice}
-              className={answers[question.id] === choiceIndex ? "selected" : ""}
+              disabled={eliminated[question.id]?.includes(choiceIndex)}
+              className={`${answers[question.id] === choiceIndex ? "selected" : ""} ${eliminated[question.id]?.includes(choiceIndex) ? "eliminated" : ""}`}
               onClick={() => selectAnswer(choiceIndex)}
             >
               <span>{String.fromCharCode(65 + choiceIndex)}</span>
@@ -318,13 +332,14 @@ function Nav() {
   );
 }
 
-function strategyFor(family?: string) {
-  if (family === "percentages") return "Translate the percentage into a multiplier before touching the answer choices.";
+function strategyFor(family?: string, prompt = "") {
+  if (family === "percentages") return "Estimate first using 10%, 25%, or 50% anchors. Calculate exactly only if more than one choice survives.";
+  if (prompt.includes("greatest") || prompt.includes("smallest")) return "Align place values and compare digits from left to right until one differs.";
   if (family === "verbal analogies") return "State the relationship as a short sentence, then test that same sentence against each option.";
   if (family === "sentence completion") return "Use contrast and cause words to predict the missing meaning before reading the choices.";
   if (family === "attention to detail") return "Compare in fixed chunks from left to right; do not judge the whole line by its overall appearance.";
   if (family === "number sequences" || family === "letter series") return "Check first differences before testing more complicated alternating rules.";
-  if (family?.includes("figure") || family === "mental rotation" || family === "visual sequences") return "Track one changing feature at a time: count, direction, position, then shading.";
+  if (family?.includes("figure") || family === "mental rotation" || family === "visual sequences") return "Hypothesize from 2–3 frames, verify the rule across every frame, then eliminate options that violate one feature.";
   if (family === "syllogisms" || family === "ordering logic") return "Write only what must follow; do not add relationships the statements never establish.";
   return "Identify the governing operation, estimate the result, and then calculate only what the prompt requests.";
 }
