@@ -21,6 +21,12 @@ describe("practice answer API", () => {
     expect(await response.json()).toMatchObject({ isCorrect: false, correctAnswer: "400" });
   });
 
+  it("returns review feedback when a hard deadline expires without an answer", async () => {
+    const response = await POST(request({ questionId: PRACTICE_QUESTIONS[0].id, answerIndex: null }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ isCorrect: false, correctAnswer: "400" });
+  });
+
   it("rejects unknown questions and out-of-range answers", async () => {
     expect((await POST(request({ questionId: "unknown", answerIndex: 0 }))).status).toBe(400);
     expect((await POST(request({ questionId: PRACTICE_QUESTIONS[0].id, answerIndex: 99 }))).status).toBe(400);

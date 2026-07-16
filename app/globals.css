@@ -250,6 +250,13 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .training-directive { background: #eaf6fa; border-left: 4px solid var(--green); display: grid; gap: 5px; margin-bottom: 26px; padding: 15px 18px; }
 .training-directive strong { font-size: 12px; }
 .training-directive span { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.pace-clock { align-items: center; background: #f4f8f6; border: 1px solid var(--line); border-radius: 10px; display: grid; grid-template-columns: 1fr auto; margin: 14px 0 22px; padding: 12px 14px; }
+.pace-clock span { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.pace-clock strong { color: var(--green); font-size: 24px; font-variant-numeric: tabular-nums; }
+.pace-clock small { color: var(--muted); font-size: 10px; grid-column: 1 / -1; }
+.pace-clock.urgent { background: #fff5df; border-color: #d99b38; }
+.pace-clock.urgent strong, .pace-clock.expired strong { color: #9c4a2b; }
+.pace-clock.expired { background: #f7e9df; border-color: #a75435; }
 .practice-card h1 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(36px, 5vw, 54px); font-weight: 450; letter-spacing: -.035em; line-height: 1.08; margin: 26px 0 38px; }
 .practice-card .choices button:disabled { cursor: default; }
 .feedback-card { border-left: 4px solid; margin-top: 24px; padding: 20px 22px; }

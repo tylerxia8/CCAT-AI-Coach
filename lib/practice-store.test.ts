@@ -11,10 +11,10 @@ describe("practice persistence", () => {
     const session = createPracticeSession();
     session.records = [
       { questionId: "one", isCorrect: true, correctAnswer: "A", explanation: "Why", elapsedSeconds: 20, targetSeconds: 30, difficulty: 2 },
-      { questionId: "two", isCorrect: false, correctAnswer: "B", explanation: "Why", elapsedSeconds: 40, targetSeconds: 30, difficulty: 4 },
+      { questionId: "two", isCorrect: false, correctAnswer: "B", explanation: "Why", elapsedSeconds: 40, targetSeconds: 30, difficulty: 4, timedOut: true },
     ];
     const completed = completePracticeSession(session, new Date("2026-07-15T12:10:00Z"));
-    expect(completed.entry).toMatchObject({ correct: 1, total: 2, onPace: 1, averageDifficulty: 3 });
+    expect(completed.entry).toMatchObject({ correct: 1, total: 2, onPace: 1, timedOut: 1, averageDifficulty: 3 });
     expect(completed.session.status).toBe("completed");
   });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PRACTICE_QUESTIONS, type PracticeFeedback } from "@/lib/practice";
 import { addPracticeHistory, completePracticeSession, createPracticeSession, parsePracticeHistory, parsePracticeSession, PRACTICE_HISTORY_KEY, PRACTICE_SESSION_KEY, type PracticeRecord } from "@/lib/practice-store";
 import { drillProgression, meetsStageGate, targetForStage, type DrillProgression } from "@/lib/adaptive-practice";
@@ -9,6 +9,7 @@ import { estimateAbility, selectAdaptiveSequence, type AbilityEstimate } from "@
 import { HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
 import { questionExposureCounts, recommendPracticeSkill } from "@/lib/practice-curriculum";
 import { QuestionStimulus } from "@/components/question-stimulus";
+import { clockState, timeConstraintFor } from "@/lib/time-constraint-drills";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -21,6 +22,8 @@ export function PracticeExperience() {
   const [sessionId, setSessionId] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [selectionChanges, setSelectionChanges] = useState(0);
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+  const [deadlineTriggered, setDeadlineTriggered] = useState(false);
   const [progression, setProgression] = useState<DrillProgression>(() => drillProgression("focused practice", { version: 1, entries: [] }));
   const [ability, setAbility] = useState<AbilityEstimate>(() => estimateAbility("focused practice", 1, { version: 1, entries: [] }));
   const [questionIds, setQuestionIds] = useState(() => PRACTICE_QUESTIONS.map((item) => item.id));
@@ -28,6 +31,22 @@ export function PracticeExperience() {
   const adaptiveQuestions = questionIds.map((id) => PRACTICE_QUESTIONS.find((item) => item.id === id)).filter((item): item is (typeof PRACTICE_QUESTIONS)[number] => Boolean(item));
   const question = adaptiveQuestions[index];
   const training = trainingConfig(focus, question?.targetSeconds ?? 18, progression);
+  const timeConstraint = timeConstraintFor(focus, progression.stage);
+
+  useEffect(() => {
+    setSecondsRemaining(training.targetSeconds);
+    setDeadlineTriggered(false);
+    if (!timeConstraint.enabled || feedback || index >= adaptiveQuestions.length) return;
+    const deadline = startedAt.current + training.targetSeconds * 1000;
+    const updateClock = () => {
+      const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setSecondsRemaining(remaining);
+      if (remaining === 0 && timeConstraint.hardStop) setDeadlineTriggered(true);
+    };
+    updateClock();
+    const timer = window.setInterval(updateClock, 250);
+    return () => window.clearInterval(timer);
+  }, [adaptiveQuestions.length, feedback, index, question?.id, timeConstraint.enabled, timeConstraint.hardStop, training.targetSeconds]);
 
   useEffect(() => {
     const parameters = new URLSearchParams(window.location.search);
@@ -102,8 +121,8 @@ export function PracticeExperience() {
     window.localStorage.setItem(PRACTICE_HISTORY_KEY, JSON.stringify(addPracticeHistory(history, completed.entry)));
   }, [adaptiveQuestions.length, focus, hydrated, index, records, sessionId]);
 
-  async function checkAnswer() {
-    if (selected === null || submitting) return;
+  const checkAnswer = useCallback(async (timedOut = false) => {
+    if ((!timedOut && selected === null) || submitting || !question) return;
     setSubmitting(true);
     setError(false);
     try {
@@ -116,13 +135,17 @@ export function PracticeExperience() {
       const result = await response.json() as PracticeFeedback;
       const elapsedSeconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
       setFeedback(result);
-      setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: training.targetSeconds, difficulty: question.difficulty, skill: question.skill }]);
+      setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: training.targetSeconds, difficulty: question.difficulty, skill: question.skill, timedOut }]);
     } catch {
       setError(true);
     } finally {
       setSubmitting(false);
     }
-  }
+  }, [question, selected, submitting, training.targetSeconds]);
+
+  useEffect(() => {
+    if (deadlineTriggered && !feedback && !submitting) void checkAnswer(true);
+  }, [checkAnswer, deadlineTriggered, feedback, submitting]);
 
   function next() {
     setIndex((current) => current + 1);
@@ -140,12 +163,13 @@ export function PracticeExperience() {
   if (index >= adaptiveQuestions.length) {
     const correct = records.filter((record) => record.isCorrect).length;
     const onPace = records.filter((record) => record.elapsedSeconds <= record.targetSeconds).length;
+    const timedOut = records.filter((record) => record.timedOut).length;
     const gateMet = meetsStageGate({ sessionId, completedAt: new Date().toISOString(), focus, correct, total: records.length, onPace }, progression.stage);
     return (
       <main className="practice-shell">
         <PracticeNav />
-        <section className="practice-complete"><div className="eyebrow">{progression.label} stage · level {ability.targetDifficulty}/5</div><h1>{correct} of {records.length} correct</h1><p>{onPace} decisions landed within target pace. {gateMet ? progression.stage === 3 ? "Transfer gate met—verify the gain on a full diagnostic." : "Gate met—your next set adds more time pressure." : `Stay at this stage until you ${progression.gate.toLowerCase()}`}</p><div className="practice-complete-actions"><button className="primary" onClick={repeat}>{gateMet && progression.stage < 3 ? "Continue to next stage" : "Repeat stage"}</button><Link className="secondary link-button" href="/?new=1">Reassess</Link></div></section>
-        <section className="practice-recap">{records.map((record, recordIndex) => <article key={record.questionId}><span>{String(recordIndex + 1).padStart(2, "0")}</span><strong>{record.isCorrect ? "Correct" : "Review"}</strong><small>{record.elapsedSeconds}s · {record.elapsedSeconds <= record.targetSeconds ? "on pace" : "slow"}</small></article>)}</section>
+        <section className="practice-complete"><div className="eyebrow">{progression.label} stage · level {ability.targetDifficulty}/5</div><h1>{correct} of {records.length} correct</h1><p>{onPace} decisions landed within target pace.{timedOut ? ` ${timedOut} reached the hard deadline.` : ""} {gateMet ? progression.stage === 3 ? "Transfer gate met—verify the gain on a full diagnostic." : "Gate met—your next set adds more time pressure." : `Stay at this stage until you ${progression.gate.toLowerCase()}`}</p><div className="practice-complete-actions"><button className="primary" onClick={repeat}>{gateMet && progression.stage < 3 ? "Continue to next stage" : "Repeat stage"}</button><Link className="secondary link-button" href="/?new=1">Reassess</Link></div></section>
+        <section className="practice-recap">{records.map((record, recordIndex) => <article key={record.questionId}><span>{String(recordIndex + 1).padStart(2, "0")}</span><strong>{record.isCorrect ? "Correct" : record.timedOut ? "Time" : "Review"}</strong><small>{record.elapsedSeconds}s · {record.timedOut ? "deadline" : record.elapsedSeconds <= record.targetSeconds ? "on pace" : "slow"}</small></article>)}</section>
       </main>
     );
   }
@@ -157,6 +181,7 @@ export function PracticeExperience() {
       <section className="practice-card">
         <div className="training-directive"><strong>Stage {progression.stage} · {progression.label} · Level {ability.targetDifficulty}/5 · {training.title}</strong><span>{progression.purpose} {training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span><small>{adaptiveQuestions.length}-question set from {PRACTICE_QUESTIONS.length} rotating items · {ability.confidence} evidence · {ability.reason} Advance when: {progression.gate}</small></div>
         <div className="question-meta"><span>{question.category} · {question.skill}</span><span>Difficulty {question.difficulty}/5 · Target {training.targetSeconds}s</span></div>
+        {timeConstraint.enabled && <div className={`pace-clock ${clockState(secondsRemaining)}`} aria-live="polite"><span>{timeConstraint.label}</span><strong>{secondsRemaining}s</strong><small>{secondsRemaining > 0 ? "Decide, verify, commit" : timeConstraint.hardStop ? "Answer committed at deadline" : "Over target—finish cleanly"}</small></div>}
         {question.stimulus && <QuestionStimulus stimulus={question.stimulus} />}
         <h1>{question.prompt}</h1>
         <div className="choices">
@@ -164,7 +189,7 @@ export function PracticeExperience() {
         </div>
         {feedback && <div className={`feedback-card ${feedback.isCorrect ? "correct" : "incorrect"}`}><div className="feedback-label">{feedback.isCorrect ? "Correct" : `Correct answer · ${feedback.correctAnswer}`}</div><p>{feedback.explanation}</p></div>}
         {error && <p className="practice-error">We couldn’t check that answer. Your selection is still here—please try again.</p>}
-        <div className="practice-actions"><span>Question {index + 1} of {adaptiveQuestions.length}</span>{feedback ? <button className="primary" onClick={next}>{index === adaptiveQuestions.length - 1 ? "See drill results" : "Next question →"}</button> : <button className="primary" disabled={selected === null || submitting} onClick={checkAnswer}>{submitting ? "Checking…" : "Check answer"}</button>}</div>
+        <div className="practice-actions"><span>Question {index + 1} of {adaptiveQuestions.length}</span>{feedback ? <button className="primary" onClick={next}>{index === adaptiveQuestions.length - 1 ? "See drill results" : "Next question →"}</button> : <button className="primary" disabled={selected === null || submitting} onClick={() => void checkAnswer()}>{submitting ? "Checking…" : "Check answer"}</button>}</div>
       </section>
     </main>
   );
@@ -181,5 +206,5 @@ function trainingConfig(focus: string, baseTarget: number, progression: DrillPro
 }
 
 function PracticeNav() {
-  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/progress">Progress</Link><span className="nav-note">Practice mode</span></div></nav>;
+  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice?focus=speed&new=1">Timed drills</Link><Link className="nav-text-link" href="/progress">Progress</Link><span className="nav-note">Practice mode</span></div></nav>;
 }
