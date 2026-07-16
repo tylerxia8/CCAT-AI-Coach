@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { PerformanceDiagnosis } from "@/components/performance-diagnosis";
 import { QuestionReview } from "@/components/question-review";
 import { QuestionStimulus } from "@/components/question-stimulus";
+import { SimulationReadiness } from "@/components/simulation-readiness";
 import type { Attempt, ScoredDiagnosticResult } from "@/lib/diagnostic";
 import {
   PRACTICE_TEST_QUESTIONS,
@@ -233,6 +234,7 @@ export function PracticeTestExperience() {
             <small>calibrated decisions</small>
           </article>
         </section> : <p className="guided-result-note">Guided mode emphasizes method and review, so its timing is not used for behavioral diagnosis. Use timed mode when you want a pace or rushing assessment.</p>}
+        {mode === "timed" && <SimulationReadiness result={result} observations={result.total} />}
         {mode === "timed" && <PerformanceDiagnosis diagnosis={result.diagnosis} />}
         <QuestionReview reviews={result.reviews} />
       </main>

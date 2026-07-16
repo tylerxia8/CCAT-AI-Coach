@@ -73,6 +73,8 @@ Form B is difficulty-ramped and gives compact phase guidance during timed work: 
 
 Guided mode also supports explicit answer elimination. Learners can cross out options while applying a hypothesis–verify–eliminate protocol for abstract patterns, place-value comparison for decimals, and estimation anchors for percentages. Elimination remains a learning aid and does not contaminate timed-mode behavioral measurements.
 
+Timed forms produce a conservative practice-readiness indicator based on accuracy, on-target pace, confidence calibration, and evidence volume. It is explicitly a training signal—not a hiring-score or pass prediction—and always provides the next measurable evidence gate.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.

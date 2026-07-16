@@ -80,6 +80,14 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .phase-cue strong { color: var(--ink); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
 .timer.guided strong { font-size: 15px; }
 .guided-result-note { background: var(--card); border: 1px solid var(--line); border-radius: 12px; color: var(--muted); font-size: 12px; line-height: 1.6; padding: 18px; }
+.readiness-strip { align-items: center; background: var(--card); border: 1px solid var(--line); border-left: 5px solid #b67a4f; border-radius: 14px; display: grid; gap: 30px; grid-template-columns: 1.3fr .7fr; margin-top: 18px; padding: 22px 26px; }
+.readiness-strip.developing { border-left-color: #9aa534; }
+.readiness-strip.simulation_ready { border-left-color: var(--green); }
+.readiness-strip h2 { font-family: var(--font-serif), Georgia, serif; font-size: 28px; font-weight: 500; margin: 7px 0; }
+.readiness-strip p { color: var(--muted); font-size: 11px; margin: 0; }
+.readiness-strip > div:last-child { display: grid; gap: 7px; }
+.readiness-strip small { color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.readiness-strip strong { font-size: 11px; line-height: 1.5; }
 .elimination-toolbar { align-items: center; display: flex; gap: 6px; margin: 10px 0; }
 .elimination-toolbar span { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .08em; margin-right: 4px; text-transform: uppercase; }
 .elimination-toolbar button { background: transparent; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); cursor: pointer; font-size: 9px; height: 25px; width: 25px; }
@@ -379,6 +387,7 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   .diagnosis-heading { align-items: start; flex-direction: column; }
   .cause-grid, .prescription-grid { grid-template-columns: 1fr; }
   .adaptive-next { grid-template-columns: 1fr; }
+  .readiness-strip { grid-template-columns: 1fr; }
   .adaptive-next > div:last-child { border-left: 0; border-top: 1px solid #c8cfaa; padding: 20px 0 0; }
   .skill-diagnostics { grid-template-columns: 1fr; }
   .skill-diagnostic-list > div { grid-template-columns: 1.5fr 1fr 1fr; }

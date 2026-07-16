@@ -9,6 +9,7 @@ import { QuestionReview } from "@/components/question-review";
 import { addHistoryEntry, createHistoryEntry, HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
 import { PerformanceDiagnosis } from "@/components/performance-diagnosis";
 import { QuestionStimulus } from "@/components/question-stimulus";
+import { SimulationReadiness } from "@/components/simulation-readiness";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -246,6 +247,7 @@ export function DiagnosticExperience() {
           <article><span>On-target pace</span><strong>{Math.round(result.paceScore * 100)}%</strong><small>within target time</small></article>
           <article><span>Confidence fit</span><strong>{Math.round(result.confidenceScore * 100)}%</strong><small>calibrated decisions</small></article>
         </section>
+        <SimulationReadiness result={result} observations={result.total} />
         <section className="report-grid">
           <article className="category-card"><div className="section-label">Category performance</div>{result.categoryResults.filter((item) => item.total).map((item) => <div className="category-row" key={item.category}><span>{item.category}</span><div className="bar"><i style={{ width: `${(item.correct / item.total) * 100}%` }} /></div><b>{item.correct}/{item.total}</b></div>)}</article>
           <article className="coach-card">
