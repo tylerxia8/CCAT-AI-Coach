@@ -28,6 +28,8 @@ export type PracticeHistoryEntry = {
   total: number;
   onPace: number;
   averageDifficulty?: number;
+  questionIds?: string[];
+  skillResults?: Array<{ skill: string; correct: number; total: number }>;
 };
 
 export type PracticeHistory = { version: 1; entries: PracticeHistoryEntry[] };
@@ -85,11 +87,22 @@ export function completePracticeSession(session: StoredPracticeSession, complete
       total: session.records.length,
       onPace: session.records.filter((record) => record.elapsedSeconds <= record.targetSeconds).length,
       averageDifficulty: average(session.records.flatMap((record) => record.difficulty ?? [])),
+      questionIds: session.records.map((record) => record.questionId),
+      skillResults: summarizeSkills(session.records),
     },
   };
 }
 
 function average(values: number[]) { return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length * 100) / 100 : undefined; }
+function summarizeSkills(records: PracticeRecord[]) {
+  const skills = new Map<string, { correct: number; total: number }>();
+  for (const record of records) {
+    if (!record.skill) continue;
+    const current = skills.get(record.skill) ?? { correct: 0, total: 0 };
+    skills.set(record.skill, { correct: current.correct + Number(record.isCorrect), total: current.total + 1 });
+  }
+  return [...skills.entries()].map(([skill, result]) => ({ skill, ...result }));
+}
 
 export function addPracticeHistory(history: PracticeHistory, entry: PracticeHistoryEntry): PracticeHistory {
   return {
@@ -106,5 +119,7 @@ function isHistoryEntry(value: unknown): value is PracticeHistoryEntry {
     && Number.isInteger(entry.correct) && Number.isInteger(entry.total) && Number.isInteger(entry.onPace)
     && Number(entry.correct) >= 0 && Number(entry.total) > 0 && Number(entry.correct) <= Number(entry.total)
     && Number(entry.onPace) >= 0 && Number(entry.onPace) <= Number(entry.total)
-    && (entry.averageDifficulty === undefined || (typeof entry.averageDifficulty === "number" && entry.averageDifficulty >= 1 && entry.averageDifficulty <= 5));
+    && (entry.averageDifficulty === undefined || (typeof entry.averageDifficulty === "number" && entry.averageDifficulty >= 1 && entry.averageDifficulty <= 5))
+    && (entry.questionIds === undefined || (Array.isArray(entry.questionIds) && entry.questionIds.every((id) => typeof id === "string")))
+    && (entry.skillResults === undefined || Array.isArray(entry.skillResults));
 }

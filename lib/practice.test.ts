@@ -19,12 +19,17 @@ describe("practice bank", () => {
   });
 
   it("tags every drill question for adaptive selection", () => {
+    expect(PRACTICE_QUESTIONS.length).toBeGreaterThanOrEqual(40);
     for (const question of PRACTICE_QUESTIONS) {
       expect(question.difficulty).toBeGreaterThanOrEqual(1);
       expect(question.difficulty).toBeLessThanOrEqual(5);
       expect(question.skill.length).toBeGreaterThan(2);
+      expect(question.choices).toHaveLength(5);
+      expect(new Set(question.choices.map((choice) => choice.toLowerCase())).size).toBe(5);
+      expect(PRACTICE_ANSWER_KEY[question.id].explanation.length).toBeGreaterThan(20);
     }
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.difficulty)).size).toBeGreaterThanOrEqual(4);
+    expect(new Set(PRACTICE_QUESTIONS.map((question) => question.prompt.toLowerCase())).size).toBe(PRACTICE_QUESTIONS.length);
   });
 
   it("includes a contextual sentence-completion drill", () => {

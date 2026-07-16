@@ -6,6 +6,8 @@ import { PRACTICE_QUESTIONS, type PracticeFeedback } from "@/lib/practice";
 import { addPracticeHistory, completePracticeSession, createPracticeSession, parsePracticeHistory, parsePracticeSession, PRACTICE_HISTORY_KEY, PRACTICE_SESSION_KEY, type PracticeRecord } from "@/lib/practice-store";
 import { drillProgression, meetsStageGate, targetForStage, type DrillProgression } from "@/lib/adaptive-practice";
 import { estimateAbility, selectAdaptiveSequence, type AbilityEstimate } from "@/lib/adaptive-question-selection";
+import { HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
+import { questionExposureCounts, recommendPracticeSkill } from "@/lib/practice-curriculum";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -31,6 +33,7 @@ export function PracticeExperience() {
     if (parameters.get("new") === "1") window.localStorage.removeItem(PRACTICE_SESSION_KEY);
     const restored = parsePracticeSession(window.localStorage.getItem(PRACTICE_SESSION_KEY));
     const practiceHistory = parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY));
+    const diagnosticHistory = parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY));
     if (restored) {
       const restoredProgression = drillProgression(restored.focus, practiceHistory);
       const restoredAbility = estimateAbility(restored.focus, restoredProgression.stage, practiceHistory);
@@ -50,13 +53,17 @@ export function PracticeExperience() {
     }
     const requested = parameters.get("focus");
     const requestedSkill = parameters.get("skill");
-    const validSkill = requestedSkill && /^[a-z0-9 &-]{2,40}$/i.test(requestedSkill) ? requestedSkill : null;
+    const inferredSkill = recommendPracticeSkill(diagnosticHistory, practiceHistory);
+    const selectedSkill = requestedSkill ?? inferredSkill;
+    const validSkill = selectedSkill && /^[a-z0-9 &-]{2,40}$/i.test(selectedSkill) ? selectedSkill : null;
     const skillLabel = validSkill ? ` · ${validSkill}` : "";
-    const selectedFocus = requested && /^[a-z_]+$/.test(requested) ? `${requested} practice${skillLabel}` : "focused practice";
+    const inferredCause = diagnosticHistory.entries.at(-1)?.primaryCause ?? "refinement";
+    const selectedCause = requested && /^[a-z_]+$/.test(requested) ? requested : inferredCause;
+    const selectedFocus = `${selectedCause} practice${skillLabel}`;
     const session = createPracticeSession(selectedFocus);
     const selectedProgression = drillProgression(selectedFocus, practiceHistory);
     const selectedAbility = estimateAbility(selectedFocus, selectedProgression.stage, practiceHistory);
-    const selectedQuestionIds = selectAdaptiveSequence(PRACTICE_QUESTIONS, selectedAbility.targetDifficulty, validSkill).map((item) => item.id);
+    const selectedQuestionIds = selectAdaptiveSequence(PRACTICE_QUESTIONS, selectedAbility.targetDifficulty, validSkill, questionExposureCounts(practiceHistory), 10).map((item) => item.id);
     setSessionId(session.id);
     setFocus(session.focus);
     setProgression(selectedProgression);
@@ -147,7 +154,7 @@ export function PracticeExperience() {
       <PracticeNav />
       <div className="practice-progress"><i style={{ width: `${((index + (feedback ? 1 : 0)) / adaptiveQuestions.length) * 100}%` }} /></div>
       <section className="practice-card">
-        <div className="training-directive"><strong>Stage {progression.stage} · {progression.label} · Level {ability.targetDifficulty}/5 · {training.title}</strong><span>{progression.purpose} {training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span><small>{ability.confidence} evidence · {ability.reason} Advance when: {progression.gate}</small></div>
+        <div className="training-directive"><strong>Stage {progression.stage} · {progression.label} · Level {ability.targetDifficulty}/5 · {training.title}</strong><span>{progression.purpose} {training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span><small>{adaptiveQuestions.length}-question set from {PRACTICE_QUESTIONS.length} rotating items · {ability.confidence} evidence · {ability.reason} Advance when: {progression.gate}</small></div>
         <div className="question-meta"><span>{question.category} · {question.skill}</span><span>Difficulty {question.difficulty}/5 · Target {training.targetSeconds}s</span></div>
         <h1>{question.prompt}</h1>
         <div className="choices">

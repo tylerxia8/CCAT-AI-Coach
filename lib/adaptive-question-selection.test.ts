@@ -19,10 +19,24 @@ describe("adaptive question selection", () => {
 
   it("creates a stable, unique mixed-difficulty sequence and prioritizes the requested skill", () => {
     const sequence = selectAdaptiveSequence(PRACTICE_QUESTIONS, 3, "sentence completion");
-    expect(sequence).toHaveLength(PRACTICE_QUESTIONS.length);
-    expect(new Set(sequence.map((item) => item.id)).size).toBe(PRACTICE_QUESTIONS.length);
+    expect(sequence).toHaveLength(Math.min(10, PRACTICE_QUESTIONS.length));
+    expect(new Set(sequence.map((item) => item.id)).size).toBe(sequence.length);
     expect(sequence.findIndex((item) => item.skill === "sentence completion")).toBeLessThanOrEqual(4);
     expect(sequence.some((item) => item.difficulty < 3)).toBe(true);
     expect(sequence.some((item) => item.difficulty > 3)).toBe(true);
+  });
+
+  it("cycles toward questions with fewer prior exposures", () => {
+    const exposures = Object.fromEntries(PRACTICE_QUESTIONS.slice(0, 5).map((item) => [item.id, 2]));
+    const sequence = selectAdaptiveSequence(PRACTICE_QUESTIONS, 3, null, exposures, 4);
+    expect(sequence.every((item) => (exposures[item.id] ?? 0) === 0)).toBe(true);
+  });
+
+  it("changes most of the set after a completed personalized session", () => {
+    const first = selectAdaptiveSequence(PRACTICE_QUESTIONS, 3, "sentence completion");
+    const exposures = Object.fromEntries(first.map((item) => [item.id, 1]));
+    const second = selectAdaptiveSequence(PRACTICE_QUESTIONS, 3, "sentence completion", exposures);
+    const repeated = second.filter((item) => first.some((prior) => prior.id === item.id));
+    expect(repeated.length).toBeLessThanOrEqual(4);
   });
 });
