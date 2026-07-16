@@ -21,4 +21,10 @@ describe("practice bank", () => {
   it("includes a contextual sentence-completion drill", () => {
     expect(PRACTICE_QUESTIONS.some((question) => question.id === "practice-ver-03" && question.prompt.includes("___"))).toBe(true);
   });
+
+  it("scores the compound rotation question as east", () => {
+    const question = PRACTICE_QUESTIONS.find((item) => item.id === "practice-spa-01");
+    const answer = PRACTICE_ANSWER_KEY["practice-spa-01"];
+    expect(question?.choices[answer.correctIndex]).toBe("East");
+  });
 });
