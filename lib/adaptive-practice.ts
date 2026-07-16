@@ -34,5 +34,5 @@ export function targetForStage(baseTarget: number, stage: DrillStage, focus: str
 }
 
 function sameFocus(left: string, right: string) {
-  return left.split(" practice")[0] === right.split(" practice")[0];
+  return left.trim().toLowerCase() === right.trim().toLowerCase();
 }

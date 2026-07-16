@@ -77,6 +77,8 @@ Timed forms produce a conservative practice-readiness indicator based on accurac
 
 The MVP closes the training loop with a three-part results summary, cause-specific drills that advance through Learn, Control, and Transfer gates, and full-diagnostic reassessment against the user's first baseline. Automated bank validation rejects duplicate prompts or choices, malformed answer mappings, untagged blank-completion items, and explanations too short to audit.
 
+Adaptive drills track conceptual difficulty separately from performance pressure. Each question carries a 1–5 difficulty and skill label; the selector estimates a per-cause, per-skill target from recent accuracy, pace, and practiced difficulty, then creates a stable session containing target-level work plus easier fluency and harder probe items. Timing tightens independently through the Learn, Control, and Transfer stages.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.

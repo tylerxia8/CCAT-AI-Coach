@@ -3,7 +3,7 @@ import type { PracticeFeedback } from "./practice";
 export const PRACTICE_SESSION_KEY = "aptitude-coach:practice-session:v1";
 export const PRACTICE_HISTORY_KEY = "aptitude-coach:practice-history:v1";
 
-export type PracticeRecord = PracticeFeedback & { elapsedSeconds: number; targetSeconds: number };
+export type PracticeRecord = PracticeFeedback & { elapsedSeconds: number; targetSeconds: number; difficulty?: 1 | 2 | 3 | 4 | 5; skill?: string };
 
 export type StoredPracticeSession = {
   version: 1;
@@ -16,6 +16,8 @@ export type StoredPracticeSession = {
   records: PracticeRecord[];
   questionStartedAt: number;
   updatedAt: string;
+  questionIds?: string[];
+  targetDifficulty?: 1 | 2 | 3 | 4 | 5;
 };
 
 export type PracticeHistoryEntry = {
@@ -25,6 +27,7 @@ export type PracticeHistoryEntry = {
   correct: number;
   total: number;
   onPace: number;
+  averageDifficulty?: number;
 };
 
 export type PracticeHistory = { version: 1; entries: PracticeHistoryEntry[] };
@@ -54,7 +57,9 @@ export function parsePracticeSession(value: string | null): StoredPracticeSessio
       || typeof session.focus !== "string"
       || !Number.isInteger(session.currentIndex)
       || !Array.isArray(session.records)
-      || typeof session.questionStartedAt !== "number") return null;
+      || typeof session.questionStartedAt !== "number"
+      || (session.questionIds !== undefined && (!Array.isArray(session.questionIds) || !session.questionIds.every((id) => typeof id === "string")))
+      || (session.targetDifficulty !== undefined && (!Number.isInteger(session.targetDifficulty) || session.targetDifficulty < 1 || session.targetDifficulty > 5))) return null;
     return session as StoredPracticeSession;
   } catch { return null; }
 }
@@ -79,9 +84,12 @@ export function completePracticeSession(session: StoredPracticeSession, complete
       correct: session.records.filter((record) => record.isCorrect).length,
       total: session.records.length,
       onPace: session.records.filter((record) => record.elapsedSeconds <= record.targetSeconds).length,
+      averageDifficulty: average(session.records.flatMap((record) => record.difficulty ?? [])),
     },
   };
 }
+
+function average(values: number[]) { return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length * 100) / 100 : undefined; }
 
 export function addPracticeHistory(history: PracticeHistory, entry: PracticeHistoryEntry): PracticeHistory {
   return {
@@ -97,5 +105,6 @@ function isHistoryEntry(value: unknown): value is PracticeHistoryEntry {
   return typeof entry.sessionId === "string" && typeof entry.completedAt === "string" && typeof entry.focus === "string"
     && Number.isInteger(entry.correct) && Number.isInteger(entry.total) && Number.isInteger(entry.onPace)
     && Number(entry.correct) >= 0 && Number(entry.total) > 0 && Number(entry.correct) <= Number(entry.total)
-    && Number(entry.onPace) >= 0 && Number(entry.onPace) <= Number(entry.total);
+    && Number(entry.onPace) >= 0 && Number(entry.onPace) <= Number(entry.total)
+    && (entry.averageDifficulty === undefined || (typeof entry.averageDifficulty === "number" && entry.averageDifficulty >= 1 && entry.averageDifficulty <= 5));
 }

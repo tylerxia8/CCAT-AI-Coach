@@ -1,0 +1,52 @@
+import type { DrillStage } from "./adaptive-practice";
+import type { PracticeQuestion } from "./practice";
+import type { PracticeHistory } from "./practice-store";
+
+export type AbilityEstimate = {
+  targetDifficulty: 1 | 2 | 3 | 4 | 5;
+  observations: number;
+  confidence: "low" | "moderate" | "high";
+  reason: string;
+};
+
+export function estimateAbility(focus: string, stage: DrillStage, history: PracticeHistory): AbilityEstimate {
+  const relevant = history.entries.filter((entry) => focusKey(entry.focus) === focusKey(focus)).slice(-4);
+  const observations = relevant.reduce((sum, entry) => sum + entry.total, 0);
+  const latest = relevant.at(-1);
+  let target = latest?.averageDifficulty ?? ({ 1: 2, 2: 3, 3: 4 } as const)[stage];
+  if (latest) {
+    const accuracy = latest.correct / latest.total;
+    const pace = latest.onPace / latest.total;
+    if (accuracy >= .8 && pace >= .65) target += 1;
+    else if (accuracy < .6) target -= 1;
+  }
+  if (focus.startsWith("knowledge") && !latest) target -= 1;
+  const targetDifficulty = clampDifficulty(Math.round(target));
+  return {
+    targetDifficulty,
+    observations,
+    confidence: observations >= 24 ? "high" : observations >= 8 ? "moderate" : "low",
+    reason: latest
+      ? `Recent ${Math.round(latest.correct / latest.total * 100)}% accuracy and ${Math.round(latest.onPace / latest.total * 100)}% on-pace performance set this level.`
+      : `Stage ${stage} starts at level ${targetDifficulty} while the app gathers personal evidence.`,
+  };
+}
+
+export function selectAdaptiveSequence(questions: PracticeQuestion[], targetDifficulty: number, requestedSkill?: string | null) {
+  const preferred = requestedSkill ? questions.filter((question) => question.skill === requestedSkill) : [];
+  const remaining = questions.filter((question) => !preferred.some((item) => item.id === question.id));
+  const sequence = [...remaining].sort((a, b) => Math.abs(a.difficulty - targetDifficulty) - Math.abs(b.difficulty - targetDifficulty) || a.difficulty - b.difficulty || a.id.localeCompare(b.id));
+  for (const question of preferred) {
+    const probePosition = question.difficulty === targetDifficulty ? 0 : question.difficulty < targetDifficulty ? 1 : 4;
+    sequence.splice(Math.min(probePosition, sequence.length), 0, question);
+  }
+  return unique(sequence);
+}
+
+function unique(questions: PracticeQuestion[]) {
+  const seen = new Set<string>();
+  return questions.filter((question) => !seen.has(question.id) && Boolean(seen.add(question.id)));
+}
+
+function focusKey(value: string) { return value.trim().toLowerCase(); }
+function clampDifficulty(value: number): 1 | 2 | 3 | 4 | 5 { return Math.max(1, Math.min(5, value)) as 1 | 2 | 3 | 4 | 5; }

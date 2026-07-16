@@ -18,6 +18,15 @@ describe("practice bank", () => {
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.category))).toEqual(new Set(["Numerical", "Verbal", "Logic", "Spatial"]));
   });
 
+  it("tags every drill question for adaptive selection", () => {
+    for (const question of PRACTICE_QUESTIONS) {
+      expect(question.difficulty).toBeGreaterThanOrEqual(1);
+      expect(question.difficulty).toBeLessThanOrEqual(5);
+      expect(question.skill.length).toBeGreaterThan(2);
+    }
+    expect(new Set(PRACTICE_QUESTIONS.map((question) => question.difficulty)).size).toBeGreaterThanOrEqual(4);
+  });
+
   it("includes a contextual sentence-completion drill", () => {
     expect(PRACTICE_QUESTIONS.some((question) => question.id === "practice-ver-03" && question.prompt.includes("___"))).toBe(true);
   });

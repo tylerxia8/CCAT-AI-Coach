@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { PRACTICE_QUESTIONS, type PracticeFeedback } from "@/lib/practice";
 import { addPracticeHistory, completePracticeSession, createPracticeSession, parsePracticeHistory, parsePracticeSession, PRACTICE_HISTORY_KEY, PRACTICE_SESSION_KEY, type PracticeRecord } from "@/lib/practice-store";
 import { drillProgression, meetsStageGate, targetForStage, type DrillProgression } from "@/lib/adaptive-practice";
+import { estimateAbility, selectAdaptiveSequence, type AbilityEstimate } from "@/lib/adaptive-question-selection";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -18,8 +19,11 @@ export function PracticeExperience() {
   const [hydrated, setHydrated] = useState(false);
   const [selectionChanges, setSelectionChanges] = useState(0);
   const [progression, setProgression] = useState<DrillProgression>(() => drillProgression("focused practice", { version: 1, entries: [] }));
+  const [ability, setAbility] = useState<AbilityEstimate>(() => estimateAbility("focused practice", 1, { version: 1, entries: [] }));
+  const [questionIds, setQuestionIds] = useState(() => PRACTICE_QUESTIONS.map((item) => item.id));
   const startedAt = useRef(Date.now());
-  const question = PRACTICE_QUESTIONS[index];
+  const adaptiveQuestions = questionIds.map((id) => PRACTICE_QUESTIONS.find((item) => item.id === id)).filter((item): item is (typeof PRACTICE_QUESTIONS)[number] => Boolean(item));
+  const question = adaptiveQuestions[index];
   const training = trainingConfig(focus, question?.targetSeconds ?? 18, progression);
 
   useEffect(() => {
@@ -28,32 +32,43 @@ export function PracticeExperience() {
     const restored = parsePracticeSession(window.localStorage.getItem(PRACTICE_SESSION_KEY));
     const practiceHistory = parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY));
     if (restored) {
+      const restoredProgression = drillProgression(restored.focus, practiceHistory);
+      const restoredAbility = estimateAbility(restored.focus, restoredProgression.stage, practiceHistory);
+      const stableIds = restored.questionIds?.filter((id) => PRACTICE_QUESTIONS.some((item) => item.id === id));
       setSessionId(restored.id);
       setFocus(restored.focus);
       setIndex(restored.currentIndex);
       setSelected(restored.selected);
       setFeedback(restored.feedback);
       setRecords(restored.records);
-      setProgression(drillProgression(restored.focus, practiceHistory));
+      setProgression(restoredProgression);
+      setAbility(restored.targetDifficulty ? { ...restoredAbility, targetDifficulty: restored.targetDifficulty } : restoredAbility);
+      if (stableIds?.length) setQuestionIds(stableIds);
       startedAt.current = restored.questionStartedAt;
       setHydrated(true);
       return;
     }
     const requested = parameters.get("focus");
     const requestedSkill = parameters.get("skill");
-    const skillLabel = requestedSkill && /^[a-z0-9 &-]{2,40}$/i.test(requestedSkill) ? ` · ${requestedSkill}` : "";
+    const validSkill = requestedSkill && /^[a-z0-9 &-]{2,40}$/i.test(requestedSkill) ? requestedSkill : null;
+    const skillLabel = validSkill ? ` · ${validSkill}` : "";
     const selectedFocus = requested && /^[a-z_]+$/.test(requested) ? `${requested} practice${skillLabel}` : "focused practice";
     const session = createPracticeSession(selectedFocus);
+    const selectedProgression = drillProgression(selectedFocus, practiceHistory);
+    const selectedAbility = estimateAbility(selectedFocus, selectedProgression.stage, practiceHistory);
+    const selectedQuestionIds = selectAdaptiveSequence(PRACTICE_QUESTIONS, selectedAbility.targetDifficulty, validSkill).map((item) => item.id);
     setSessionId(session.id);
     setFocus(session.focus);
-    setProgression(drillProgression(selectedFocus, practiceHistory));
+    setProgression(selectedProgression);
+    setAbility(selectedAbility);
+    setQuestionIds(selectedQuestionIds);
     startedAt.current = session.questionStartedAt;
-    window.localStorage.setItem(PRACTICE_SESSION_KEY, JSON.stringify(session));
+    window.localStorage.setItem(PRACTICE_SESSION_KEY, JSON.stringify({ ...session, questionIds: selectedQuestionIds, targetDifficulty: selectedAbility.targetDifficulty }));
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (!hydrated || !sessionId || index >= PRACTICE_QUESTIONS.length) return;
+    if (!hydrated || !sessionId || index >= adaptiveQuestions.length) return;
     window.localStorage.setItem(PRACTICE_SESSION_KEY, JSON.stringify({
       version: 1,
       id: sessionId,
@@ -65,17 +80,19 @@ export function PracticeExperience() {
       records,
       questionStartedAt: startedAt.current,
       updatedAt: new Date().toISOString(),
+      questionIds,
+      targetDifficulty: ability.targetDifficulty,
     }));
-  }, [feedback, focus, hydrated, index, records, selected, sessionId]);
+  }, [ability.targetDifficulty, adaptiveQuestions.length, feedback, focus, hydrated, index, questionIds, records, selected, sessionId]);
 
   useEffect(() => {
-    if (!hydrated || !sessionId || index < PRACTICE_QUESTIONS.length) return;
+    if (!hydrated || !sessionId || index < adaptiveQuestions.length) return;
     const session = createPracticeSession(focus);
     const completed = completePracticeSession({ ...session, id: sessionId, currentIndex: index, records, status: "active", questionStartedAt: startedAt.current });
     window.localStorage.setItem(PRACTICE_SESSION_KEY, JSON.stringify(completed.session));
     const history = parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY));
     window.localStorage.setItem(PRACTICE_HISTORY_KEY, JSON.stringify(addPracticeHistory(history, completed.entry)));
-  }, [focus, hydrated, index, records, sessionId]);
+  }, [adaptiveQuestions.length, focus, hydrated, index, records, sessionId]);
 
   async function checkAnswer() {
     if (selected === null || submitting) return;
@@ -91,7 +108,7 @@ export function PracticeExperience() {
       const result = await response.json() as PracticeFeedback;
       const elapsedSeconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
       setFeedback(result);
-      setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: training.targetSeconds }]);
+      setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: training.targetSeconds, difficulty: question.difficulty, skill: question.skill }]);
     } catch {
       setError(true);
     } finally {
@@ -112,14 +129,14 @@ export function PracticeExperience() {
     window.location.reload();
   }
 
-  if (index >= PRACTICE_QUESTIONS.length) {
+  if (index >= adaptiveQuestions.length) {
     const correct = records.filter((record) => record.isCorrect).length;
     const onPace = records.filter((record) => record.elapsedSeconds <= record.targetSeconds).length;
     const gateMet = meetsStageGate({ sessionId, completedAt: new Date().toISOString(), focus, correct, total: records.length, onPace }, progression.stage);
     return (
       <main className="practice-shell">
         <PracticeNav />
-        <section className="practice-complete"><div className="eyebrow">{progression.label} stage complete</div><h1>{correct} of {records.length} correct</h1><p>{onPace} decisions landed within target pace. {gateMet ? progression.stage === 3 ? "Transfer gate met—verify the gain on a full diagnostic." : "Gate met—your next set adds more time pressure." : `Stay at this stage until you ${progression.gate.toLowerCase()}`}</p><div className="practice-complete-actions"><button className="primary" onClick={repeat}>{gateMet && progression.stage < 3 ? "Continue to next stage" : "Repeat stage"}</button><Link className="secondary link-button" href="/?new=1">Reassess</Link></div></section>
+        <section className="practice-complete"><div className="eyebrow">{progression.label} stage · level {ability.targetDifficulty}/5</div><h1>{correct} of {records.length} correct</h1><p>{onPace} decisions landed within target pace. {gateMet ? progression.stage === 3 ? "Transfer gate met—verify the gain on a full diagnostic." : "Gate met—your next set adds more time pressure." : `Stay at this stage until you ${progression.gate.toLowerCase()}`}</p><div className="practice-complete-actions"><button className="primary" onClick={repeat}>{gateMet && progression.stage < 3 ? "Continue to next stage" : "Repeat stage"}</button><Link className="secondary link-button" href="/?new=1">Reassess</Link></div></section>
         <section className="practice-recap">{records.map((record, recordIndex) => <article key={record.questionId}><span>{String(recordIndex + 1).padStart(2, "0")}</span><strong>{record.isCorrect ? "Correct" : "Review"}</strong><small>{record.elapsedSeconds}s · {record.elapsedSeconds <= record.targetSeconds ? "on pace" : "slow"}</small></article>)}</section>
       </main>
     );
@@ -128,17 +145,17 @@ export function PracticeExperience() {
   return (
     <main className="practice-shell">
       <PracticeNav />
-      <div className="practice-progress"><i style={{ width: `${((index + (feedback ? 1 : 0)) / PRACTICE_QUESTIONS.length) * 100}%` }} /></div>
+      <div className="practice-progress"><i style={{ width: `${((index + (feedback ? 1 : 0)) / adaptiveQuestions.length) * 100}%` }} /></div>
       <section className="practice-card">
-        <div className="training-directive"><strong>Stage {progression.stage} · {progression.label} · {training.title}</strong><span>{progression.purpose} {training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span><small>Advance when: {progression.gate}</small></div>
-        <div className="question-meta"><span>{focus} · {question.category}</span><span>Target · {training.targetSeconds}s</span></div>
+        <div className="training-directive"><strong>Stage {progression.stage} · {progression.label} · Level {ability.targetDifficulty}/5 · {training.title}</strong><span>{progression.purpose} {training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span><small>{ability.confidence} evidence · {ability.reason} Advance when: {progression.gate}</small></div>
+        <div className="question-meta"><span>{question.category} · {question.skill}</span><span>Difficulty {question.difficulty}/5 · Target {training.targetSeconds}s</span></div>
         <h1>{question.prompt}</h1>
         <div className="choices">
           {question.choices.map((choice, choiceIndex) => <button key={choice} disabled={Boolean(feedback)} className={selected === choiceIndex ? "selected" : ""} onClick={() => { if (selected !== null && selected !== choiceIndex) setSelectionChanges((value) => value + 1); setSelected(choiceIndex); }}><span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}</button>)}
         </div>
         {feedback && <div className={`feedback-card ${feedback.isCorrect ? "correct" : "incorrect"}`}><div className="feedback-label">{feedback.isCorrect ? "Correct" : `Correct answer · ${feedback.correctAnswer}`}</div><p>{feedback.explanation}</p></div>}
         {error && <p className="practice-error">We couldn’t check that answer. Your selection is still here—please try again.</p>}
-        <div className="practice-actions"><span>Question {index + 1} of {PRACTICE_QUESTIONS.length}</span>{feedback ? <button className="primary" onClick={next}>{index === PRACTICE_QUESTIONS.length - 1 ? "See drill results" : "Next question →"}</button> : <button className="primary" disabled={selected === null || submitting} onClick={checkAnswer}>{submitting ? "Checking…" : "Check answer"}</button>}</div>
+        <div className="practice-actions"><span>Question {index + 1} of {adaptiveQuestions.length}</span>{feedback ? <button className="primary" onClick={next}>{index === adaptiveQuestions.length - 1 ? "See drill results" : "Next question →"}</button> : <button className="primary" disabled={selected === null || submitting} onClick={checkAnswer}>{submitting ? "Checking…" : "Check answer"}</button>}</div>
       </section>
     </main>
   );
