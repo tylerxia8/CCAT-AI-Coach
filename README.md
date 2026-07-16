@@ -67,6 +67,8 @@ The latest diagnostic generates a persistent five-session study plan tailored to
 
 The results experience also maintains conservative skill-mastery estimates from accuracy and pace evidence, selects one highest-value next activity with an explicit advancement criterion, and keeps the full diagnostic evidence collapsed until requested. The progress dashboard carries forward only the three highest curriculum priorities so the interface stays focused.
 
+An additional original Form B practice test provides 20 mixed verbal, numerical, logic, and spatial questions in six minutes. Its structure was informed by publicly visible CCAT practice-test format patterns, while all prompts, options, answer keys, and explanations were independently authored. It uses server-only scoring and releases review explanations only after completion.
+
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 
 When Supabase is configured and the learner is signed in, compact result summaries synchronize to the account and merge into the dashboard across devices. Browser history remains available if cloud access is unavailable.

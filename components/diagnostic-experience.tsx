@@ -205,7 +205,7 @@ export function DiagnosticExperience() {
   if (stage === "welcome") {
     return (
       <main className="shell welcome-shell">
-        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-text-link" href="/progress">Progress</Link><Link className="nav-link" href="/auth">Sign in</Link></div></nav>
+        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/practice-tests">Practice tests</Link><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-text-link" href="/progress">Progress</Link><Link className="nav-link" href="/auth">Sign in</Link></div></nav>
         <section className="hero">
           <div className="eyebrow">Full diagnostic · 15 minutes</div>
           <h1>Find the points you’re <em>leaving on the clock.</em></h1>
