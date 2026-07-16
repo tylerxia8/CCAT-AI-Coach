@@ -65,8 +65,9 @@ export const PRACTICE_TEST_ANSWER_KEY: AnswerKey = {
       "The first four preserve an outline triangle and outline circle under rotation; the last uses a filled circle.",
   },
   "pt-ver-05": {
-    correctIndex: 1,
-    explanation: "Pragmatic means practical and focused on workable results.",
+    correctIndex: 2,
+    explanation:
+      "Rows 1, 3, and 5 match exactly. Row 2 changes the capitalization in BioSystems, and row 4 transposes letters in River, so 3 entries match.",
   },
   "pt-num-06": {
     correctIndex: 2,

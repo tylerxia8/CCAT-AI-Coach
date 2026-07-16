@@ -139,17 +139,23 @@ export const PRACTICE_TEST_QUESTIONS: Question[] = [
   {
     id: "pt-ver-05",
     category: "Verbal",
-    prompt: "PRAGMATIC most nearly means:",
-    choices: [
-      "Idealistic",
-      "Practical",
-      "Talkative",
-      "Uncertain",
-      "Decorative",
-    ],
+    prompt:
+      "How many entries in the left column are exactly the same as the corresponding entry in the right column?",
+    choices: ["1", "2", "3", "4", "5"],
     difficulty: 3,
     targetSeconds: 18,
-    itemFamily: "vocabulary",
+    itemFamily: "attention to detail",
+    stimulus: {
+      kind: "pairs",
+      title: "Compare each row",
+      pairs: [
+        ["Northstar Analytics", "Northstar Analytics"],
+        ["Meridian BioSystems", "Meridian Biosystems"],
+        ["Crestview Logistics", "Crestview Logistics"],
+        ["Apex River Holdings", "Apex Rvier Holdings"],
+        ["Quantum Ridge Labs", "Quantum Ridge Labs"],
+      ],
+    },
   },
   {
     id: "pt-num-06",
