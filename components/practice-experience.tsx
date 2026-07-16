@@ -8,6 +8,7 @@ import { drillProgression, meetsStageGate, targetForStage, type DrillProgression
 import { estimateAbility, selectAdaptiveSequence, type AbilityEstimate } from "@/lib/adaptive-question-selection";
 import { HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
 import { questionExposureCounts, recommendPracticeSkill } from "@/lib/practice-curriculum";
+import { QuestionStimulus } from "@/components/question-stimulus";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -156,6 +157,7 @@ export function PracticeExperience() {
       <section className="practice-card">
         <div className="training-directive"><strong>Stage {progression.stage} · {progression.label} · Level {ability.targetDifficulty}/5 · {training.title}</strong><span>{progression.purpose} {training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span><small>{adaptiveQuestions.length}-question set from {PRACTICE_QUESTIONS.length} rotating items · {ability.confidence} evidence · {ability.reason} Advance when: {progression.gate}</small></div>
         <div className="question-meta"><span>{question.category} · {question.skill}</span><span>Difficulty {question.difficulty}/5 · Target {training.targetSeconds}s</span></div>
+        {question.stimulus && <QuestionStimulus stimulus={question.stimulus} />}
         <h1>{question.prompt}</h1>
         <div className="choices">
           {question.choices.map((choice, choiceIndex) => <button key={choice} disabled={Boolean(feedback)} className={selected === choiceIndex ? "selected" : ""} onClick={() => { if (selected !== null && selected !== choiceIndex) setSelectionChanges((value) => value + 1); setSelected(choiceIndex); }}><span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}</button>)}

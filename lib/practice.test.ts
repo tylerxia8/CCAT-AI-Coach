@@ -18,6 +18,25 @@ describe("practice bank", () => {
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.category))).toEqual(new Set(["Numerical", "Verbal", "Logic", "Spatial"]));
   });
 
+  it("maintains depth in the formerly thin skill areas", () => {
+    const minimumCoverage: Record<string, number> = {
+      averages: 3,
+      "fractions and proportions": 3,
+      "letter series": 3,
+      reflection: 3,
+      "word classification": 3,
+      "data interpretation": 4,
+      "attention to detail": 3,
+      "figure matrices": 3,
+    };
+
+    for (const [skill, minimum] of Object.entries(minimumCoverage)) {
+      expect(PRACTICE_QUESTIONS.filter((question) => question.skill === skill).length).toBeGreaterThanOrEqual(minimum);
+    }
+    expect(new Set(PRACTICE_QUESTIONS.flatMap((question) => question.stimulus ? [question.stimulus.kind] : [])))
+      .toEqual(new Set(["bar", "table", "line", "pie", "pairs"]));
+  });
+
   it("tags every drill question for adaptive selection", () => {
     expect(PRACTICE_QUESTIONS.length).toBeGreaterThanOrEqual(40);
     for (const question of PRACTICE_QUESTIONS) {

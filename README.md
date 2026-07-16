@@ -79,7 +79,7 @@ The MVP closes the training loop with a three-part results summary, cause-specif
 
 Adaptive drills track conceptual difficulty separately from performance pressure. Each question carries a 1–5 difficulty and skill label; the selector estimates a per-cause, per-skill target from recent accuracy, pace, and practiced difficulty, then creates a stable session containing target-level work plus easier fluency and harder probe items. Timing tightens independently through the Learn, Control, and Transfer stages.
 
-Practice uses short exposure-aware sets drawn from a 40+ item original drill bank. Completed sets retain question IDs and skill-level outcomes, allowing the next set to favor unseen items and prioritize the latest diagnostic weakness or the skill with the strongest recent miss signal. Previously seen items return only as the rotating bank is exhausted.
+Practice uses short exposure-aware sets drawn from a 68-item original drill bank. Completed sets retain question IDs and skill-level outcomes, allowing the next set to favor unseen items and prioritize the latest diagnostic weakness or the skill with the strongest recent miss signal. Previously seen items return only as the rotating bank is exhausted.
 
 Completed results are stored idempotently in versioned local history. The progress dashboard shows accuracy change from baseline, current pace and confidence fit, cumulative category performance, session trends, and recurring bottlenecks.
 

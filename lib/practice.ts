@@ -1,4 +1,4 @@
-import type { Category } from "./diagnostic";
+import type { Category, DataStimulus } from "./diagnostic";
 
 export type PracticeQuestion = {
   id: string;
@@ -8,6 +8,7 @@ export type PracticeQuestion = {
   targetSeconds: number;
   difficulty: 1 | 2 | 3 | 4 | 5;
   skill: string;
+  stimulus?: DataStimulus;
 };
 
 export type PracticeFeedback = {
@@ -61,4 +62,29 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = [
   { id: "practice-spa-04", category: "Spatial", prompt: "A vertical mirror is placed to the right of ↗. Which arrow appears in the mirror?", choices: ["↗", "↘", "↙", "↖", "↑"], targetSeconds: 24, difficulty: 4, skill: "reflection" },
   { id: "practice-spa-05", category: "Spatial", prompt: "Which shape continues the repeating pattern? ○  □  △  ○  □  ?", choices: ["○", "□", "△", "◇", "●"], targetSeconds: 20, difficulty: 3, skill: "visual sequences" },
   { id: "practice-spa-06", category: "Spatial", prompt: "Which arrangement is a 180° rotation of ▲○?", choices: ["▲○", "○▲", "▼○", "○▼", "◀○"], targetSeconds: 28, difficulty: 5, skill: "mental rotation" },
+  { id: "practice-num-14", category: "Numerical", prompt: "What is the average of 10 and 14?", choices: ["11", "12", "13", "14", "15"], targetSeconds: 18, difficulty: 1, skill: "averages" },
+  { id: "practice-num-15", category: "Numerical", prompt: "Six numbers have an average of 23. Five of the numbers total 111. What is the sixth number?", choices: ["23", "25", "27", "29", "31"], targetSeconds: 30, difficulty: 4, skill: "averages" },
+  { id: "practice-num-16", category: "Numerical", prompt: "Four workers average 18 completed tasks and six workers average 27. What is the average across all ten workers?", choices: ["21.6", "22.5", "23.0", "23.4", "24.6"], targetSeconds: 36, difficulty: 5, skill: "averages" },
+  { id: "practice-num-17", category: "Numerical", prompt: "Which fraction is largest?", choices: ["1/2", "2/3", "3/4", "5/8", "7/10"], targetSeconds: 20, difficulty: 1, skill: "fractions and proportions" },
+  { id: "practice-num-18", category: "Numerical", prompt: "What is 2/3 of 45?", choices: ["15", "24", "27", "30", "36"], targetSeconds: 24, difficulty: 3, skill: "fractions and proportions" },
+  { id: "practice-num-19", category: "Numerical", prompt: "A tank is 7/12 full and holds 144 liters when full. How many more liters are needed to fill it?", choices: ["48", "54", "60", "72", "84"], targetSeconds: 34, difficulty: 5, skill: "fractions and proportions" },
+  { id: "practice-log-10", category: "Logic", prompt: "Which letter comes next? A, C, E, G, ?", choices: ["H", "I", "J", "K", "L"], targetSeconds: 18, difficulty: 1, skill: "letter series" },
+  { id: "practice-log-11", category: "Logic", prompt: "Which pair of letters comes next? AZ, BY, CX, ?", choices: ["DV", "DW", "DX", "EV", "EW"], targetSeconds: 24, difficulty: 3, skill: "letter series" },
+  { id: "practice-log-12", category: "Logic", prompt: "Which pair of letters comes next? AB, DE, HI, MN, ?", choices: ["QR", "RS", "ST", "TU", "UV"], targetSeconds: 32, difficulty: 5, skill: "letter series" },
+  { id: "practice-spa-07", category: "Spatial", prompt: "A vertical mirror is placed to the right of →. Which arrow appears in the mirror?", choices: ["↑", "→", "↓", "←", "↗"], targetSeconds: 18, difficulty: 1, skill: "reflection" },
+  { id: "practice-spa-08", category: "Spatial", prompt: "A vertical mirror is placed to the right of ↘. Which arrow appears in the mirror?", choices: ["↗", "↘", "↙", "↖", "↓"], targetSeconds: 22, difficulty: 3, skill: "reflection" },
+  { id: "practice-spa-09", category: "Spatial", prompt: "A vertical mirror reflects the arrangement ▲○■. Which arrangement appears?", choices: ["▲○■", "■○▲", "▼○■", "■○▼", "○■▲"], targetSeconds: 28, difficulty: 5, skill: "reflection" },
+  { id: "practice-ver-16", category: "Verbal", prompt: "Which item is not an animal?", choices: ["Dog", "Cat", "Horse", "Tulip", "Rabbit"], targetSeconds: 18, difficulty: 1, skill: "word classification" },
+  { id: "practice-ver-17", category: "Verbal", prompt: "Which item is not a metal?", choices: ["Copper", "Iron", "Silver", "Granite", "Gold"], targetSeconds: 22, difficulty: 3, skill: "word classification" },
+  { id: "practice-ver-18", category: "Verbal", prompt: "Which word differs in meaning from the other four?", choices: ["Taciturn", "Reticent", "Laconic", "Verbose", "Reserved"], targetSeconds: 26, difficulty: 5, skill: "word classification" },
+  { id: "practice-num-20", category: "Numerical", prompt: "By what percentage did output increase from Q1 to Q4?", choices: ["50%", "60%", "70%", "75%", "80%"], targetSeconds: 28, difficulty: 2, skill: "data interpretation", stimulus: { kind: "bar", title: "Quarterly output", labels: ["Q1", "Q2", "Q3", "Q4"], values: [80, 100, 120, 140], unit: "units" } },
+  { id: "practice-num-21", category: "Numerical", prompt: "Which region had the highest hiring rate?", choices: ["North", "South", "East", "West", "All equal"], targetSeconds: 32, difficulty: 3, skill: "data interpretation", stimulus: { kind: "table", title: "Hiring by region", columns: ["Applicants", "Hired"], rows: [{ label: "North", values: [100, 20] }, { label: "South", values: [80, 20] }, { label: "East", values: [120, 24] }, { label: "West", values: [90, 27] }] } },
+  { id: "practice-num-22", category: "Numerical", prompt: "What is the average response time for Tuesday and Thursday?", choices: ["16", "17", "18", "19", "20"], targetSeconds: 30, difficulty: 4, skill: "data interpretation", stimulus: { kind: "line", title: "Response time", labels: ["Mon", "Tue", "Wed", "Thu", "Fri"], values: [22, 20, 17, 16, 15], unit: "minutes" } },
+  { id: "practice-num-23", category: "Numerical", prompt: "If the total budget is $360,000, how much more is allocated to Sales than Administration?", choices: ["$54,000", "$63,000", "$72,000", "$81,000", "$90,000"], targetSeconds: 36, difficulty: 5, skill: "data interpretation", stimulus: { kind: "pie", title: "Department budget", labels: ["Operations", "Product", "Sales", "Administration"], values: [35, 25, 30, 10], unit: "%" } },
+  { id: "practice-ver-19", category: "Verbal", prompt: "Which pair is exactly the same?", choices: ["K8M42P · K8N42P", "R7T91Q · R7T19Q", "B4X66L · B4X66L", "D2V83C · D2V8BC", "P5A17N · P5A71N"], targetSeconds: 22, difficulty: 2, skill: "attention to detail" },
+  { id: "practice-ver-20", category: "Verbal", prompt: "How many rows contain exactly matching entries?", choices: ["1", "2", "3", "4", "5"], targetSeconds: 26, difficulty: 3, skill: "attention to detail", stimulus: { kind: "pairs", title: "Compare each row", pairs: [["LM7-204", "LM7-204"], ["QR5-816", "QR5-861"], ["TX9-442", "TX9-442"], ["BN3-175", "BN3-17S"], ["CP8-630", "CP8-630"]] } },
+  { id: "practice-ver-21", category: "Verbal", prompt: "Which longer code pair is exactly the same?", choices: ["8QK-41M-762 · 8QK-41N-762", "5RB-903-X17 · 5RB-930-X17", "6TN-28G-445 · 6TN-28G-445", "LP4-771-Z09 · LP4-717-Z09", "3DV-618-K52 · 3DV-681-K52"], targetSeconds: 24, difficulty: 5, skill: "attention to detail" },
+  { id: "practice-spa-10", category: "Spatial", prompt: "Complete the matrix: top row ○, ○○, ○○○; bottom row ■, ■■, ?", choices: ["■", "■■", "■■■", "□□□", "●●●"], targetSeconds: 22, difficulty: 2, skill: "figure matrices" },
+  { id: "practice-spa-11", category: "Spatial", prompt: "In each row, the third cell combines the first two. Top row: ○, ●, ○●. Bottom row: □, ■, ?", choices: ["□", "■", "□■", "○●", "■■"], targetSeconds: 28, difficulty: 3, skill: "figure matrices" },
+  { id: "practice-spa-12", category: "Spatial", prompt: "In each row, rotate the first symbol 90° clockwise, then place it before the second. Top row: ↑, ○, →○. Bottom row: ←, □, ?", choices: ["←□", "↑□", "→□", "↓□", "□↑"], targetSeconds: 34, difficulty: 5, skill: "figure matrices" },
 ];
