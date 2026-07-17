@@ -16,6 +16,12 @@ export type LearnerSignal = {
   cause: PerformanceCause;
   targetDifficulty: 1 | 2 | 3 | 4 | 5;
   message: string;
+  evidence: string;
+  interpretation: string;
+  impact: string;
+  prescription: string[];
+  successMeasure: string;
+  confidence: "early signal" | "moderate evidence" | "strong evidence";
   action: string;
   href: string;
 };
@@ -40,7 +46,7 @@ export function buildLearnerProfile(diagnostics: DiagnosticHistory, practice: Pr
     improvements,
     allSignals,
     summary: improvements.length
-      ? `${strengths.length ? `You are strongest in ${strengths[0].label.toLowerCase()}. ` : ""}${improvements[0].message}`
+      ? `${strengths.length ? `${strengths[0].label} is currently your most dependable point source. ` : ""}${improvements[0].message} This priority is based on ${improvements[0].observations} recent skill-level observations across diagnostics and practice.`
       : "Your current evidence is balanced. Continue mixed practice to confirm the pattern.",
   };
 }
@@ -73,7 +79,21 @@ function signalFor(skill: string, value: Totals): LearnerSignal {
   const label = skillLabel(skill);
   const targetDifficulty = (accuracy >= .85 && onPace >= .75 ? 4 : accuracy < .6 ? 2 : 3) as 2 | 3 | 4;
   const message = messageFor(status, label);
-  return { skill, label, correct: value.correct, observations: value.total, accuracy, onPace, averageSeconds, fastMisses: value.fastMisses, status, cause, targetDifficulty, message, action: actionFor(status), href: `/practice?focus=${cause}&skill=${encodeURIComponent(skill)}&new=1` };
+  const details = detailFor(status, label, value, accuracy, onPace, averageSeconds);
+  return { skill, label, correct: value.correct, observations: value.total, accuracy, onPace, averageSeconds, fastMisses: value.fastMisses, status, cause, targetDifficulty, message, ...details, action: actionFor(status), href: `/practice?focus=${cause}&skill=${encodeURIComponent(skill)}&new=1` };
+}
+
+function detailFor(status: LearnerSignalStatus, label: string, value: Totals, accuracy: number, onPace: number, averageSeconds: number) {
+  const misses = value.total - value.correct;
+  const slow = value.total - value.onPace;
+  const evidence = `${value.correct} of ${value.total} correct; ${value.onPace} of ${value.total} within target pace${averageSeconds ? `; ${averageSeconds}s average` : ""}${value.fastMisses ? `; ${value.fastMisses} fast miss${value.fastMisses === 1 ? "" : "es"}` : ""}.`;
+  const confidence = value.total >= 12 ? "strong evidence" as const : value.total >= 6 ? "moderate evidence" as const : "early signal" as const;
+  if (status === "strength") return { evidence, confidence, interpretation: `You are recognizing the underlying ${label.toLowerCase()} method quickly and executing it reliably. This is a genuine point-producing skill, not merely untimed accuracy.`, impact: `Protect this strength: it can supply dependable first-pass points and preserve time for harder items.`, prescription: ["Keep it in mixed sets so the skill remains automatic.", "Increase difficulty only after accuracy and pace remain stable."], successMeasure: "Maintain at least 80% accuracy with 70% or more answers on pace." };
+  if (status === "rushing") return { evidence, confidence, interpretation: `The speed is available, but the error pattern suggests incomplete reading, skipped computation checks, or premature commitment rather than a lack of ability.`, impact: `${misses} observed misses are currently reducing the value of your pace. Slowing only the final verification step can recover points without making the whole test slower.`, prescription: ["Name the rule or operation before selecting an answer.", "Use a five-second exact-value, sign, direction, or character check.", "Do not revisit unless you can state a concrete contradiction."], successMeasure: `Reduce fast misses to zero while keeping at least ${Math.max(60, Math.round(onPace * 100) - 10)}% of answers on pace.` };
+  if (status === "slow_accurate") return { evidence, confidence, interpretation: `Your method is reliable, but it is using too many steps or too much checking. The knowledge is present; retrieval and execution need to become more automatic.`, impact: `${slow} slow decisions can limit how many of the 50 questions you reach, even when those answers are correct.`, prescription: ["Compare your method with the shortest worked solution.", "Repeat the same question family in short timed blocks.", "Leave at 30 seconds if no clear solution path has formed."], successMeasure: "Keep accuracy at 75% or higher while moving at least 70% of answers inside target pace." };
+  if (status === "slow_inaccurate") return { evidence, confidence, interpretation: `Extra time is not yet producing reliable answers. That combination usually means the method is unclear, several approaches are being tried, or foundational knowledge is missing.`, impact: `This is a double cost: ${misses} missed points plus time that could have been used on more attainable questions.`, prescription: ["Return to untimed worked examples and name each step.", "Practice one question family at a time before mixing.", "Add a clock only after two clean sets in a row."], successMeasure: "Reach 70% untimed accuracy first, then bring at least 60% of answers inside target pace." };
+  if (status === "knowledge") return { evidence, confidence, interpretation: `Timing is not the main constraint. The misses indicate that the relevant vocabulary, rule, relationship, or calculation is not consistently available yet.`, impact: `${misses} of ${value.total} observed opportunities were lost primarily to skill knowledge, so forcing more speed would likely reinforce guessing.`, prescription: ["Study the compact method and worked example before answering.", "Explain why each wrong choice fails.", "Retrieve the same skill again after 1, 3, and 7 days."], successMeasure: "Reach 75% accuracy across two separate sessions before increasing difficulty." };
+  return { evidence, confidence, interpretation: `You show partial command of ${label.toLowerCase()}, but performance is not stable enough to call it either a strength or a single clear bottleneck.`, impact: "Inconsistent decisions make this skill hard to budget for during a timed test.", prescription: ["Use mixed examples to identify the question family faster.", "Track whether each miss came from method, pace, or verification."], successMeasure: "Produce two consecutive sets at 75% accuracy and 70% on-target pace." };
 }
 
 function messageFor(status: LearnerSignalStatus, label: string) {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { addHistoryEntry, HISTORY_STORAGE_KEY, parseHistory, summarizeProgress, type DiagnosticHistory, type DiagnosticHistoryEntry } from "@/lib/history-store";
 import { parsePracticeHistory, PRACTICE_HISTORY_KEY, type PracticeHistory } from "@/lib/practice-store";
-import { buildLearnerProfile } from "@/lib/learner-profile";
+import { buildLearnerProfile, type LearnerSignal } from "@/lib/learner-profile";
 import { curriculumSignals } from "@/lib/score-improvement";
 import { dueRepairs, parseRepairQueue, REPAIR_QUEUE_KEY, type RepairQueue } from "@/lib/repair-queue";
 
@@ -66,8 +66,8 @@ export function ProgressDashboard() {
       </section>
       <section className="learner-report" aria-labelledby="learner-report-title">
         <div className="learner-report-head"><div><div className="section-label">Personalized performance report</div><h2 id="learner-report-title">What is helping—and costing—your score.</h2><p>{learnerProfile.summary}</p></div><span>{learnerProfile.allSignals.reduce((total, signal) => total + signal.observations, 0)} skill-level observations</span></div>
-        {learnerProfile.strengths.length > 0 && <div className="report-group"><h3>What you are doing well</h3><div className="report-cards">{learnerProfile.strengths.map((signal) => <article className="report-card strength" key={signal.skill}><div><span>Strength</span><h4>{signal.label}</h4></div><p>{signal.message}</p><dl><div><dt>Accuracy</dt><dd>{percent(signal.accuracy)}</dd></div><div><dt>On pace</dt><dd>{percent(signal.onPace)}</dd></div><div><dt>Evidence</dt><dd>{signal.observations}</dd></div></dl></article>)}</div></div>}
-        <div className="report-group"><h3>Where to improve next</h3>{learnerProfile.improvements.length ? <div className="report-cards">{learnerProfile.improvements.map((signal) => <article className={`report-card ${signal.status}`} key={signal.skill}><div><span>{reportStatus(signal.status)}</span><h4>{signal.label}</h4></div><p>{signal.message}</p><dl><div><dt>Accuracy</dt><dd>{percent(signal.accuracy)}</dd></div><div><dt>On pace</dt><dd>{percent(signal.onPace)}</dd></div><div><dt>Avg. time</dt><dd>{signal.averageSeconds ? `${signal.averageSeconds}s` : "—"}</dd></div></dl><Link className="secondary link-button" href={signal.href}>{signal.action} →</Link></article>)}</div> : <p className="report-empty">No clear weakness has enough evidence yet. Continue mixed practice to make the report more specific.</p>}</div>
+        {learnerProfile.strengths.length > 0 && <div className="report-group"><h3>Reliable point sources</h3><div className="report-cards">{learnerProfile.strengths.map((signal) => <SignalCard key={signal.skill} signal={signal} strength />)}</div></div>}
+        <div className="report-group"><h3>Highest-value improvements</h3>{learnerProfile.improvements.length ? <div className="report-cards">{learnerProfile.improvements.map((signal) => <SignalCard key={signal.skill} signal={signal} />)}</div> : <p className="report-empty">No clear weakness has enough evidence yet. Continue mixed practice to make the report more specific.</p>}</div>
       </section>
       <section className="category-progress"><div><div className="section-label">Cumulative category performance</div><h2>Where your points come from.</h2></div>{summary.categoryAccuracy.map((item) => <div className="category-progress-row" key={item.category}><span>{item.category}<small>{item.attempts} attempts</small></span><div className="bar"><i style={{ width: percent(item.accuracy) }} /></div><strong>{percent(item.accuracy)}</strong></div>)}</section>
       {summary.skillPriorities.length > 0 && <section className="priority-strip"><div><div className="section-label">Curriculum priorities</div><h2>Focus on these next.</h2></div>{summary.skillPriorities.map((item) => <div key={item.skill}><strong>{item.skill}</strong><span>{item.mastery}% mastery estimate · {item.evidence} observations</span></div>)}</section>}
@@ -82,6 +82,16 @@ function reportStatus(status: string) {
   if (status === "slow_inaccurate") return "Method + pace";
   if (status === "knowledge") return "Knowledge gap";
   return "Developing";
+}
+
+function SignalCard({ signal, strength = false }: { signal: LearnerSignal; strength?: boolean }) {
+  return <article className={`report-card ${strength ? "strength" : signal.status}`}>
+    <div><span>{strength ? "Strength" : reportStatus(signal.status)} · {signal.confidence}</span><h4>{signal.label}</h4></div>
+    <p className="signal-lead">{signal.message}</p>
+    <dl><div><dt>Accuracy</dt><dd>{percent(signal.accuracy)}</dd></div><div><dt>On pace</dt><dd>{percent(signal.onPace)}</dd></div><div><dt>Avg. time</dt><dd>{signal.averageSeconds ? `${signal.averageSeconds}s` : "—"}</dd></div></dl>
+    <details className="signal-details"><summary>Why this diagnosis?</summary><div><h5>Observed evidence</h5><p>{signal.evidence}</p><h5>What it likely means</h5><p>{signal.interpretation}</p><h5>Likely score impact</h5><p>{signal.impact}</p><h5>Training prescription</h5><ol>{signal.prescription.map((step) => <li key={step}>{step}</li>)}</ol><h5>Graduation target</h5><p>{signal.successMeasure}</p></div></details>
+    {!strength && <Link className="secondary link-button" href={signal.href}>{signal.action} →</Link>}
+  </article>;
 }
 
 function DashboardNav() {

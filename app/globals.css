@@ -213,6 +213,13 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .report-card dt { color: var(--muted); font-size: 9px; text-transform: uppercase; }
 .report-card dd { font-size: 13px; font-weight: 800; margin: 0; }
 .report-card .link-button { align-self: start; font-size: 10px; padding: 9px 12px; }
+.report-card .signal-lead { color: var(--ink); font-size: 13px; }
+.signal-details { border-top: 1px solid var(--line); padding-top: 12px; }
+.signal-details summary { color: var(--green); cursor: pointer; font-size: 11px; font-weight: 800; }
+.signal-details > div { display: grid; gap: 5px; margin-top: 14px; }
+.signal-details h5 { font-size: 10px; letter-spacing: .04em; margin: 8px 0 0; text-transform: uppercase; }
+.signal-details p { margin: 0; }
+.signal-details ol { color: var(--muted); font-size: 12px; line-height: 1.55; margin: 0; padding-left: 18px; }
 .report-empty { color: var(--muted); margin: 0; }
 .skill-diagnostics h3 { font-family: var(--font-serif), Georgia, serif; font-size: 28px; font-weight: 500; margin: 10px 0 0; }
 .skill-diagnostic-list { display: grid; }
