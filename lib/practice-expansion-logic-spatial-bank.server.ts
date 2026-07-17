@@ -19,7 +19,7 @@ const logicAnswers: Array<[number, string]> = [
   [2, "If either A or B would force C, the absence of C means neither A nor B attended."],
   [0, "Moving M, I, N, and T forward one letter produces N, J, O, and U."],
   [0, "Reversing the letters of GRAIN produces NIARG."],
-  [0, "Odd positions move forward and even positions move back: COLD becomes DNMC."],
+  [0, "Apply the rule by character position in the word: 1st C → D, 2nd O → N, 3rd L → M, and 4th D → C. Therefore, COLD becomes DNMC."],
   [0, "Alphabet opposites map D to W, O to L, and G to T, producing WLT."],
   [0, "Reversing MATH gives HTAM; moving each letter forward gives IUBN."],
   [3, "Sixteen, 25, 36, and 49 are perfect squares. Forty-five is not."],

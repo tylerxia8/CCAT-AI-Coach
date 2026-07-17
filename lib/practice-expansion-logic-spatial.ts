@@ -19,7 +19,7 @@ const logic: PracticeQuestion[] = [
   q("practice-log-41", "If either A or B attends, C attends. C did not attend. Which statement must be true?", ["A attended", "B attended", "Neither A nor B attended", "Exactly one attended", "Both attended"], 5, "deductive reasoning", 34),
   q("practice-log-42", "A code moves each letter one place forward. How is MINT written?", ["NJOU", "NIOU", "MHOU", "OJPU", "NKPV"], 1, "coding rules", 20),
   q("practice-log-43", "A code reverses each word. How is GRAIN written?", ["NIARG", "NIRAG", "IARNG", "GNIAR", "NAIRG"], 1, "coding rules", 20),
-  q("practice-log-44", "In a code, letters in odd positions move forward one and letters in even positions move back one. How is COLD coded?", ["DNMC", "DNKC", "DPMC", "BNMC", "DOMC"], 3, "coding rules", 30),
+  q("practice-log-44", "In a code, the 1st and 3rd characters of a word move one letter forward in the alphabet, while the 2nd and 4th characters move one letter backward. How is COLD coded?", ["DNMC", "DNKC", "DPMC", "BNMC", "DOMC"], 3, "coding rules", 30),
   q("practice-log-45", "A code replaces each letter with its alphabet opposite: A-Z, B-Y, and so on. How is DOG coded?", ["WLT", "WOG", "ELT", "XMT", "VKS"], 4, "coding rules", 34),
   q("practice-log-46", "A code reverses the word, then moves every letter forward one. How is MATH coded?", ["IUBN", "IUBM", "HTAM", "JVCN", "NBUJ"], 5, "coding rules", 38),
   q("practice-log-47", "Which number does not belong?", ["16", "25", "36", "45", "49"], 2, "classification logic", 20),
