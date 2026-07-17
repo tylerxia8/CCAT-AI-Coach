@@ -12,10 +12,10 @@ describe("question-bank quality gate", () => {
     expect(validateQuestionBank(PRACTICE_TEST_QUESTIONS, PRACTICE_TEST_ANSWER_KEY)).toEqual([]);
   });
 
-  it("maintains a 300-question original inventory with unique IDs", () => {
+  it("maintains a 400-question original inventory with unique IDs", () => {
     const allQuestions = [...QUESTIONS, ...PRACTICE_TEST_QUESTIONS, ...PRACTICE_QUESTIONS];
-    expect(allQuestions).toHaveLength(300);
-    expect(new Set(allQuestions.map((question) => question.id)).size).toBe(300);
+    expect(allQuestions).toHaveLength(400);
+    expect(new Set(allQuestions.map((question) => question.id)).size).toBe(400);
   });
 
   it("identifies ambiguous bank construction errors", () => {
