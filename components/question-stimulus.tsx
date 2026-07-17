@@ -1,6 +1,10 @@
 import type { DataStimulus } from "@/lib/diagnostic";
 
 export function QuestionStimulus({ stimulus }: { stimulus: DataStimulus }) {
+  if (stimulus.kind === "matrix") {
+    const columns = Math.max(...stimulus.rows.map((row) => row.length));
+    return <figure className="data-stimulus matrix-stimulus"><figcaption>{stimulus.title}</figcaption><div className="figure-matrix" style={{ gridTemplateColumns: `repeat(${columns}, minmax(64px, 1fr))` }} role="img" aria-label={`${stimulus.title}: ${stimulus.rows.map((row) => row.join(", ")).join("; ")}`}>{stimulus.rows.flatMap((row, rowIndex) => row.map((cell, columnIndex) => <div className={cell === "?" ? "missing" : ""} key={`${rowIndex}-${columnIndex}`}><span>{cell}</span></div>))}</div></figure>;
+  }
   if (stimulus.kind === "pairs") {
     return <figure className="data-stimulus pair-stimulus"><figcaption>{stimulus.title}</figcaption><ol>{stimulus.pairs.map(([left, right], index) => <li key={`${left}-${index}`}><span>{left}</span><span>{right}</span></li>)}</ol></figure>;
   }

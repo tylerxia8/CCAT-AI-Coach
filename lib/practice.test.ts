@@ -36,7 +36,7 @@ describe("practice bank", () => {
       expect(PRACTICE_QUESTIONS.filter((question) => question.skill === skill).length).toBeGreaterThanOrEqual(minimum);
     }
     expect(new Set(PRACTICE_QUESTIONS.flatMap((question) => question.stimulus ? [question.stimulus.kind] : [])))
-      .toEqual(new Set(["bar", "table", "line", "pie", "pairs"]));
+      .toEqual(new Set(["bar", "table", "line", "pie", "pairs", "matrix"]));
   });
 
   it("tags every drill question for adaptive selection", () => {

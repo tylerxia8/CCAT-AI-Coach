@@ -198,11 +198,12 @@ export const PRACTICE_TEST_QUESTIONS = ([
   {
     id: "pt-spa-04",
     category: "Spatial",
-    prompt: "Complete the matrix: top row ○, ○○, ○○○; bottom row ■, ■■, ?",
+    prompt: "Which option completes the matrix?",
     choices: ["■", "■■", "■■■", "□□□", "●●●"],
     difficulty: 2,
     targetSeconds: 18,
     itemFamily: "figure matrices",
+    stimulus: { kind: "matrix", title: "Complete the missing cell", rows: [["○", "○○", "○○○"], ["■", "■■", "?"]] },
   },
   {
     id: "pt-num-08",

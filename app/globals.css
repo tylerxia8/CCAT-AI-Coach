@@ -109,6 +109,12 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .pair-stimulus ol { display: grid; gap: 7px; margin: 14px 0 0; padding-left: 28px; }
 .pair-stimulus li { background: var(--paper); border-radius: 8px; display: grid; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; gap: 18px; grid-template-columns: 1fr 1fr; padding: 9px 12px; }
 .pair-stimulus li::marker { color: var(--muted); font-size: 10px; }
+.matrix-stimulus { margin-left: auto; margin-right: auto; max-width: 430px; }
+.figure-matrix { background: #18374f; border: 2px solid #18374f; display: grid; gap: 2px; margin-top: 12px; }
+.figure-matrix > div { align-items: center; aspect-ratio: 1.35; background: #fff; display: flex; justify-content: center; min-height: 64px; padding: 10px; }
+.figure-matrix > div span { color: var(--navy); font-size: clamp(22px, 4vw, 34px); font-weight: 650; letter-spacing: .06em; text-align: center; }
+.figure-matrix > div.missing { background: #f2f7f9; }
+.figure-matrix > div.missing span { align-items: center; border: 2px dashed #6b8798; border-radius: 50%; color: #49687c; display: flex; font-size: 20px; height: 38px; justify-content: center; width: 38px; }
 .pie-layout { align-items: center; display: grid; gap: 28px; grid-template-columns: 150px 1fr; margin-top: 18px; }
 .pie-chart { aspect-ratio: 1; border: 8px solid var(--card); border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
 .pie-layout ul { display: grid; gap: 10px; list-style: none; margin: 0; padding: 0; }

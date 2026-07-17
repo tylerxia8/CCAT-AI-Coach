@@ -16,7 +16,8 @@ export type Question = {
 export type DataStimulus =
   | { kind: "bar" | "line" | "pie"; title: string; labels: string[]; values: number[]; unit?: string }
   | { kind: "table"; title: string; columns: string[]; rows: Array<{ label: string; values: number[] }> }
-  | { kind: "pairs"; title: string; pairs: Array<[string, string]> };
+  | { kind: "pairs"; title: string; pairs: Array<[string, string]> }
+  | { kind: "matrix"; title: string; rows: string[][] };
 
 export type AnswerKey = Record<string, { correctIndex: number; explanation: string }>;
 
@@ -141,7 +142,7 @@ export const QUESTIONS: Question[] = [
   { id: "log-03", category: "Logic", prompt: "Some Vens are Lops. All Lops are Mirs. Which statement must be true?", choices: ["All Vens are Mirs", "Some Vens are Mirs", "No Vens are Mirs", "All Mirs are Vens", "Some Mirs are not Lops"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-05", category: "Verbal", prompt: "Choose the word most nearly opposite to MITIGATE.", choices: ["Postpone", "Aggravate", "Measure", "Conceal", "Permit"], difficulty: 3, targetSeconds: 18 },
   { id: "num-06", category: "Numerical", prompt: "What number comes next? 2, 6, 12, 20, 30, ?", choices: ["36", "40", "42", "44", "48"], difficulty: 2, targetSeconds: 18 },
-  { id: "spa-03", category: "Spatial", prompt: "Complete the matrix: top row ○, ●, ○●; bottom row □, ■, ?", choices: ["□", "■", "□■", "○●", "■■"], difficulty: 3, targetSeconds: 18 },
+  { id: "spa-03", category: "Spatial", prompt: "Which option replaces the question mark in the symbol matrix?", choices: ["□", "■", "□■", "○●", "■■"], difficulty: 3, targetSeconds: 18, itemFamily: "figure matrices", stimulus: { kind: "matrix", title: "Complete the missing cell", rows: [["○", "●", "○ ●"], ["□", "■", "?"]] } },
   { id: "ver-06", category: "Verbal", prompt: "CONDUCTOR is to ORCHESTRA as DIRECTOR is to:", choices: ["Script", "Audience", "Cast", "Stage", "Camera"], difficulty: 2, targetSeconds: 18 },
   { id: "num-07", category: "Numerical", prompt: "Four pumps fill 3 tanks in 6 hours. At the same rate, how many tanks can 8 pumps fill in 9 hours?", choices: ["6", "8", "9", "10", "12"], difficulty: 3, targetSeconds: 18 },
   { id: "log-04", category: "Logic", prompt: "Rina arrives before Sol but after Tarek. Uma arrives after Sol. Which order must be true?", choices: ["Tarek, Rina, Sol, Uma", "Rina, Tarek, Uma, Sol", "Tarek, Sol, Rina, Uma", "Uma, Sol, Rina, Tarek", "Sol, Tarek, Rina, Uma"], difficulty: 2, targetSeconds: 18 },
@@ -159,7 +160,7 @@ export const QUESTIONS: Question[] = [
   { id: "log-06", category: "Logic", prompt: "No Zets are Fars. Every Kim is a Zet. Which statement is true?", choices: ["Some Kims are Fars", "No Kims are Fars", "All Fars are Kims", "No Kims are Zets", "Some Zets are Kims"], difficulty: 2, targetSeconds: 18 },
   { id: "ver-11", category: "Verbal", prompt: "SEED is to PLANT as EGG is to:", choices: ["Nest", "Bird", "Shell", "Feather", "Wing"], difficulty: 1, targetSeconds: 18 },
   { id: "num-12", category: "Numerical", prompt: "A price is increased by 20% and then reduced by 20%. The final price is $96. What was the original price?", choices: ["$96", "$98", "$100", "$102", "$104"], difficulty: 3, targetSeconds: 18 },
-  { id: "spa-06", category: "Spatial", prompt: "Complete the matrix: top row ▲, ▶, ▼; bottom row ◓, ◑, ?", choices: ["◐", "◓", "◒", "◑", "●"], difficulty: 3, targetSeconds: 18 },
+  { id: "spa-06", category: "Spatial", prompt: "Which option replaces the question mark in the rotation matrix?", choices: ["◐", "◓", "◒", "◑", "●"], difficulty: 3, targetSeconds: 18, itemFamily: "figure matrices", stimulus: { kind: "matrix", title: "Complete the missing cell", rows: [["▲", "▶", "▼"], ["◓", "◑", "?"]] } },
   { id: "ver-12", category: "Verbal", prompt: "Choose the word most nearly opposite to OBSCURE.", choices: ["Hidden", "Faint", "Clear", "Complex", "Remote"], difficulty: 2, targetSeconds: 18 },
   { id: "num-13", category: "Numerical", prompt: "If the total budget is $240,000, how much more is allocated to Operations than Administration?", choices: ["$36,000", "$42,000", "$48,000", "$54,000", "$60,000"], difficulty: 2, targetSeconds: 18, itemFamily: "data interpretation", stimulus: { kind: "pie", title: "Annual budget", labels: ["Operations", "Product", "Sales", "Administration"], values: [35, 30, 20, 15], unit: "%" } },
   { id: "log-07", category: "Logic", prompt: "Jae ranks above Kira. Milo ranks below Nia but above Jae. Who ranks second among the four?", choices: ["Jae", "Kira", "Milo", "Nia", "Cannot tell"], difficulty: 2, targetSeconds: 18 },

@@ -18,6 +18,13 @@ describe("question-bank quality gate", () => {
     expect(new Set(allQuestions.map((question) => question.id)).size).toBe(400);
   });
 
+  it("renders every figure-matrix item as a visual matrix", () => {
+    const allQuestions = [...QUESTIONS, ...PRACTICE_TEST_QUESTIONS, ...PRACTICE_QUESTIONS];
+    const matrices = allQuestions.filter((question) => ("itemFamily" in question && question.itemFamily === "figure matrices") || ("skill" in question && question.skill === "figure matrices"));
+    expect(matrices.length).toBeGreaterThanOrEqual(10);
+    expect(matrices.every((question) => question.stimulus?.kind === "matrix" && question.stimulus.rows.flat().includes("?"))).toBe(true);
+  });
+
   it("identifies ambiguous bank construction errors", () => {
     const question = { ...QUESTIONS[0], prompt: "Complete this ___", choices: ["A", "A", "", "D", "E"] };
     const issues = validateQuestionBank([question], { [question.id]: { correctIndex: 8, explanation: "Too short" } });

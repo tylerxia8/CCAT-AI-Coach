@@ -75,11 +75,11 @@ const spatial: PracticeQuestion[] = [
   q("practice-spa-43", "A dot moves around square corners clockwise: top-left, top-right, bottom-right, ?. Where next?", ["Top-left", "Top-right", "Bottom-left", "Bottom-right", "Center"], 2, "visual sequences", 20),
   q("practice-spa-44", "An arrow sequence rotates clockwise by 45, then 90, then 45 degrees, repeating. Starting north: north, northeast, southeast, south, ?", ["Southwest", "West", "Northwest", "East", "North"], 4, "visual sequences", 32),
   q("practice-spa-45", "A sequence alternates adding one dot and rotating 90 degrees: up with 1 dot, right with 2, down with 3, ?. What follows?", ["Left with 3", "Left with 4", "Up with 4", "Right with 4", "Down with 5"], 4, "visual sequences", 34),
-  q("practice-spa-46", "Matrix rule: the third cell contains the total symbols from the first two. Top: 2 circles, 3 circles, 5 circles. Bottom: 1 square, 4 squares, ?", ["3 squares", "4 squares", "5 squares", "6 squares", "7 squares"], 2, "figure matrices", 22),
-  q("practice-spa-47", "Matrix rule: the third arrow is the first arrow rotated toward the second by 90 degrees. Top: up, right, right. Bottom: left, up, ?", ["Up", "Right", "Down", "Left", "Northeast"], 3, "figure matrices", 28),
-  q("practice-spa-48", "Matrix rule: filled and outline symbols combine in the third cell. Top: outline circle, filled circle, both circles. Bottom: outline square, filled square, ?", ["Outline square", "Filled square", "Both squares", "Two circles", "Empty cell"], 3, "figure matrices", 28),
-  q("practice-spa-49", "Matrix rule: each row increases sides by one. Top: triangle, square, pentagon. Bottom: square, pentagon, ?", ["Triangle", "Square", "Pentagon", "Hexagon", "Heptagon"], 3, "figure matrices", 26),
-  q("practice-spa-50", "Matrix rule: third direction is the opposite of the combination of the first two identical directions. Top: up, up, down. Bottom: right, right, ?", ["Up", "Down", "Left", "Right", "Northeast"], 4, "figure matrices", 32),
+  q("practice-spa-46", "In each row, the third cell contains the total number of symbols in the first two. Which option completes the matrix?", ["3 squares", "4 squares", "5 squares", "6 squares", "7 squares"], 2, "figure matrices", 22, [["○○", "○○○", "○○○○○"], ["■", "■■■■", "?"]]),
+  q("practice-spa-47", "The third direction is the first direction rotated 90° clockwise. Which option completes the matrix?", ["Up", "Right", "Down", "Left", "Northeast"], 3, "figure matrices", 28, [["↑", "→", "→"], ["←", "↑", "?"]]),
+  q("practice-spa-48", "In each row, the third cell combines the outline and filled symbols. Which option completes the matrix?", ["Outline square", "Filled square", "Both squares", "Two circles", "Empty cell"], 3, "figure matrices", 28, [["○", "●", "○ ●"], ["□", "■", "?"]]),
+  q("practice-spa-49", "Each row increases the number of sides by one from left to right. Which option completes the matrix?", ["Triangle", "Square", "Pentagon", "Hexagon", "Heptagon"], 3, "figure matrices", 26, [["△", "□", "⬠"], ["□", "⬠", "?"]]),
+  q("practice-spa-50", "In each row, the third arrow points opposite the first two matching arrows. Which option completes the matrix?", ["Up", "Down", "Left", "Right", "Northeast"], 4, "figure matrices", 32, [["↑", "↑", "↓"], ["→", "→", "?"]]),
   q("practice-spa-51", "A cube has opposite pairs A-D, B-E, and C-F. Which face is opposite C?", ["A", "B", "D", "E", "F"], 1, "cube relations", 16),
   q("practice-spa-52", "On a cube, red is opposite green. Which color cannot share an edge with red?", ["Blue", "Green", "White", "Yellow", "Black"], 1, "cube relations", 16),
   q("practice-spa-53", "A cube has top A, front B, right C, and B opposite E. It rolls toward its front face once. Which face becomes the top?", ["A", "B", "E", "C", "Cannot be known"], 3, "cube relations", 28),
@@ -109,6 +109,6 @@ const spatial: PracticeQuestion[] = [
 
 export const LOGIC_SPATIAL_EXPANSION_QUESTIONS = [...logic, ...spatial].map(rotateQuestionChoices);
 
-function q(id: string, prompt: string, choices: string[], difficulty: 1 | 2 | 3 | 4 | 5, skill: string, targetSeconds: number): PracticeQuestion {
-  return { id, category: id.includes("-log-") ? "Logic" : "Spatial", prompt, choices, difficulty, skill, targetSeconds };
+function q(id: string, prompt: string, choices: string[], difficulty: 1 | 2 | 3 | 4 | 5, skill: string, targetSeconds: number, matrixRows?: string[][]): PracticeQuestion {
+  return { id, category: id.includes("-log-") ? "Logic" : "Spatial", prompt, choices, difficulty, skill, targetSeconds, stimulus: matrixRows ? { kind: "matrix", title: "Complete the missing cell", rows: matrixRows } : undefined };
 }
