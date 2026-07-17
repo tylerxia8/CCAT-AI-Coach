@@ -16,10 +16,19 @@ export function ProgressDashboard() {
   const [practiceHistory, setPracticeHistory] = useState<PracticeHistory>({ version: 1, entries: [] });
   const [repairQueue, setRepairQueue] = useState<RepairQueue>({ version: 1, items: [] });
   useEffect(() => {
+    const refreshLocal = () => {
+      setHistory(parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY)));
+      setPracticeHistory(parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY)));
+      setRepairQueue(parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY)));
+    };
     const local = parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY));
-    setPracticeHistory(parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY)));
-    setRepairQueue(parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY)));
+    refreshLocal();
     setHistory(local);
+    const onStorage = (event: StorageEvent) => { if ([HISTORY_STORAGE_KEY, PRACTICE_HISTORY_KEY, REPAIR_QUEUE_KEY].includes(event.key ?? "")) refreshLocal(); };
+    const onVisible = () => { if (document.visibilityState === "visible") refreshLocal(); };
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", refreshLocal);
+    document.addEventListener("visibilitychange", onVisible);
     fetch("/api/progress")
       .then((response) => response.ok ? response.json() as Promise<{ entries: DiagnosticHistoryEntry[]; source: string }> : null)
       .then((payload) => {
@@ -30,6 +39,7 @@ export function ProgressDashboard() {
         if (payload.source === "cloud") setSource("cloud");
       })
       .catch(() => { /* Browser history remains available during cloud outages. */ });
+    return () => { window.removeEventListener("storage", onStorage); window.removeEventListener("focus", refreshLocal); document.removeEventListener("visibilitychange", onVisible); };
   }, []);
   if (!history) return <main className="progress-shell"><div className="dashboard-loading">Loading progress…</div></main>;
   const summary = summarizeProgress(history);
@@ -65,7 +75,7 @@ export function ProgressDashboard() {
         <article className="bottleneck-card"><div className="section-label">Recurring bottlenecks</div>{summary.bottlenecks.map((item) => <div className="bottleneck-row" key={item.bottleneck}><span>{item.bottleneck}</span><strong>{item.count}×</strong></div>)}<p>Repeated findings matter more than a single session. Use these to choose where practice time goes.</p></article>
       </section>
       <section className="learner-report" aria-labelledby="learner-report-title">
-        <div className="learner-report-head"><div><div className="section-label">Personalized performance report</div><h2 id="learner-report-title">What is helping—and costing—your score.</h2><p>{learnerProfile.summary}</p></div><span>{learnerProfile.allSignals.reduce((total, signal) => total + signal.observations, 0)} skill-level observations</span></div>
+        <div className="learner-report-head"><div><div className="section-label">Personalized performance report</div><h2 id="learner-report-title">What is helping—and costing—your score.</h2><p>{learnerProfile.summary}</p><small className="report-refresh-note">This report refreshes when you return from practice or complete a diagnostic. It emphasizes your latest 2 diagnostics and 4 drills, so old labels fade as your performance changes.</small></div><span>{learnerProfile.allSignals.reduce((total, signal) => total + signal.observations, 0)} recent observations</span></div>
         {learnerProfile.strengths.length > 0 && <div className="report-group"><h3>Reliable point sources</h3><div className="report-cards">{learnerProfile.strengths.map((signal) => <SignalCard key={signal.skill} signal={signal} strength />)}</div></div>}
         <div className="report-group"><h3>Highest-value improvements</h3>{learnerProfile.improvements.length ? <div className="report-cards">{learnerProfile.improvements.map((signal) => <SignalCard key={signal.skill} signal={signal} />)}</div> : <p className="report-empty">No clear weakness has enough evidence yet. Continue mixed practice to make the report more specific.</p>}</div>
       </section>
@@ -86,12 +96,17 @@ function reportStatus(status: string) {
 
 function SignalCard({ signal, strength = false }: { signal: LearnerSignal; strength?: boolean }) {
   return <article className={`report-card ${strength ? "strength" : signal.status}`}>
-    <div><span>{strength ? "Strength" : reportStatus(signal.status)} · {signal.confidence}</span><h4>{signal.label}</h4></div>
+    <div><span>{strength ? "Strength" : reportStatus(signal.status)} · {signal.confidence}</span><h4>{signal.label}</h4><small className="signal-updated">Updated {relativeDate(signal.updatedAt)}</small></div>
     <p className="signal-lead">{signal.message}</p>
     <dl><div><dt>Accuracy</dt><dd>{percent(signal.accuracy)}</dd></div><div><dt>On pace</dt><dd>{percent(signal.onPace)}</dd></div><div><dt>Avg. time</dt><dd>{signal.averageSeconds ? `${signal.averageSeconds}s` : "—"}</dd></div></dl>
     <details className="signal-details"><summary>Why this diagnosis?</summary><div><h5>Observed evidence</h5><p>{signal.evidence}</p><h5>What it likely means</h5><p>{signal.interpretation}</p><h5>Likely score impact</h5><p>{signal.impact}</p><h5>Training prescription</h5><ol>{signal.prescription.map((step) => <li key={step}>{step}</li>)}</ol><h5>Graduation target</h5><p>{signal.successMeasure}</p></div></details>
     {!strength && <Link className="secondary link-button" href={signal.href}>{signal.action} →</Link>}
   </article>;
+}
+
+function relativeDate(value: string) {
+  const days = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 86400000));
+  return days === 0 ? "today" : days === 1 ? "yesterday" : `${days} days ago`;
 }
 
 function DashboardNav() {

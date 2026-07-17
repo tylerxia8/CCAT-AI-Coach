@@ -42,4 +42,11 @@ describe("learner profile", () => {
   it("uses the highest-priority behavior to prescribe the next adaptive set", () => {
     expect(recommendedLearnerTarget(diagnostics, { version: 1, entries: [] })).toMatchObject({ skill: "percentages", cause: "rushing", targetDifficulty: 2 });
   });
+
+  it("retires an old weakness after enough recent clean evidence", () => {
+    const practice = { version: 1 as const, entries: [{ sessionId: "repair", completedAt: "2026-07-18T12:00:00Z", focus: "percentages", correct: 12, total: 12, onPace: 12, skillResults: [{ skill: "percentages", correct: 12, total: 12, onPace: 12, averageSeconds: 14, fastMisses: 0 }] }] };
+    const profile = buildLearnerProfile(diagnostics, practice);
+    expect(profile.strengths.find((signal) => signal.skill === "percentages")).toMatchObject({ status: "strength", updatedAt: "2026-07-18T12:00:00Z" });
+    expect(profile.improvements.find((signal) => signal.skill === "percentages")).toBeUndefined();
+  });
 });

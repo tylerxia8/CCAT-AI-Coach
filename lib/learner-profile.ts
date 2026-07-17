@@ -22,21 +22,22 @@ export type LearnerSignal = {
   prescription: string[];
   successMeasure: string;
   confidence: "early signal" | "moderate evidence" | "strong evidence";
+  updatedAt: string;
   action: string;
   href: string;
 };
 
 export type LearnerProfile = { strengths: LearnerSignal[]; improvements: LearnerSignal[]; allSignals: LearnerSignal[]; summary: string };
 
-type Totals = { correct: number; total: number; onPace: number; elapsed: number; timed: number; fastMisses: number };
+type Totals = { correct: number; total: number; onPace: number; elapsed: number; timed: number; fastMisses: number; updatedAt: string };
 
 export function buildLearnerProfile(diagnostics: DiagnosticHistory, practice: PracticeHistory): LearnerProfile {
   const totals = new Map<string, Totals>();
-  for (const entry of diagnostics.entries.slice(-4)) {
-    for (const result of entry.skillResults ?? []) add(totals, result.skill, result.correct, result.total, result.onPace ?? result.total - result.slow, result.averageSeconds, result.fastMisses ?? 0);
+  for (const entry of diagnostics.entries.slice(-2)) {
+    for (const result of entry.skillResults ?? []) add(totals, result.skill, result.correct, result.total, result.onPace ?? result.total - result.slow, result.averageSeconds, result.fastMisses ?? 0, entry.completedAt);
   }
-  for (const entry of practice.entries.slice(-8)) {
-    for (const result of entry.skillResults ?? []) add(totals, result.skill, result.correct, result.total, result.onPace ?? result.total, result.averageSeconds ?? 0, result.fastMisses ?? 0);
+  for (const entry of practice.entries.slice(-4)) {
+    for (const result of entry.skillResults ?? []) add(totals, result.skill, result.correct, result.total, result.onPace ?? result.total, result.averageSeconds ?? 0, result.fastMisses ?? 0, entry.completedAt);
   }
   const allSignals = [...totals.entries()].filter(([, value]) => value.total >= 2).map(([skill, value]) => signalFor(skill, value));
   const strengths = allSignals.filter((signal) => signal.status === "strength").sort((a, b) => b.accuracy - a.accuracy || b.onPace - a.onPace || b.observations - a.observations).slice(0, 3);
@@ -55,9 +56,9 @@ export function recommendedLearnerTarget(diagnostics: DiagnosticHistory, practic
   return buildLearnerProfile(diagnostics, practice).improvements[0] ?? null;
 }
 
-function add(totals: Map<string, Totals>, skill: string, correct: number, total: number, onPace: number, averageSeconds: number, fastMisses: number) {
-  const current = totals.get(skill) ?? { correct: 0, total: 0, onPace: 0, elapsed: 0, timed: 0, fastMisses: 0 };
-  totals.set(skill, { correct: current.correct + correct, total: current.total + total, onPace: current.onPace + onPace, elapsed: current.elapsed + averageSeconds * total, timed: current.timed + Number(averageSeconds > 0) * total, fastMisses: current.fastMisses + fastMisses });
+function add(totals: Map<string, Totals>, skill: string, correct: number, total: number, onPace: number, averageSeconds: number, fastMisses: number, completedAt: string) {
+  const current = totals.get(skill) ?? { correct: 0, total: 0, onPace: 0, elapsed: 0, timed: 0, fastMisses: 0, updatedAt: completedAt };
+  totals.set(skill, { correct: current.correct + correct, total: current.total + total, onPace: current.onPace + onPace, elapsed: current.elapsed + averageSeconds * total, timed: current.timed + Number(averageSeconds > 0) * total, fastMisses: current.fastMisses + fastMisses, updatedAt: completedAt > current.updatedAt ? completedAt : current.updatedAt });
 }
 
 function signalFor(skill: string, value: Totals): LearnerSignal {
@@ -80,7 +81,7 @@ function signalFor(skill: string, value: Totals): LearnerSignal {
   const targetDifficulty = (accuracy >= .85 && onPace >= .75 ? 4 : accuracy < .6 ? 2 : 3) as 2 | 3 | 4;
   const message = messageFor(status, label);
   const details = detailFor(status, label, value, accuracy, onPace, averageSeconds);
-  return { skill, label, correct: value.correct, observations: value.total, accuracy, onPace, averageSeconds, fastMisses: value.fastMisses, status, cause, targetDifficulty, message, ...details, action: actionFor(status), href: `/practice?focus=${cause}&skill=${encodeURIComponent(skill)}&new=1` };
+  return { skill, label, correct: value.correct, observations: value.total, accuracy, onPace, averageSeconds, fastMisses: value.fastMisses, status, cause, targetDifficulty, message, ...details, updatedAt: value.updatedAt, action: actionFor(status), href: `/practice?focus=${cause}&skill=${encodeURIComponent(skill)}&new=1` };
 }
 
 function detailFor(status: LearnerSignalStatus, label: string, value: Totals, accuracy: number, onPace: number, averageSeconds: number) {
