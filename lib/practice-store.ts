@@ -30,7 +30,7 @@ export type PracticeHistoryEntry = {
   timedOut?: number;
   averageDifficulty?: number;
   questionIds?: string[];
-  skillResults?: Array<{ skill: string; correct: number; total: number }>;
+  skillResults?: Array<{ skill: string; correct: number; total: number; onPace?: number; averageSeconds?: number; timedOut?: number; fastMisses?: number }>;
 };
 
 export type PracticeHistory = { version: 1; entries: PracticeHistoryEntry[] };
@@ -97,13 +97,13 @@ export function completePracticeSession(session: StoredPracticeSession, complete
 
 function average(values: number[]) { return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length * 100) / 100 : undefined; }
 function summarizeSkills(records: PracticeRecord[]) {
-  const skills = new Map<string, { correct: number; total: number }>();
+  const skills = new Map<string, { correct: number; total: number; onPace: number; elapsed: number; timedOut: number; fastMisses: number }>();
   for (const record of records) {
     if (!record.skill) continue;
-    const current = skills.get(record.skill) ?? { correct: 0, total: 0 };
-    skills.set(record.skill, { correct: current.correct + Number(record.isCorrect), total: current.total + 1 });
+    const current = skills.get(record.skill) ?? { correct: 0, total: 0, onPace: 0, elapsed: 0, timedOut: 0, fastMisses: 0 };
+    skills.set(record.skill, { correct: current.correct + Number(record.isCorrect), total: current.total + 1, onPace: current.onPace + Number(record.elapsedSeconds <= record.targetSeconds), elapsed: current.elapsed + record.elapsedSeconds, timedOut: current.timedOut + Number(Boolean(record.timedOut)), fastMisses: current.fastMisses + Number(!record.isCorrect && record.elapsedSeconds <= record.targetSeconds * .55) });
   }
-  return [...skills.entries()].map(([skill, result]) => ({ skill, ...result }));
+  return [...skills.entries()].map(([skill, result]) => ({ skill, correct: result.correct, total: result.total, onPace: result.onPace, averageSeconds: Math.round(result.elapsed / result.total), timedOut: result.timedOut, fastMisses: result.fastMisses }));
 }
 
 export function addPracticeHistory(history: PracticeHistory, entry: PracticeHistoryEntry): PracticeHistory {

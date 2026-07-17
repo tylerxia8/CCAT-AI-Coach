@@ -10,6 +10,7 @@ import { HISTORY_STORAGE_KEY, parseHistory } from "@/lib/history-store";
 import { questionExposureCounts, recommendPracticeSkill } from "@/lib/practice-curriculum";
 import { QuestionStimulus } from "@/components/question-stimulus";
 import { clockState, timeConstraintFor } from "@/lib/time-constraint-drills";
+import { recommendedLearnerTarget } from "@/lib/learner-profile";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -73,16 +74,18 @@ export function PracticeExperience() {
     }
     const requested = parameters.get("focus");
     const requestedSkill = parameters.get("skill");
+    const learnerTarget = requestedSkill ? null : recommendedLearnerTarget(diagnosticHistory, practiceHistory);
     const inferredSkill = recommendPracticeSkill(diagnosticHistory, practiceHistory);
     const selectedSkill = requestedSkill ?? inferredSkill;
     const validSkill = selectedSkill && /^[a-z0-9 &-]{2,40}$/i.test(selectedSkill) ? selectedSkill : null;
     const skillLabel = validSkill ? ` · ${validSkill}` : "";
-    const inferredCause = diagnosticHistory.entries.at(-1)?.primaryCause ?? "refinement";
+    const inferredCause = learnerTarget?.cause ?? diagnosticHistory.entries.at(-1)?.primaryCause ?? "refinement";
     const selectedCause = requested && /^[a-z_]+$/.test(requested) ? requested : inferredCause;
     const selectedFocus = `${selectedCause} practice${skillLabel}`;
     const session = createPracticeSession(selectedFocus);
     const selectedProgression = drillProgression(selectedFocus, practiceHistory);
-    const selectedAbility = estimateAbility(selectedFocus, selectedProgression.stage, practiceHistory);
+    const baseAbility = estimateAbility(selectedFocus, selectedProgression.stage, practiceHistory);
+    const selectedAbility = learnerTarget && baseAbility.observations === 0 ? { ...baseAbility, targetDifficulty: learnerTarget.targetDifficulty, reason: `${learnerTarget.message} This set starts at level ${learnerTarget.targetDifficulty}.` } : baseAbility;
     const selectedQuestionIds = selectAdaptiveSequence(PRACTICE_QUESTIONS, selectedAbility.targetDifficulty, validSkill, questionExposureCounts(practiceHistory), 10).map((item) => item.id);
     setSessionId(session.id);
     setFocus(session.focus);

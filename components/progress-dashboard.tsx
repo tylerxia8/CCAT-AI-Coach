@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { addHistoryEntry, HISTORY_STORAGE_KEY, parseHistory, summarizeProgress, type DiagnosticHistory, type DiagnosticHistoryEntry } from "@/lib/history-store";
 import { parsePracticeHistory, PRACTICE_HISTORY_KEY, type PracticeHistory } from "@/lib/practice-store";
+import { buildLearnerProfile } from "@/lib/learner-profile";
 
 function percent(value: number) { return `${Math.round(value * 100)}%`; }
 
@@ -28,6 +29,7 @@ export function ProgressDashboard() {
   }, []);
   if (!history) return <main className="progress-shell"><div className="dashboard-loading">Loading progress…</div></main>;
   const summary = summarizeProgress(history);
+  const learnerProfile = buildLearnerProfile(history, practiceHistory);
   const practiceCorrect = practiceHistory.entries.reduce((total, entry) => total + entry.correct, 0);
   const practiceTotal = practiceHistory.entries.reduce((total, entry) => total + entry.total, 0);
   const latestPractice = practiceHistory.entries.at(-1);
@@ -55,10 +57,23 @@ export function ProgressDashboard() {
         <article className="trend-card"><div className="section-label">Accuracy by session</div><div className="trend-chart">{history.entries.map((entry, index) => <div className="trend-column" key={entry.sessionId}><div className="trend-value">{percent(entry.accuracy)}</div><div className="trend-track"><i style={{ height: percent(entry.accuracy) }} /></div><span>{index + 1}</span></div>)}</div></article>
         <article className="bottleneck-card"><div className="section-label">Recurring bottlenecks</div>{summary.bottlenecks.map((item) => <div className="bottleneck-row" key={item.bottleneck}><span>{item.bottleneck}</span><strong>{item.count}×</strong></div>)}<p>Repeated findings matter more than a single session. Use these to choose where practice time goes.</p></article>
       </section>
+      <section className="learner-report" aria-labelledby="learner-report-title">
+        <div className="learner-report-head"><div><div className="section-label">Personalized performance report</div><h2 id="learner-report-title">What is helping—and costing—your score.</h2><p>{learnerProfile.summary}</p></div><span>{learnerProfile.allSignals.reduce((total, signal) => total + signal.observations, 0)} skill-level observations</span></div>
+        {learnerProfile.strengths.length > 0 && <div className="report-group"><h3>What you are doing well</h3><div className="report-cards">{learnerProfile.strengths.map((signal) => <article className="report-card strength" key={signal.skill}><div><span>Strength</span><h4>{signal.label}</h4></div><p>{signal.message}</p><dl><div><dt>Accuracy</dt><dd>{percent(signal.accuracy)}</dd></div><div><dt>On pace</dt><dd>{percent(signal.onPace)}</dd></div><div><dt>Evidence</dt><dd>{signal.observations}</dd></div></dl></article>)}</div></div>}
+        <div className="report-group"><h3>Where to improve next</h3>{learnerProfile.improvements.length ? <div className="report-cards">{learnerProfile.improvements.map((signal) => <article className={`report-card ${signal.status}`} key={signal.skill}><div><span>{reportStatus(signal.status)}</span><h4>{signal.label}</h4></div><p>{signal.message}</p><dl><div><dt>Accuracy</dt><dd>{percent(signal.accuracy)}</dd></div><div><dt>On pace</dt><dd>{percent(signal.onPace)}</dd></div><div><dt>Avg. time</dt><dd>{signal.averageSeconds ? `${signal.averageSeconds}s` : "—"}</dd></div></dl><Link className="secondary link-button" href={signal.href}>{signal.action} →</Link></article>)}</div> : <p className="report-empty">No clear weakness has enough evidence yet. Continue mixed practice to make the report more specific.</p>}</div>
+      </section>
       <section className="category-progress"><div><div className="section-label">Cumulative category performance</div><h2>Where your points come from.</h2></div>{summary.categoryAccuracy.map((item) => <div className="category-progress-row" key={item.category}><span>{item.category}<small>{item.attempts} attempts</small></span><div className="bar"><i style={{ width: percent(item.accuracy) }} /></div><strong>{percent(item.accuracy)}</strong></div>)}</section>
       {summary.skillPriorities.length > 0 && <section className="priority-strip"><div><div className="section-label">Curriculum priorities</div><h2>Focus on these next.</h2></div>{summary.skillPriorities.map((item) => <div key={item.skill}><strong>{item.skill}</strong><span>{item.mastery}% mastery estimate · {item.evidence} observations</span></div>)}</section>}
     </main>
   );
+}
+
+function reportStatus(status: string) {
+  if (status === "rushing") return "Rushing";
+  if (status === "slow_accurate") return "Build speed";
+  if (status === "slow_inaccurate") return "Method + pace";
+  if (status === "knowledge") return "Knowledge gap";
+  return "Developing";
 }
 
 function DashboardNav() {

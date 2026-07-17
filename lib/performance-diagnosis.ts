@@ -26,7 +26,7 @@ export type PerformanceDiagnosis = {
   nextActivity: { title: string; reason: string; target: string; href: string };
 };
 
-export type SkillMastery = { skill: string; correct: number; total: number; averageSeconds: number; slow: number; changed: number; mastery: number; level: "needs_work" | "developing" | "secure" };
+export type SkillMastery = { skill: string; correct: number; total: number; averageSeconds: number; slow: number; onPace: number; fastMisses: number; changed: number; mastery: number; level: "needs_work" | "developing" | "secure" };
 
 export function inferQuestionSkill(question: Pick<Question, "category" | "prompt" | "stimulus" | "itemFamily">) {
   const prompt = question.prompt.toLowerCase();
@@ -102,6 +102,8 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
       total,
       averageSeconds: answeredItems.length ? Math.round(answeredItems.reduce((sum, review) => sum + review.elapsedSeconds, 0) / answeredItems.length) : 0,
       slow,
+      onPace: items.filter((review) => review.pace === "on_target").length,
+      fastMisses: items.filter((review) => !review.isCorrect && review.selectedAnswer !== null && (review.firstAnswerSeconds ?? review.elapsedSeconds) <= review.targetSeconds * 0.55).length,
       changed: items.filter((review) => review.answerChanges > 0).length,
       mastery,
       level: mastery >= 75 ? "secure" as const : mastery >= 55 ? "developing" as const : "needs_work" as const,

@@ -1,5 +1,6 @@
 import type { DiagnosticHistory } from "./history-store";
 import type { PracticeHistory } from "./practice-store";
+import { recommendedLearnerTarget } from "./learner-profile";
 
 export function questionExposureCounts(history: PracticeHistory) {
   const counts: Record<string, number> = {};
@@ -8,6 +9,8 @@ export function questionExposureCounts(history: PracticeHistory) {
 }
 
 export function recommendPracticeSkill(diagnostics: DiagnosticHistory, practice: PracticeHistory) {
+  const personalized = recommendedLearnerTarget(diagnostics, practice);
+  if (personalized) return personalized.skill;
   const evidence = new Map<string, { misses: number; total: number; lastSeen: number }>();
   practice.entries.slice(-5).forEach((entry, index) => {
     for (const result of entry.skillResults ?? []) {

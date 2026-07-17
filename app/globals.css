@@ -194,6 +194,26 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .prescription-grid p { color: var(--muted); font-size: 12px; line-height: 1.6; }
 .prescription-grid > article > strong { display: block; font-size: 11px; margin-top: 18px; }
 .skill-diagnostics { background: var(--card); border: 1px solid var(--line); border-radius: 14px; display: grid; gap: 28px; grid-template-columns: minmax(200px, .7fr) 1.5fr; margin-top: 12px; padding: 24px; }
+.learner-report { background: var(--card); border: 1px solid var(--line); border-radius: 14px; display: grid; gap: 28px; margin-top: 22px; padding: 28px; }
+.learner-report-head { align-items: flex-start; display: flex; gap: 24px; justify-content: space-between; }
+.learner-report-head h2 { margin: 6px 0 8px; }
+.learner-report-head p { color: var(--muted); line-height: 1.6; margin: 0; max-width: 720px; }
+.learner-report-head > span { background: #eaf6fa; border-radius: 999px; color: var(--green); flex: none; font-size: 10px; font-weight: 800; padding: 8px 12px; }
+.report-group { display: grid; gap: 12px; }
+.report-group h3 { font-size: 13px; margin: 0; }
+.report-cards { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.report-card { border: 1px solid var(--line); border-left: 4px solid #c78a32; border-radius: 10px; display: flex; flex-direction: column; gap: 14px; padding: 18px; }
+.report-card.strength { border-left-color: var(--green); }
+.report-card.rushing { border-left-color: #a75435; }
+.report-card > div > span { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.report-card h4 { font-size: 16px; margin: 3px 0 0; }
+.report-card p { color: var(--muted); font-size: 12px; line-height: 1.55; margin: 0; }
+.report-card dl { display: grid; gap: 8px; grid-template-columns: repeat(3, 1fr); margin: auto 0 0; }
+.report-card dl div { display: grid; gap: 2px; }
+.report-card dt { color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.report-card dd { font-size: 13px; font-weight: 800; margin: 0; }
+.report-card .link-button { align-self: start; font-size: 10px; padding: 9px 12px; }
+.report-empty { color: var(--muted); margin: 0; }
 .skill-diagnostics h3 { font-family: var(--font-serif), Georgia, serif; font-size: 28px; font-weight: 500; margin: 10px 0 0; }
 .skill-diagnostic-list { display: grid; }
 .skill-diagnostic-list > div { border-bottom: 1px solid var(--line); display: grid; font-size: 10px; gap: 10px; grid-template-columns: 1.5fr repeat(4, .7fr); padding: 10px 0; }
@@ -486,6 +506,8 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   .adaptive-next > div:last-child { border-left: 0; border-top: 1px solid #bfdae4; padding: 20px 0 0; }
   .skill-diagnostics { grid-template-columns: 1fr; }
   .skill-diagnostic-list > div { grid-template-columns: 1.5fr 1fr 1fr; }
+  .learner-report-head { align-items: flex-start; flex-direction: column; }
+  .learner-report { padding: 20px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
