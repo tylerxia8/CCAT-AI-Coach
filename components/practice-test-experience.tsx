@@ -6,7 +6,10 @@ import { PerformanceDiagnosis } from "@/components/performance-diagnosis";
 import { QuestionReview } from "@/components/question-review";
 import { QuestionStimulus } from "@/components/question-stimulus";
 import { SimulationReadiness } from "@/components/simulation-readiness";
+import { ScoreStrategyReport } from "@/components/score-strategy-report";
 import type { Attempt, ScoredDiagnosticResult } from "@/lib/diagnostic";
+import { bestStrategy, parseStrategyRuns, STRATEGIES, STRATEGY_HISTORY_KEY, type TestStrategy } from "@/lib/strategy-experiments";
+import { parseRepairQueue, recordRepairEvidence, REPAIR_QUEUE_KEY } from "@/lib/repair-queue";
 import {
   PRACTICE_TEST_QUESTIONS,
   PRACTICE_TEST_SECONDS,
@@ -22,6 +25,7 @@ const formatTime = (seconds: number) =>
 export function PracticeTestExperience() {
   const [stage, setStage] = useState<Stage>("intro");
   const [mode, setMode] = useState<TestMode>("timed");
+  const [strategy, setStrategy] = useState<TestStrategy>("balanced");
   const [index, setIndex] = useState(0);
   const [remaining, setRemaining] = useState(PRACTICE_TEST_SECONDS);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -36,6 +40,17 @@ export function PracticeTestExperience() {
   const deadlineAt = useRef(Date.now() + PRACTICE_TEST_SECONDS * 1000);
   const submitTestRef = useRef<() => void>(() => {});
   const question = PRACTICE_TEST_QUESTIONS[index];
+
+  useEffect(() => {
+    if (stage !== "results" || mode !== "timed" || !result) return;
+    const runs = parseStrategyRuns(window.localStorage.getItem(STRATEGY_HISTORY_KEY));
+    const id = `${strategy}-${result.correct}-${attempts.length}`;
+    if (runs.some((run) => run.id === id)) return;
+    window.localStorage.setItem(STRATEGY_HISTORY_KEY, JSON.stringify([...runs, { id, strategy, correct: result.correct, total: result.total, paceScore: result.paceScore, completedAt: new Date().toISOString() }].slice(-20)));
+    let queue = parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY));
+    for (const review of result.reviews) queue = recordRepairEvidence(queue, { key: review.questionId, skill: review.skill, category: review.category, isCorrect: review.isCorrect });
+    window.localStorage.setItem(REPAIR_QUEUE_KEY, JSON.stringify(queue));
+  }, [attempts.length, mode, result, stage, strategy]);
 
   useEffect(() => {
     if (stage !== "test" || mode !== "timed") return;
@@ -165,6 +180,7 @@ export function PracticeTestExperience() {
             strategy cue for each question family. Answers remain hidden until
             completion.
           </p>
+          <div className="strategy-picker"><strong>Choose a timed strategy to test</strong><div>{(Object.keys(STRATEGIES) as TestStrategy[]).map((key) => <button type="button" className={strategy === key ? "selected" : ""} onClick={() => setStrategy(key)} key={key}>{STRATEGIES[key].label}</button>)}</div><small>{STRATEGIES[strategy].cue}</small></div>
           <div className="hero-actions">
             <button
               className="primary"
@@ -211,6 +227,7 @@ export function PracticeTestExperience() {
               Use this form to verify whether prescribed training transfers to
               unseen questions.
             </p>
+            {mode === "timed" && <p><strong>{STRATEGIES[strategy].label} experiment:</strong> {STRATEGIES[strategy].cue} {(() => { const winner = bestStrategy(parseStrategyRuns(typeof window === "undefined" ? null : window.localStorage.getItem(STRATEGY_HISTORY_KEY))); return winner ? `Your best observed strategy so far is ${STRATEGIES[winner].label.toLowerCase()}.` : "Run another strategy next time to compare actual results."; })()}</p>}
           </div>
           <div className="score-ring">
             <strong>{Math.round(result.accuracy * 100)}</strong>
@@ -235,6 +252,7 @@ export function PracticeTestExperience() {
           </article>
         </section> : <p className="guided-result-note">Guided mode emphasizes method and review, so its timing is not used for behavioral diagnosis. Use timed mode when you want a pace or rushing assessment.</p>}
         {mode === "timed" && <SimulationReadiness result={result} observations={result.total} />}
+        {mode === "timed" && <ScoreStrategyReport reviews={result.reviews} allottedSeconds={PRACTICE_TEST_SECONDS} />}
         {mode === "timed" && <PerformanceDiagnosis diagnosis={result.diagnosis} />}
         <QuestionReview reviews={result.reviews} />
       </main>

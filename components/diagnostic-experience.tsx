@@ -13,6 +13,8 @@ import { SimulationReadiness } from "@/components/simulation-readiness";
 import { ResultSummary } from "@/components/result-summary";
 import { ReassessmentComparison } from "@/components/reassessment-comparison";
 import { compareWithBaseline, type ReassessmentComparison as Comparison } from "@/lib/reassessment";
+import { ScoreStrategyReport } from "@/components/score-strategy-report";
+import { parseRepairQueue, recordRepairEvidence, REPAIR_QUEUE_KEY } from "@/lib/repair-queue";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -44,6 +46,12 @@ export function DiagnosticExperience() {
   const deadlineAt = useRef(Date.now() + TEST_SECONDS * 1000);
 
   const question = QUESTIONS[index];
+  useEffect(() => {
+    if (!result) return;
+    let queue = parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY));
+    for (const review of result.reviews) queue = recordRepairEvidence(queue, { key: review.questionId, skill: review.skill, category: review.category, isCorrect: review.isCorrect });
+    window.localStorage.setItem(REPAIR_QUEUE_KEY, JSON.stringify(queue));
+  }, [result]);
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("new") === "1") window.localStorage.removeItem(SESSION_STORAGE_KEY);
     const restored = parseSession(window.localStorage.getItem(SESSION_STORAGE_KEY));
@@ -258,6 +266,7 @@ export function DiagnosticExperience() {
           <article><span>Confidence fit</span><strong>{Math.round(result.confidenceScore * 100)}%</strong><small>calibrated decisions</small></article>
         </section>
         <SimulationReadiness result={result} observations={result.total} />
+        <ScoreStrategyReport reviews={result.reviews} />
         <section className="report-grid">
           <article className="category-card"><div className="section-label">Category performance</div>{result.categoryResults.filter((item) => item.total).map((item) => <div className="category-row" key={item.category}><span>{item.category}</span><div className="bar"><i style={{ width: `${(item.correct / item.total) * 100}%` }} /></div><b>{item.correct}/{item.total}</b></div>)}</article>
           <article className="coach-card">

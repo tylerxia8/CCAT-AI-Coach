@@ -11,6 +11,8 @@ import { questionExposureCounts, recommendPracticeSkill } from "@/lib/practice-c
 import { QuestionStimulus } from "@/components/question-stimulus";
 import { clockState, timeConstraintFor } from "@/lib/time-constraint-drills";
 import { recommendedLearnerTarget } from "@/lib/learner-profile";
+import { nextRepairSkill, parseRepairQueue, recordRepairEvidence, REPAIR_QUEUE_KEY } from "@/lib/repair-queue";
+import { SkillLesson } from "@/components/skill-lesson";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -74,9 +76,10 @@ export function PracticeExperience() {
     }
     const requested = parameters.get("focus");
     const requestedSkill = parameters.get("skill");
+    const repairSkill = nextRepairSkill(parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY)));
     const learnerTarget = requestedSkill ? null : recommendedLearnerTarget(diagnosticHistory, practiceHistory);
     const inferredSkill = recommendPracticeSkill(diagnosticHistory, practiceHistory);
-    const selectedSkill = requestedSkill ?? inferredSkill;
+    const selectedSkill = requestedSkill ?? repairSkill ?? inferredSkill;
     const validSkill = selectedSkill && /^[a-z0-9 &-]{2,40}$/i.test(selectedSkill) ? selectedSkill : null;
     const skillLabel = validSkill ? ` · ${validSkill}` : "";
     const inferredCause = learnerTarget?.cause ?? diagnosticHistory.entries.at(-1)?.primaryCause ?? "refinement";
@@ -139,6 +142,8 @@ export function PracticeExperience() {
       const elapsedSeconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
       setFeedback(result);
       setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: training.targetSeconds, difficulty: question.difficulty, skill: question.skill, timedOut }]);
+      const repairQueue = parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY));
+      window.localStorage.setItem(REPAIR_QUEUE_KEY, JSON.stringify(recordRepairEvidence(repairQueue, { key: question.id, skill: question.skill, category: question.category, isCorrect: result.isCorrect })));
     } catch {
       setError(true);
     } finally {
@@ -184,6 +189,7 @@ export function PracticeExperience() {
       <section className="practice-card">
         <div className="training-directive"><strong>Stage {progression.stage} · {progression.label} · Level {ability.targetDifficulty}/5 · {training.title}</strong><span>{progression.purpose} {training.instruction}{focus.startsWith("second_guessing") && selectionChanges > 0 ? ` · ${selectionChanges} answer change${selectionChanges === 1 ? "" : "s"} so far` : ""}</span><small>{adaptiveQuestions.length}-question set from {PRACTICE_QUESTIONS.length} rotating items · {ability.confidence} evidence · {ability.reason} Advance when: {progression.gate}</small></div>
         <div className="question-meta"><span>{question.category} · {question.skill}</span><span>Difficulty {question.difficulty}/5 · Target {training.targetSeconds}s</span></div>
+        {(progression.stage === 1 || focus.startsWith("knowledge")) && <SkillLesson skill={question.skill} category={question.category} />}
         {timeConstraint.enabled && <div className={`pace-clock ${clockState(secondsRemaining)}`} aria-live="polite"><span>{timeConstraint.label}</span><strong>{secondsRemaining}s</strong><small>{secondsRemaining > 0 ? "Decide, verify, commit" : timeConstraint.hardStop ? "Answer committed at deadline" : "Over target—finish cleanly"}</small></div>}
         {question.stimulus && <QuestionStimulus stimulus={question.stimulus} />}
         <h1>{question.prompt}</h1>

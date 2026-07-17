@@ -513,3 +513,32 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; }
 }
+
+.strategy-report, .repair-summary, .curriculum-health { max-width: 1120px; margin: 24px auto; padding: 28px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.strategy-report h2, .repair-summary h2, .curriculum-health h2 { margin: 6px 0 8px; }
+.strategy-metrics { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 22px; border: 1px solid var(--line); }
+.strategy-metrics article { display: flex; flex-direction: column; gap: 5px; padding: 18px; }
+.strategy-metrics article + article { border-left: 1px solid var(--line); }
+.strategy-metrics strong { color: var(--navy); font-size: 1.7rem; }
+.strategy-metrics small, .strategy-metrics span, .checkpoint-grid small, .checkpoint-grid span { color: var(--muted); }
+.checkpoint-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.checkpoint-grid article { display: grid; gap: 4px; padding: 14px 16px; background: #f3f8fa; }
+.strategy-detail { margin: 16px 0 0; font-size: .9rem; color: var(--muted); }
+.skill-lesson { margin: 16px 0; padding: 16px 18px; border-left: 4px solid var(--lime); background: #f5faf7; }
+.skill-lesson summary { cursor: pointer; font-weight: 750; color: var(--navy); }
+.skill-lesson ol { margin: 12px 0; padding-left: 22px; }
+.skill-lesson p { margin: 8px 0; }
+.strategy-picker { max-width: 680px; margin: 24px 0; padding: 18px; background: #f3f8fa; }
+.strategy-picker > div { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.strategy-picker button { padding: 9px 13px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+.strategy-picker button.selected { color: #fff; border-color: var(--navy); background: var(--navy); }
+.repair-summary { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.curriculum-health > div:last-of-type { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.curriculum-health article { display: grid; gap: 7px; padding: 16px; background: #f3f8fa; }
+.curriculum-health article span, .curriculum-health article small { color: var(--muted); }
+
+@media (max-width: 720px) {
+  .strategy-metrics, .checkpoint-grid, .curriculum-health > div:last-of-type { grid-template-columns: 1fr; }
+  .strategy-metrics article + article { border-left: 0; border-top: 1px solid var(--line); }
+  .repair-summary { align-items: flex-start; flex-direction: column; }
+}

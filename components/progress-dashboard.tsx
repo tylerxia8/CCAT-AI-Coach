@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { addHistoryEntry, HISTORY_STORAGE_KEY, parseHistory, summarizeProgress, type DiagnosticHistory, type DiagnosticHistoryEntry } from "@/lib/history-store";
 import { parsePracticeHistory, PRACTICE_HISTORY_KEY, type PracticeHistory } from "@/lib/practice-store";
 import { buildLearnerProfile } from "@/lib/learner-profile";
+import { curriculumSignals } from "@/lib/score-improvement";
+import { dueRepairs, parseRepairQueue, REPAIR_QUEUE_KEY, type RepairQueue } from "@/lib/repair-queue";
 
 function percent(value: number) { return `${Math.round(value * 100)}%`; }
 
@@ -12,9 +14,11 @@ export function ProgressDashboard() {
   const [history, setHistory] = useState<DiagnosticHistory | null>(null);
   const [source, setSource] = useState<"browser" | "cloud">("browser");
   const [practiceHistory, setPracticeHistory] = useState<PracticeHistory>({ version: 1, entries: [] });
+  const [repairQueue, setRepairQueue] = useState<RepairQueue>({ version: 1, items: [] });
   useEffect(() => {
     const local = parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY));
     setPracticeHistory(parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY)));
+    setRepairQueue(parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY)));
     setHistory(local);
     fetch("/api/progress")
       .then((response) => response.ok ? response.json() as Promise<{ entries: DiagnosticHistoryEntry[]; source: string }> : null)
@@ -33,6 +37,8 @@ export function ProgressDashboard() {
   const practiceCorrect = practiceHistory.entries.reduce((total, entry) => total + entry.correct, 0);
   const practiceTotal = practiceHistory.entries.reduce((total, entry) => total + entry.total, 0);
   const latestPractice = practiceHistory.entries.at(-1);
+  const repairs = dueRepairs(repairQueue);
+  const curriculum = curriculumSignals(practiceHistory);
 
   if (!summary) {
     return (
@@ -53,6 +59,7 @@ export function ProgressDashboard() {
         <article><small>Confidence fit</small><strong>{percent(summary.latestConfidenceScore)}</strong><span>Latest session</span></article>
         <article><small>Practice drills</small><strong>{practiceHistory.entries.length}</strong><span>{practiceTotal ? `${Math.round((practiceCorrect / practiceTotal) * 100)}% accuracy${latestPractice?.averageDifficulty ? ` · latest level ${latestPractice.averageDifficulty}/5` : ""}` : "No drills completed"}</span></article>
       </section>
+      <section className="repair-summary"><div><div className="section-label">Spaced error repair</div><h2>{repairs.length ? `${repairs.length} missed item${repairs.length === 1 ? " is" : "s are"} due.` : "Your repair queue is current."}</h2><p>Correct repairs return after 1, 3, 7, 14, then 30 days. A new miss returns immediately.</p></div>{repairs.length > 0 && <Link className="primary link-button" href={`/practice?skill=${encodeURIComponent(repairs[0].skill)}&new=1`}>Repair {repairs[0].skill} →</Link>}</section>
       <section className="dashboard-grid">
         <article className="trend-card"><div className="section-label">Accuracy by session</div><div className="trend-chart">{history.entries.map((entry, index) => <div className="trend-column" key={entry.sessionId}><div className="trend-value">{percent(entry.accuracy)}</div><div className="trend-track"><i style={{ height: percent(entry.accuracy) }} /></div><span>{index + 1}</span></div>)}</div></article>
         <article className="bottleneck-card"><div className="section-label">Recurring bottlenecks</div>{summary.bottlenecks.map((item) => <div className="bottleneck-row" key={item.bottleneck}><span>{item.bottleneck}</span><strong>{item.count}×</strong></div>)}<p>Repeated findings matter more than a single session. Use these to choose where practice time goes.</p></article>
@@ -64,6 +71,7 @@ export function ProgressDashboard() {
       </section>
       <section className="category-progress"><div><div className="section-label">Cumulative category performance</div><h2>Where your points come from.</h2></div>{summary.categoryAccuracy.map((item) => <div className="category-progress-row" key={item.category}><span>{item.category}<small>{item.attempts} attempts</small></span><div className="bar"><i style={{ width: percent(item.accuracy) }} /></div><strong>{percent(item.accuracy)}</strong></div>)}</section>
       {summary.skillPriorities.length > 0 && <section className="priority-strip"><div><div className="section-label">Curriculum priorities</div><h2>Focus on these next.</h2></div>{summary.skillPriorities.map((item) => <div key={item.skill}><strong>{item.skill}</strong><span>{item.mastery}% mastery estimate · {item.evidence} observations</span></div>)}</section>}
+      <section className="curriculum-health"><div><div className="section-label">Curriculum effectiveness</div><h2>Is practice transferring?</h2><p>We compare your first and latest drill evidence for each skill, including accuracy and pace.</p></div>{curriculum.length ? <div>{curriculum.slice(0, 6).map((signal) => <article key={signal.skill}><strong>{signal.skill}</strong><span>{signal.status === "improving" ? "Improving—keep the progression" : signal.status === "regressing" ? "Regressing—return to method practice" : "Stalled—change the drill or difficulty"}</span><small>{signal.sessions} sessions · {signal.change >= 0 ? "+" : ""}{Math.round(signal.change * 100)} transfer index</small></article>)}</div> : <p>Complete the same skill in at least two drill sessions to measure transfer.</p>}</section>
     </main>
   );
 }
