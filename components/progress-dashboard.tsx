@@ -50,9 +50,10 @@ export function ProgressDashboard() {
   const repairs = dueRepairs(repairQueue);
   const curriculum = curriculumSignals(practiceHistory);
   const primary = learnerProfile.improvements[0] ?? null;
-  const nextHref = repairs.length ? `/practice?skill=${encodeURIComponent(repairs[0].skill)}&new=1` : primary?.href ?? "/practice?new=1";
-  const nextTitle = repairs.length ? `Repair ${repairs[0].skill}` : primary ? primary.action : "Complete a mixed practice set";
-  const nextReason = repairs.length ? `${repairs.length} missed item${repairs.length === 1 ? " is" : "s are"} ready for retrieval practice.` : primary?.message ?? "More recent practice will make your coaching recommendations more specific.";
+  const lessonFirst = Boolean(primary && ["guessing", "knowledge", "slow_inaccurate"].includes(primary.status));
+  const nextHref = lessonFirst ? primary!.href : repairs.length ? `/practice?skill=${encodeURIComponent(repairs[0].skill)}&new=1` : primary?.href ?? "/practice?new=1";
+  const nextTitle = lessonFirst ? `Learn ${primary!.label.toLowerCase()}` : repairs.length ? `Repair ${repairs[0].skill}` : primary ? primary.action : "Complete a mixed practice set";
+  const nextReason = lessonFirst ? `${primary!.message} Instruction comes before more timed practice.` : repairs.length ? `${repairs.length} missed item${repairs.length === 1 ? " is" : "s are"} ready for retrieval practice.` : primary?.message ?? "More recent practice will make your coaching recommendations more specific.";
 
   if (!summary) {
     return (
@@ -81,6 +82,7 @@ export function ProgressDashboard() {
 }
 
 function reportStatus(status: string) {
+  if (status === "guessing") return "Likely guessing";
   if (status === "rushing") return "Rushing";
   if (status === "slow_accurate") return "Build speed";
   if (status === "slow_inaccurate") return "Method + pace";

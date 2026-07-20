@@ -4,6 +4,7 @@ import { LEGACY_SESSION_STORAGE_KEYS, SESSION_STORAGE_KEY } from "./session-stor
 import { STUDY_PLAN_STATE_KEY } from "./study-plan";
 import { REPAIR_QUEUE_KEY } from "./repair-queue";
 import { STRATEGY_HISTORY_KEY } from "./strategy-experiments";
+import { LESSON_PROGRESS_KEY } from "./remediation-lessons";
 
 export const USER_DATA_KEYS = [
   SESSION_STORAGE_KEY,
@@ -14,6 +15,7 @@ export const USER_DATA_KEYS = [
   STUDY_PLAN_STATE_KEY,
   REPAIR_QUEUE_KEY,
   STRATEGY_HISTORY_KEY,
+  LESSON_PROGRESS_KEY,
 ] as const;
 
 type StorageLike = Pick<Storage, "getItem" | "removeItem">;

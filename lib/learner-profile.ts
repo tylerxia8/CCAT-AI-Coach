@@ -2,7 +2,7 @@ import type { DiagnosticHistory } from "./history-store";
 import type { PerformanceCause } from "./performance-diagnosis";
 import type { PracticeHistory } from "./practice-store";
 
-export type LearnerSignalStatus = "strength" | "rushing" | "slow_accurate" | "slow_inaccurate" | "knowledge" | "developing";
+export type LearnerSignalStatus = "strength" | "guessing" | "rushing" | "slow_accurate" | "slow_inaccurate" | "knowledge" | "developing";
 export type LearnerSignal = {
   skill: string;
   label: string;
@@ -67,6 +67,8 @@ function signalFor(skill: string, value: Totals): LearnerSignal {
   const averageSeconds = value.timed ? Math.round(value.elapsed / value.timed) : 0;
   const status: LearnerSignalStatus = accuracy >= .8 && onPace >= .7
     ? "strength"
+    : accuracy < .5 && value.fastMisses >= 2 && value.fastMisses / value.total >= .25
+      ? "guessing"
     : value.fastMisses >= 2 && value.fastMisses / value.total >= .2
       ? "rushing"
       : accuracy < .7 && onPace < .6
@@ -76,12 +78,13 @@ function signalFor(skill: string, value: Totals): LearnerSignal {
           : accuracy < .65
             ? "knowledge"
             : "developing";
-  const cause: PerformanceCause = status === "rushing" ? "rushing" : status === "slow_accurate" ? "speed" : status === "slow_inaccurate" || status === "knowledge" ? "knowledge" : "refinement";
+  const cause: PerformanceCause = status === "rushing" ? "rushing" : status === "slow_accurate" ? "speed" : status === "guessing" || status === "slow_inaccurate" || status === "knowledge" ? "knowledge" : "refinement";
   const label = skillLabel(skill);
   const targetDifficulty = (accuracy >= .85 && onPace >= .75 ? 4 : accuracy < .6 ? 2 : 3) as 2 | 3 | 4;
   const message = messageFor(status, label);
   const details = detailFor(status, label, value, accuracy, onPace, averageSeconds);
-  return { skill, label, correct: value.correct, observations: value.total, accuracy, onPace, averageSeconds, fastMisses: value.fastMisses, status, cause, targetDifficulty, message, ...details, updatedAt: value.updatedAt, action: actionFor(status), href: `/practice?focus=${cause}&skill=${encodeURIComponent(skill)}&new=1` };
+  const needsLesson = status === "guessing" || status === "knowledge" || status === "slow_inaccurate";
+  return { skill, label, correct: value.correct, observations: value.total, accuracy, onPace, averageSeconds, fastMisses: value.fastMisses, status, cause, targetDifficulty, message, ...details, updatedAt: value.updatedAt, action: actionFor(status), href: needsLesson ? `/learn?skill=${encodeURIComponent(skill)}` : `/practice?focus=${cause}&skill=${encodeURIComponent(skill)}&new=1` };
 }
 
 function detailFor(status: LearnerSignalStatus, label: string, value: Totals, accuracy: number, onPace: number, averageSeconds: number) {
@@ -90,6 +93,7 @@ function detailFor(status: LearnerSignalStatus, label: string, value: Totals, ac
   const evidence = `${value.correct} of ${value.total} correct; ${value.onPace} of ${value.total} within target pace${averageSeconds ? `; ${averageSeconds}s average` : ""}${value.fastMisses ? `; ${value.fastMisses} fast miss${value.fastMisses === 1 ? "" : "es"}` : ""}.`;
   const confidence = value.total >= 12 ? "strong evidence" as const : value.total >= 6 ? "moderate evidence" as const : "early signal" as const;
   if (status === "strength") return { evidence, confidence, interpretation: `You are recognizing the underlying ${label.toLowerCase()} method quickly and executing it reliably. This is a genuine point-producing skill, not merely untimed accuracy.`, impact: `Protect this strength: it can supply dependable first-pass points and preserve time for harder items.`, prescription: ["Keep it in mixed sets so the skill remains automatic.", "Increase difficulty only after accuracy and pace remain stable."], successMeasure: "Maintain at least 80% accuracy with 70% or more answers on pace." };
+  if (status === "guessing") return { evidence, confidence, interpretation: `The combination of very fast responses and low accuracy suggests choices are being selected before a complete logic rule or solving method has been formed.`, impact: `${misses} of ${value.total} observed opportunities were missed. More speed practice would reinforce guessing, so instruction should come before another timed set.`, prescription: ["Complete the guided foundation lesson for this skill.", "Pass each comprehension check by explaining the rule.", "Then transfer the method to a foundation-level timed drill."], successMeasure: "Reach 70% accuracy with no more than one fast miss before increasing time pressure." };
   if (status === "rushing") return { evidence, confidence, interpretation: `The speed is available, but the error pattern suggests incomplete reading, skipped computation checks, or premature commitment rather than a lack of ability.`, impact: `${misses} observed misses are currently reducing the value of your pace. Slowing only the final verification step can recover points without making the whole test slower.`, prescription: ["Name the rule or operation before selecting an answer.", "Use a five-second exact-value, sign, direction, or character check.", "Do not revisit unless you can state a concrete contradiction."], successMeasure: `Reduce fast misses to zero while keeping at least ${Math.max(60, Math.round(onPace * 100) - 10)}% of answers on pace.` };
   if (status === "slow_accurate") return { evidence, confidence, interpretation: `Your method is reliable, but it is using too many steps or too much checking. The knowledge is present; retrieval and execution need to become more automatic.`, impact: `${slow} slow decisions can limit how many of the 50 questions you reach, even when those answers are correct.`, prescription: ["Compare your method with the shortest worked solution.", "Repeat the same question family in short timed blocks.", "Leave at 30 seconds if no clear solution path has formed."], successMeasure: "Keep accuracy at 75% or higher while moving at least 70% of answers inside target pace." };
   if (status === "slow_inaccurate") return { evidence, confidence, interpretation: `Extra time is not yet producing reliable answers. That combination usually means the method is unclear, several approaches are being tried, or foundational knowledge is missing.`, impact: `This is a double cost: ${misses} missed points plus time that could have been used on more attainable questions.`, prescription: ["Return to untimed worked examples and name each step.", "Practice one question family at a time before mixing.", "Add a clock only after two clean sets in a row."], successMeasure: "Reach 70% untimed accuracy first, then bring at least 60% of answers inside target pace." };
@@ -99,6 +103,7 @@ function detailFor(status: LearnerSignalStatus, label: string, value: Totals, ac
 
 function messageFor(status: LearnerSignalStatus, label: string) {
   if (status === "strength") return `You are accurate and on pace with ${label.toLowerCase()}.`;
+  if (status === "guessing") return `Your ${label.toLowerCase()} responses look more like guessing than completed reasoning. Learn the method before practicing it under time pressure.`;
   if (status === "rushing") return `You are rushing ${label.toLowerCase()} and losing points. Take a brief verification beat before committing.`;
   if (status === "slow_accurate") return `You are accurate but a little slow on ${label.toLowerCase()}. Let’s compress the method without sacrificing accuracy.`;
   if (status === "slow_inaccurate") return `You are a little slow and inaccurate on ${label.toLowerCase()}. Let’s rebuild the method before adding time pressure.`;
@@ -108,6 +113,7 @@ function messageFor(status: LearnerSignalStatus, label: string) {
 
 function actionFor(status: LearnerSignalStatus) {
   if (status === "rushing") return "Practice a verification beat";
+  if (status === "guessing") return "Start guided lesson";
   if (status === "slow_accurate") return "Build speed";
   if (status === "slow_inaccurate" || status === "knowledge") return "Rebuild this skill";
   return "Practice this skill";
@@ -124,6 +130,6 @@ function skillLabel(skill: string) {
 }
 
 function prioritySort(a: LearnerSignal, b: LearnerSignal) {
-  const rank = { rushing: 0, slow_inaccurate: 1, knowledge: 2, slow_accurate: 3, developing: 4, strength: 5 };
+  const rank = { guessing: 0, rushing: 1, slow_inaccurate: 2, knowledge: 3, slow_accurate: 4, developing: 5, strength: 6 };
   return rank[a.status] - rank[b.status] || a.accuracy - b.accuracy || a.onPace - b.onPace || b.observations - a.observations;
 }

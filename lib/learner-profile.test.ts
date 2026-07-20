@@ -26,21 +26,21 @@ const diagnostics: DiagnosticHistory = {
 };
 
 describe("learner profile", () => {
-  it("separates strengths, rushing, and slow inaccurate work", () => {
+  it("separates strengths, guessing, and slow inaccurate work", () => {
     const profile = buildLearnerProfile(diagnostics, { version: 1, entries: [] });
     expect(profile.strengths[0]).toMatchObject({ skill: "number sequences", status: "strength", accuracy: 1, onPace: 1 });
-    expect(profile.improvements[0]).toMatchObject({ skill: "percentages", status: "rushing", cause: "rushing" });
+    expect(profile.improvements[0]).toMatchObject({ skill: "percentages", status: "guessing", cause: "knowledge", action: "Start guided lesson" });
     expect(profile.improvements.find((signal) => signal.skill === "sentence completion")).toMatchObject({ status: "slow_inaccurate", cause: "knowledge" });
-    expect(profile.summary).toContain("rushing math questions");
+    expect(profile.summary).toContain("look more like guessing");
     expect(profile.improvements[0].evidence).toContain("fast misses");
-    expect(profile.improvements[0].interpretation).toContain("premature commitment");
+    expect(profile.improvements[0].interpretation).toContain("before a complete logic rule");
     expect(profile.improvements[0].prescription).toHaveLength(3);
-    expect(profile.improvements[0].successMeasure).toContain("fast misses");
+    expect(profile.improvements[0].successMeasure).toContain("fast miss");
     expect(profile.improvements[0].confidence).toBe("early signal");
   });
 
   it("uses the highest-priority behavior to prescribe the next adaptive set", () => {
-    expect(recommendedLearnerTarget(diagnostics, { version: 1, entries: [] })).toMatchObject({ skill: "percentages", cause: "rushing", targetDifficulty: 2 });
+    expect(recommendedLearnerTarget(diagnostics, { version: 1, entries: [] })).toMatchObject({ skill: "percentages", cause: "knowledge", targetDifficulty: 2, href: "/learn?skill=percentages" });
   });
 
   it("retires an old weakness after enough recent clean evidence", () => {

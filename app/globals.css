@@ -557,6 +557,54 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   * { scroll-behavior: auto !important; transition: none !important; }
 }
 
+.lesson-shell { min-height: 100vh; padding: 0 clamp(24px, 7vw, 110px) 90px; }
+.lesson-head { align-items: flex-end; display: flex; gap: 30px; justify-content: space-between; padding: 64px 0 34px; }
+.lesson-head h1 { font-size: clamp(38px, 6vw, 68px); letter-spacing: -.05em; line-height: 1; margin: 14px 0; }
+.lesson-head p { color: var(--muted); line-height: 1.65; max-width: 760px; }
+.lesson-progress { align-items: center; background: #eaf6fa; border-radius: 50%; display: flex; flex: 0 0 130px; flex-direction: column; height: 130px; justify-content: center; text-align: center; }
+.lesson-progress strong { color: var(--navy); font-size: 30px; }
+.lesson-progress span { color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.lesson-path { background: var(--line); display: grid; gap: 1px; grid-template-columns: repeat(4, 1fr); margin-bottom: 24px; }
+.lesson-path > div { align-items: center; background: #fff; display: flex; gap: 10px; padding: 14px; }
+.lesson-path span { align-items: center; border: 1px solid var(--line); border-radius: 50%; display: flex; height: 26px; justify-content: center; width: 26px; }
+.lesson-path .current { background: #f4f9fb; }
+.lesson-path .current span, .lesson-path .complete span { background: var(--lime); border-color: var(--lime); font-weight: 800; }
+.lesson-modules { display: grid; gap: 14px; }
+.lesson-modules > details { border: 1px solid var(--line); background: #fff; }
+.lesson-modules > details > summary { align-items: center; cursor: pointer; display: grid; gap: 14px; grid-template-columns: 36px 1fr; padding: 20px 24px; }
+.lesson-modules > details > summary > span { align-items: center; background: #eaf6fa; border-radius: 50%; display: flex; height: 34px; justify-content: center; width: 34px; }
+.lesson-modules summary div { display: grid; gap: 4px; }
+.lesson-modules summary small { color: var(--muted); }
+.lesson-module-body { border-top: 1px solid var(--line); display: grid; gap: 24px; grid-template-columns: 1.1fr .9fr; padding: 28px; }
+.lesson-module-body h2 { font-size: 20px; margin: 0 0 14px; }
+.lesson-module-body ol { color: var(--muted); line-height: 1.65; padding-left: 22px; }
+.lesson-module-body aside { display: grid; gap: 12px; }
+.lesson-module-body aside > div { background: #f3f8fa; padding: 18px; }
+.lesson-module-body aside small { color: var(--green); font-weight: 800; text-transform: uppercase; }
+.lesson-module-body aside p { line-height: 1.55; margin-bottom: 0; }
+.lesson-module-body aside .lesson-trap { background: #fff7ee; }
+.lesson-check { border-top: 1px solid var(--line); grid-column: 1 / -1; padding-top: 24px; }
+.lesson-check > div:last-of-type { display: grid; gap: 8px; }
+.lesson-check button { background: #fff; border: 1px solid var(--line); cursor: pointer; padding: 13px 16px; text-align: left; }
+.lesson-check button:hover { border-color: var(--green); }
+.lesson-check button.correct { background: #edf8ef; border-color: var(--green); }
+.lesson-check button.incorrect { background: #fff2ed; border-color: #a75435; }
+.correct-copy { color: var(--green); }
+.retry-copy { color: #8f472d; }
+.lesson-transfer { align-items: center; background: #eef3f5; display: flex; gap: 30px; justify-content: space-between; margin-top: 24px; padding: 28px; }
+.lesson-transfer.ready { background: var(--navy); color: #fff; }
+.lesson-transfer.ready .section-label { color: var(--lime); }
+.lesson-transfer h2 { margin: 8px 0; }
+.lesson-transfer p { color: var(--muted); margin: 0; }
+.lesson-transfer.ready p { color: #c7d7df; }
+
+@media (max-width: 720px) {
+  .lesson-head, .lesson-transfer { align-items: flex-start; flex-direction: column; }
+  .lesson-progress { flex-basis: 110px; height: 110px; width: 110px; }
+  .lesson-path { grid-template-columns: repeat(2, 1fr); }
+  .lesson-module-body { grid-template-columns: 1fr; padding: 22px; }
+}
+
 .strategy-report, .repair-summary, .curriculum-health { max-width: 1120px; margin: 24px auto; padding: 28px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 .strategy-report h2, .repair-summary h2, .curriculum-health h2 { margin: 6px 0 8px; }
 .strategy-metrics { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 22px; border: 1px solid var(--line); }
