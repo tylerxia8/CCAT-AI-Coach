@@ -40,4 +40,16 @@ describe("adaptive question selection", () => {
     const repeated = second.filter((item) => first.some((prior) => prior.id === item.id));
     expect(repeated.length).toBeLessThanOrEqual(4);
   });
+
+  it("keeps logic remediation mixed with the broader CCAT formats", () => {
+    const sequence = selectAdaptiveSequence(PRACTICE_QUESTIONS, 4, "deductive reasoning");
+    const formalLogic = new Set(["deductive reasoning", "syllogisms", "ordering logic", "truth logic"]);
+
+    expect(sequence.filter((item) => formalLogic.has(item.skill))).toHaveLength(3);
+    expect(sequence.some((item) => item.category === "Verbal")).toBe(true);
+    expect(sequence.some((item) => item.stimulus && ["bar", "line", "pie", "table"].includes(item.stimulus.kind))).toBe(true);
+    expect(sequence.some((item) => item.category === "Numerical" && item.skill !== "number sequences" && !item.stimulus)).toBe(true);
+    expect(sequence.some((item) => ["number sequences", "letter series", "mixed series", "visual sequences", "figure matrices"].includes(item.skill))).toBe(true);
+    expect(sequence.some((item) => item.skill === "attention to detail" || item.stimulus?.kind === "pairs")).toBe(true);
+  });
 });
