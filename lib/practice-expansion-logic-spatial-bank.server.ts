@@ -48,7 +48,7 @@ const logicAnswers: Array<[number, string]> = [
   [3, "Testing the statements shows exactly one is true when either A or C did it, but the evidence cannot distinguish those two."],
   [2, "Only Q being truthful makes its claim correct, so R is marked; P and R then make false claims."],
   [0, "A striped square is striped and noncircular, satisfying both parts of the rule."],
-  [0, "A7-42 starts with a letter, contains one hyphen, and ends in an even digit."],
+  [0, "A7-42 is the only choice that starts with a letter, contains exactly one '-' character, and ends in an even digit."],
   [2, "Twenty-seven is greater than 20, divisible by 3, and not divisible by 2."],
   [2, "CLOUD has five letters and begins with C while ending with the consecutive letter D."],
   [0, "Two and five differ by 3, have an even product, and sum to 7, which is divisible by 7."],
