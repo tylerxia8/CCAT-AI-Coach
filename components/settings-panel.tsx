@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { clearUserData, collectUserData, countStoredDataGroups } from "@/lib/user-data";
 import { deleteCloudLearningData } from "@/lib/supabase/delete-data";
+import { buildTestProgram, TEST_DATE_KEY } from "@/lib/test-program";
 
 export function SettingsPanel() {
   const [storedGroups, setStoredGroups] = useState(0);
@@ -13,9 +14,11 @@ export function SettingsPanel() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [confirmCloudDelete, setConfirmCloudDelete] = useState(false);
   const [cloudDeleteStatus, setCloudDeleteStatus] = useState<"idle" | "deleting" | "deleted" | "error">("idle");
+  const [testDate, setTestDate] = useState("");
 
   useEffect(() => {
     setStoredGroups(countStoredDataGroups(window.localStorage));
+    setTestDate(window.localStorage.getItem(TEST_DATE_KEY) ?? "");
     const supabase = createClient();
     setCloudConfigured(Boolean(supabase));
     supabase?.auth.getUser().then(({ data }) => setAccountEmail(data.user?.email ?? null));
@@ -37,6 +40,8 @@ export function SettingsPanel() {
     setStoredGroups(0);
     setConfirmClear(false);
   }
+
+  function saveTestDate(value: string) { setTestDate(value); if (value) window.localStorage.setItem(TEST_DATE_KEY, value); else window.localStorage.removeItem(TEST_DATE_KEY); setStoredGroups(countStoredDataGroups(window.localStorage)); }
 
   async function signOut() {
     const supabase = createClient();
@@ -62,6 +67,7 @@ export function SettingsPanel() {
       <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-text-link" href="/progress">Progress</Link></div></nav>
       <section className="settings-head"><div className="eyebrow">Data & account</div><h1>Your work belongs to you.</h1><p>Review what is stored, take a portable copy, or clear this device without affecting the application itself.</p></section>
       <section className="settings-grid">
+        <article><div className="section-label">Assessment date</div><h2>{testDate ? buildTestProgram(testDate)?.title ?? "Set your schedule" : "When is your test?"}</h2><p>{testDate ? `${buildTestProgram(testDate)?.daysRemaining} days remaining · ${buildTestProgram(testDate)?.cadence}` : "Your training volume and simulation schedule will adapt to the time available."}</p><label className="date-setting">Test date<input type="date" value={testDate} min={new Date().toISOString().slice(0, 10)} onChange={(event) => saveTestDate(event.target.value)} /></label></article>
         <article><div className="section-label">This device</div><h2>{storedGroups} stored data {storedGroups === 1 ? "group" : "groups"}</h2><p>Diagnostic state and history, practice state and history, and study-plan completion are stored in this browser.</p><button className="secondary" disabled={!storedGroups} onClick={downloadExport}>Export JSON copy</button></article>
         <article><div className="section-label">Cloud account</div><h2>{accountEmail ?? (cloudConfigured ? "Not signed in" : "Local preview mode")}</h2><p>{accountEmail ? "Completed diagnostics can synchronize across devices. Clearing browser data does not remove cloud records." : cloudConfigured ? "Sign in to synchronize completed diagnostic history." : "Supabase credentials have not been configured, so no data leaves this browser."}</p>{accountEmail ? <button className="settings-link-button" onClick={signOut}>Sign out</button> : <Link className="settings-link-button" href="/auth">Open sign in →</Link>}</article>
       </section>

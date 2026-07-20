@@ -13,6 +13,8 @@ import { clockState, timeConstraintFor } from "@/lib/time-constraint-drills";
 import { recommendedLearnerTarget } from "@/lib/learner-profile";
 import { nextRepairSkill, parseRepairQueue, recordRepairEvidence, REPAIR_QUEUE_KEY } from "@/lib/repair-queue";
 import { SkillLesson } from "@/components/skill-lesson";
+import { ITEM_CALIBRATION_KEY, parseItemCalibration, recordItemOutcome } from "@/lib/item-calibration";
+import { parseTransferQueue, TRANSFER_QUEUE_KEY } from "@/lib/transfer-store";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -25,6 +27,7 @@ export function PracticeExperience() {
   const [sessionId, setSessionId] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [selectionChanges, setSelectionChanges] = useState(0);
+  const [practiceConfidence, setPracticeConfidence] = useState<1 | 2 | 3 | null>(null);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const [deadlineTriggered, setDeadlineTriggered] = useState(false);
   const [progression, setProgression] = useState<DrillProgression>(() => drillProgression("focused practice", { version: 1, entries: [] }));
@@ -75,6 +78,7 @@ export function PracticeExperience() {
       return;
     }
     const requested = parameters.get("focus");
+    const intervention = parameters.get("intervention");
     const requestedSkill = parameters.get("skill");
     const repairSkill = nextRepairSkill(parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY)));
     const learnerTarget = requestedSkill ? null : recommendedLearnerTarget(diagnosticHistory, practiceHistory);
@@ -84,7 +88,8 @@ export function PracticeExperience() {
     const skillLabel = validSkill ? ` · ${validSkill}` : "";
     const inferredCause = learnerTarget?.cause ?? diagnosticHistory.entries.at(-1)?.primaryCause ?? "refinement";
     const selectedCause = requested && /^[a-z_]+$/.test(requested) ? requested : inferredCause;
-    const selectedFocus = `${selectedCause} practice${skillLabel}`;
+    const experimentLabel = intervention && /^(worked_then_problem|predict_then_explain)$/.test(intervention) ? ` · experiment:${intervention}` : "";
+    const selectedFocus = `${selectedCause} practice${skillLabel}${experimentLabel}`;
     const session = createPracticeSession(selectedFocus);
     const selectedProgression = drillProgression(selectedFocus, practiceHistory);
     const baseAbility = estimateAbility(selectedFocus, selectedProgression.stage, practiceHistory);
@@ -125,6 +130,13 @@ export function PracticeExperience() {
     window.localStorage.setItem(PRACTICE_SESSION_KEY, JSON.stringify(completed.session));
     const history = parsePracticeHistory(window.localStorage.getItem(PRACTICE_HISTORY_KEY));
     window.localStorage.setItem(PRACTICE_HISTORY_KEY, JSON.stringify(addPracticeHistory(history, completed.entry)));
+    if (focus.startsWith("refinement")) {
+      const practicedSkill = records.find((record) => record.skill)?.skill;
+      if (practicedSkill) {
+        const transfers = parseTransferQueue(window.localStorage.getItem(TRANSFER_QUEUE_KEY));
+        window.localStorage.setItem(TRANSFER_QUEUE_KEY, JSON.stringify(transfers.map((item) => item.skill === practicedSkill && !item.completedAt ? { ...item, completedAt: new Date().toISOString() } : item)));
+      }
+    }
   }, [adaptiveQuestions.length, focus, hydrated, index, records, sessionId]);
 
   const checkAnswer = useCallback(async (timedOut = false) => {
@@ -141,15 +153,17 @@ export function PracticeExperience() {
       const result = await response.json() as PracticeFeedback;
       const elapsedSeconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
       setFeedback(result);
-      setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: training.targetSeconds, difficulty: question.difficulty, skill: question.skill, timedOut }]);
+      setRecords((current) => [...current, { ...result, elapsedSeconds, targetSeconds: training.targetSeconds, difficulty: question.difficulty, skill: question.skill, timedOut, confidence: practiceConfidence }]);
       const repairQueue = parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY));
       window.localStorage.setItem(REPAIR_QUEUE_KEY, JSON.stringify(recordRepairEvidence(repairQueue, { key: question.id, skill: question.skill, category: question.category, isCorrect: result.isCorrect })));
+      const calibration = parseItemCalibration(window.localStorage.getItem(ITEM_CALIBRATION_KEY));
+      window.localStorage.setItem(ITEM_CALIBRATION_KEY, JSON.stringify(recordItemOutcome(calibration, { questionId: question.id, isCorrect: result.isCorrect, elapsedSeconds, targetSeconds: training.targetSeconds })));
     } catch {
       setError(true);
     } finally {
       setSubmitting(false);
     }
-  }, [question, selected, submitting, training.targetSeconds]);
+  }, [practiceConfidence, question, selected, submitting, training.targetSeconds]);
 
   useEffect(() => {
     if (deadlineTriggered && !feedback && !submitting) void checkAnswer(true);
@@ -160,6 +174,7 @@ export function PracticeExperience() {
     setSelected(null);
     setFeedback(null);
     setSelectionChanges(0);
+    setPracticeConfidence(null);
     startedAt.current = Date.now();
   }
 
@@ -196,7 +211,8 @@ export function PracticeExperience() {
         <div className="choices">
           {question.choices.map((choice, choiceIndex) => <button key={choice} disabled={Boolean(feedback)} className={selected === choiceIndex ? "selected" : ""} onClick={() => { if (selected !== null && selected !== choiceIndex) setSelectionChanges((value) => value + 1); setSelected(choiceIndex); }}><span>{String.fromCharCode(65 + choiceIndex)}</span>{choice}</button>)}
         </div>
-        {feedback && <div className={`feedback-card ${feedback.isCorrect ? "correct" : "incorrect"}`}><div className="feedback-label">{feedback.isCorrect ? "Correct" : `Correct answer · ${feedback.correctAnswer}`}</div><p>{feedback.explanation}</p></div>}
+        {!feedback && <div className="confidence-row"><span>How certain is your method?</span>{([1, 2, 3] as const).map((level) => <button className={practiceConfidence === level ? "selected" : ""} onClick={() => setPracticeConfidence(level)} key={level}>{level === 1 ? "Guessing" : level === 2 ? "Likely" : "Certain"}</button>)}</div>}
+        {feedback && <div className={`feedback-card ${feedback.isCorrect ? "correct" : "incorrect"}`}><div className="feedback-label">{feedback.isCorrect ? "Correct" : `Correct answer · ${feedback.correctAnswer}`}</div><p>{feedback.explanation}</p>{practiceConfidence === 3 && !feedback.isCorrect && <small>Calibration signal: the method felt certain but produced a miss. Reconstruct the rule before continuing.</small>}{practiceConfidence === 1 && feedback.isCorrect && <small>Calibration signal: you may know more than you trusted. Name the evidence that made this answer correct.</small>}</div>}
         {error && <p className="practice-error">We couldn’t check that answer. Your selection is still here—please try again.</p>}
         <div className="practice-actions"><span>Question {index + 1} of {adaptiveQuestions.length}</span>{feedback ? <button className="primary" onClick={next}>{index === adaptiveQuestions.length - 1 ? "See drill results" : "Next question →"}</button> : <button className="primary" disabled={selected === null || submitting} onClick={() => void checkAnswer()}>{submitting ? "Checking…" : "Check answer"}</button>}</div>
       </section>

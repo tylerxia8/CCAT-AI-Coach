@@ -15,6 +15,7 @@ import { ReassessmentComparison } from "@/components/reassessment-comparison";
 import { compareWithBaseline, type ReassessmentComparison as Comparison } from "@/lib/reassessment";
 import { ScoreStrategyReport } from "@/components/score-strategy-report";
 import { parseRepairQueue, recordRepairEvidence, REPAIR_QUEUE_KEY } from "@/lib/repair-queue";
+import { ITEM_CALIBRATION_KEY, parseItemCalibration, recordItemOutcome } from "@/lib/item-calibration";
 
 type Stage = "welcome" | "test" | "results";
 
@@ -24,6 +25,13 @@ function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
   const secs = (seconds % 60).toString().padStart(2, "0");
   return `${mins}:${secs}`;
+}
+
+function checkpointCue(remaining: number, questionNumber: number) {
+  if (remaining > 600) return `Opening phase · bank clear points${questionNumber < 12 ? "" : " · consider moving faster"}`;
+  if (remaining > 300) return `Middle phase · protect rhythm · currently on question ${questionNumber}`;
+  if (remaining > 120) return "Finish phase · use the move-on rule and avoid long traps";
+  return "Final two minutes · make a decision on every reachable item";
 }
 
 export function DiagnosticExperience() {
@@ -49,8 +57,10 @@ export function DiagnosticExperience() {
   useEffect(() => {
     if (!result) return;
     let queue = parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY));
-    for (const review of result.reviews) queue = recordRepairEvidence(queue, { key: review.questionId, skill: review.skill, category: review.category, isCorrect: review.isCorrect });
+    let calibration = parseItemCalibration(window.localStorage.getItem(ITEM_CALIBRATION_KEY));
+    for (const review of result.reviews) { queue = recordRepairEvidence(queue, { key: review.questionId, skill: review.skill, category: review.category, isCorrect: review.isCorrect }); calibration = recordItemOutcome(calibration, { questionId: review.questionId, isCorrect: review.isCorrect, elapsedSeconds: review.elapsedSeconds, targetSeconds: review.targetSeconds }); }
     window.localStorage.setItem(REPAIR_QUEUE_KEY, JSON.stringify(queue));
+    window.localStorage.setItem(ITEM_CALIBRATION_KEY, JSON.stringify(calibration));
   }, [result]);
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("new") === "1") window.localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -296,6 +306,7 @@ export function DiagnosticExperience() {
         <div className={`timer ${remaining < 60 ? "urgent" : ""}`}><span>Time remaining</span><strong>{formatTime(remaining)}</strong></div>
       </header>
       <div className="progress"><i style={{ width: `${((index + 1) / QUESTIONS.length) * 100}%` }} /></div>
+      <div className="live-checkpoint" aria-live="polite">{checkpointCue(remaining, index + 1)}</div>
       <section className={`question-wrap ${question.category === "Spatial" ? "spatial-question" : ""}`}>
         <div className="question-meta"><span>{question.category}</span><span>Target pace · {question.targetSeconds}s</span></div>
         {question.stimulus && <QuestionStimulus stimulus={question.stimulus} />}

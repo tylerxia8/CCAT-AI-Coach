@@ -13,5 +13,6 @@ export function ScoreStrategyReport({ reviews, allottedSeconds = 900 }: { review
     </div>
     <div className="checkpoint-grid">{analysis.checkpoints.map((checkpoint) => <article key={checkpoint.label}><strong>{checkpoint.label}</strong><span>{checkpoint.correct}/{checkpoint.total} correct</span><small>{checkpoint.seconds}s used</small></article>)}</div>
     <p className="strategy-detail">Projected reach at this cadence: about {analysis.projectedAttempts} of 50 questions. Signals: {analysis.slowMisses} long misses, {analysis.rushedMisses} rushed misses, and {analysis.changedFromCorrect} correct first answers changed.</p>
+    <div className="strategy-guidance"><article><strong>Your move-on rule</strong><p>{analysis.skipPolicy}</p></article><article><strong>Endurance signal</strong><p>{analysis.fatigue}</p></article></div>
   </section>;
 }

@@ -1,4 +1,5 @@
 import type { Category, Question, QuestionReview } from "./diagnostic";
+import { inferMisconceptions, type MisconceptionSignal } from "./misconception-model";
 
 export type PerformanceCause = "knowledge" | "rushing" | "speed" | "rhythm" | "second_guessing" | "refinement";
 
@@ -23,6 +24,7 @@ export type PerformanceDiagnosis = {
   prescriptions: TrainingPrescription[];
   weakestSkill: string | null;
   skillBreakdown: SkillMastery[];
+  misconceptions: MisconceptionSignal[];
   nextActivity: { title: string; reason: string; target: string; href: string };
 };
 
@@ -157,13 +159,14 @@ export function diagnosePerformance(reviews: QuestionReview[]): PerformanceDiagn
     prescriptions: prescriptionsFor(primaryCause, weakestSkill),
     weakestSkill,
     skillBreakdown,
+    misconceptions: inferMisconceptions(reviews),
     nextActivity: nextActivityFor(primaryCause, focusSkill),
   };
 }
 
 function nextActivityFor(cause: PerformanceCause, skill: string) {
   const encodedSkill = encodeURIComponent(skill);
-  if (cause === "knowledge") return { title: `Learn and apply ${skill}`, reason: "Accuracy is the limiting signal, so method instruction should come before speed work.", target: "4 of 5 unseen examples correct", href: `/practice?focus=knowledge&skill=${encodedSkill}&new=1` };
+  if (cause === "knowledge") return { title: `Learn and apply ${skill}`, reason: "Accuracy is the limiting signal, so method instruction should come before speed work.", target: "Pass the lesson, then get 4 of 5 unseen examples correct", href: `/learn?skill=${encodedSkill}` };
   if (cause === "rushing") return { title: `Add a verification beat to ${skill}`, reason: "Very fast errors indicate that a brief pattern check can recover points without making the whole test slow.", target: "No fast misses across 5 decisions", href: `/practice?focus=rushing&skill=${encodedSkill}&new=1` };
   if (cause === "speed") return { title: `Build ${skill} fluency`, reason: "The method is producing correct answers, but it consumes too much test time.", target: "80% correct within 18 seconds", href: `/practice?focus=speed&skill=${encodedSkill}&new=1` };
   if (cause === "rhythm") return { title: "Run a three-question cadence block", reason: "Uneven decision times are disrupting the overall test rhythm.", target: "Finish each block within 54 seconds", href: `/practice?focus=rhythm&skill=${encodedSkill}&new=1` };

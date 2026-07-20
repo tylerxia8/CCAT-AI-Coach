@@ -3,7 +3,7 @@ import type { PracticeFeedback } from "./practice";
 export const PRACTICE_SESSION_KEY = "aptitude-coach:practice-session:v1";
 export const PRACTICE_HISTORY_KEY = "aptitude-coach:practice-history:v1";
 
-export type PracticeRecord = PracticeFeedback & { elapsedSeconds: number; targetSeconds: number; difficulty?: 1 | 2 | 3 | 4 | 5; skill?: string; timedOut?: boolean };
+export type PracticeRecord = PracticeFeedback & { elapsedSeconds: number; targetSeconds: number; difficulty?: 1 | 2 | 3 | 4 | 5; skill?: string; timedOut?: boolean; confidence?: 1 | 2 | 3 | null };
 
 export type StoredPracticeSession = {
   version: 1;

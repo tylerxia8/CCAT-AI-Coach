@@ -31,7 +31,7 @@ describe("diagnosePerformance", () => {
     expect(diagnosis.primaryCause).toBe("knowledge");
     expect(diagnosis.weakestSkill).toBe("percentages");
     expect(diagnosis.prescriptions[0].mode).toBe("learn");
-    expect(diagnosis.nextActivity).toMatchObject({ title: "Learn and apply percentages", target: "4 of 5 unseen examples correct" });
+    expect(diagnosis.nextActivity).toMatchObject({ title: "Learn and apply percentages", target: "Pass the lesson, then get 4 of 5 unseen examples correct", href: "/learn?skill=percentages" });
     expect(diagnosis.skillBreakdown[0]).toMatchObject({ skill: "percentages", level: "developing" });
   });
 

@@ -27,6 +27,11 @@ export function analyzeStrategy(reviews: QuestionReview[], allottedSeconds = 900
       : changedFromCorrect >= 2
         ? "Keep your first answer unless you can name the specific rule or evidence that disproves it."
         : "Your decision rhythm is reasonably balanced. Build difficulty while preserving this pace.";
+  const finish = checkpoints[2]; const opening = checkpoints[0];
+  const finishAccuracy = finish.total ? finish.correct / finish.total : 0;
+  const openingAccuracy = opening.total ? opening.correct / opening.total : 0;
+  const fatigue = finishAccuracy + .15 < openingAccuracy ? `Accuracy fell ${Math.round((openingAccuracy - finishAccuracy) * 100)} points from the opening to the finish. Add late-set transfer blocks and a midpoint reset.` : "No clear late-test accuracy collapse appeared in this form.";
+  const skipPolicy = slowMisses.length >= 2 ? "Leave at 25–30 seconds when no solution path is visible; make an educated choice and preserve the next item." : rushedMisses.length >= 2 ? "Do not skip earlier; use the first 3–5 seconds to classify the method, then add one final verification beat." : "Use a 30-second soft cap and a 60-second absolute cap; continue only while a clear method is progressing.";
   return {
     correctPerMinute: spent ? correct / (spent / 60) : 0,
     slowMisses: slowMisses.length,
@@ -40,6 +45,8 @@ export function analyzeStrategy(reviews: QuestionReview[], allottedSeconds = 900
     recoverablePoints: gain,
     checkpoints,
     prescription,
+    fatigue,
+    skipPolicy,
   };
 }
 

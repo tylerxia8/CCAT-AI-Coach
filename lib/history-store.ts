@@ -2,6 +2,7 @@ import type { Bottleneck } from "./coaching";
 import type { Category, ScoredDiagnosticResult } from "./diagnostic";
 import type { PerformanceCause } from "./performance-diagnosis";
 import type { SkillMastery } from "./performance-diagnosis";
+import type { MisconceptionSignal } from "./misconception-model";
 
 export const HISTORY_STORAGE_KEY = "aptitude-coach:history:v1";
 
@@ -20,6 +21,7 @@ export type DiagnosticHistoryEntry = {
   primaryCause?: PerformanceCause;
   weakestSkill?: string | null;
   skillResults?: SkillMastery[];
+  misconceptions?: MisconceptionSignal[];
 };
 
 export type DiagnosticHistory = {
@@ -54,12 +56,13 @@ export function createHistoryEntry(sessionId: string, completedAt: string, resul
     primaryCause: result.diagnosis.primaryCause,
     weakestSkill: result.diagnosis.weakestSkill,
     skillResults: result.diagnosis.skillBreakdown,
+    misconceptions: result.diagnosis.misconceptions,
   };
 }
 
 export function addHistoryEntry(history: DiagnosticHistory, entry: DiagnosticHistoryEntry): DiagnosticHistory {
   const existing = history.entries.find((candidate) => candidate.sessionId === entry.sessionId);
-  const enrichedEntry = existing?.skillResults && !entry.skillResults ? { ...entry, skillResults: existing.skillResults, primaryCause: entry.primaryCause ?? existing.primaryCause, weakestSkill: entry.weakestSkill ?? existing.weakestSkill } : entry;
+  const enrichedEntry = existing?.skillResults && !entry.skillResults ? { ...entry, skillResults: existing.skillResults, misconceptions: entry.misconceptions ?? existing.misconceptions, primaryCause: entry.primaryCause ?? existing.primaryCause, weakestSkill: entry.weakestSkill ?? existing.weakestSkill } : entry;
   const entries = [...history.entries.filter((candidate) => candidate.sessionId !== entry.sessionId), enrichedEntry]
     .sort((a, b) => a.completedAt.localeCompare(b.completedAt));
   return { version: 1, entries };

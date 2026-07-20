@@ -10,6 +10,7 @@ import { ScoreStrategyReport } from "@/components/score-strategy-report";
 import type { Attempt, ScoredDiagnosticResult } from "@/lib/diagnostic";
 import { bestStrategy, parseStrategyRuns, STRATEGIES, STRATEGY_HISTORY_KEY, type TestStrategy } from "@/lib/strategy-experiments";
 import { parseRepairQueue, recordRepairEvidence, REPAIR_QUEUE_KEY } from "@/lib/repair-queue";
+import { ITEM_CALIBRATION_KEY, parseItemCalibration, recordItemOutcome } from "@/lib/item-calibration";
 import {
   PRACTICE_TEST_QUESTIONS,
   PRACTICE_TEST_SECONDS,
@@ -48,8 +49,10 @@ export function PracticeTestExperience() {
     if (runs.some((run) => run.id === id)) return;
     window.localStorage.setItem(STRATEGY_HISTORY_KEY, JSON.stringify([...runs, { id, strategy, correct: result.correct, total: result.total, paceScore: result.paceScore, completedAt: new Date().toISOString() }].slice(-20)));
     let queue = parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY));
-    for (const review of result.reviews) queue = recordRepairEvidence(queue, { key: review.questionId, skill: review.skill, category: review.category, isCorrect: review.isCorrect });
+    let calibration = parseItemCalibration(window.localStorage.getItem(ITEM_CALIBRATION_KEY));
+    for (const review of result.reviews) { queue = recordRepairEvidence(queue, { key: review.questionId, skill: review.skill, category: review.category, isCorrect: review.isCorrect }); calibration = recordItemOutcome(calibration, { questionId: review.questionId, isCorrect: review.isCorrect, elapsedSeconds: review.elapsedSeconds, targetSeconds: review.targetSeconds }); }
     window.localStorage.setItem(REPAIR_QUEUE_KEY, JSON.stringify(queue));
+    window.localStorage.setItem(ITEM_CALIBRATION_KEY, JSON.stringify(calibration));
   }, [attempts.length, mode, result, stage, strategy]);
 
   useEffect(() => {
