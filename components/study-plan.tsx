@@ -43,5 +43,5 @@ export function StudyPlanExperience() {
 }
 
 function PlanNav() {
-  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/progress">Progress</Link><Link className="nav-link" href="/settings">Settings</Link></div></nav>;
+  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topics</Link><Link className="nav-text-link" href="/progress">Progress</Link><Link className="nav-link" href="/settings">Settings</Link></div></nav>;
 }

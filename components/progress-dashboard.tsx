@@ -131,5 +131,5 @@ function relativeDate(value: string) {
 }
 
 function DashboardNav() {
-  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-link" href="/settings">Settings</Link></div></nav>;
+  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topics</Link><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-link" href="/settings">Settings</Link></div></nav>;
 }

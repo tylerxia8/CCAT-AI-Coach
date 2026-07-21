@@ -344,6 +344,9 @@ function Nav() {
         <span>AC</span>Aptitude Coach
       </Link>
       <div className="nav-actions">
+        <Link className="nav-text-link" href="/practice/topics">
+          Choose topics
+        </Link>
         <Link className="nav-text-link" href="/practice">
           Drills
         </Link>

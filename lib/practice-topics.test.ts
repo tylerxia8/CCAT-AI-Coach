@@ -1,18 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { PRACTICE_QUESTIONS } from "./practice";
-import { isSelectablePracticeTopic, PRACTICE_TOPICS, topicQuestionPool } from "./practice-topics";
+import { isSelectablePracticeTopic, practiceTopicCatalog, topicQuestionPool } from "./practice-topics";
 
 describe("selectable practice topics", () => {
-  it("provides a full rotating set for every public topic", () => {
-    for (const topic of PRACTICE_TOPICS) {
+  it("publishes every bank skill and builds a strict pool for each", () => {
+    const topics = practiceTopicCatalog(PRACTICE_QUESTIONS);
+    expect(topics.length).toBe(new Set(PRACTICE_QUESTIONS.map((question) => question.skill)).size);
+    for (const topic of topics) {
       const pool = topicQuestionPool(PRACTICE_QUESTIONS, topic.skill, true);
-      expect(pool.length).toBeGreaterThanOrEqual(10);
+      expect(pool).toHaveLength(topic.count);
       expect(pool.every((question) => question.skill === topic.skill)).toBe(true);
     }
   });
 
   it("does not let arbitrary URL skills activate strict topic mode", () => {
-    expect(isSelectablePracticeTopic("syllogisms")).toBe(false);
-    expect(topicQuestionPool(PRACTICE_QUESTIONS, "syllogisms", true)).toBe(PRACTICE_QUESTIONS);
+    expect(isSelectablePracticeTopic(PRACTICE_QUESTIONS, "not a real skill")).toBe(false);
+    expect(topicQuestionPool(PRACTICE_QUESTIONS, "not a real skill", true)).toBe(PRACTICE_QUESTIONS);
   });
 });

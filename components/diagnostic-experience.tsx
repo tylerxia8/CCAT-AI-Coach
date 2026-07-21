@@ -230,7 +230,7 @@ export function DiagnosticExperience() {
   if (stage === "welcome") {
     return (
       <main className="shell welcome-shell">
-        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/practice-tests">Practice</Link><Link className="nav-text-link" href="/progress">My coaching</Link><Link className="nav-link" href="/auth">Sign in</Link></div></nav>
+        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topics</Link><Link className="nav-text-link" href="/practice-tests">Practice tests</Link><Link className="nav-text-link" href="/progress">My coaching</Link><Link className="nav-link" href="/auth">Sign in</Link></div></nav>
         <section className="hero">
           <div className="eyebrow">Full diagnostic · 15 minutes</div>
           <h1>Find the points you’re <em>leaving on the clock.</em></h1>
@@ -261,7 +261,7 @@ export function DiagnosticExperience() {
     }
     return (
       <main className="shell results-shell">
-        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/progress">View progress</Link><Link className="nav-link" href="/auth">Save progress</Link></div></nav>
+        <nav className="nav"><div className="brand"><span>AC</span>Aptitude Coach</div><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topics</Link><Link className="nav-text-link" href="/progress">View progress</Link><Link className="nav-link" href="/auth">Save progress</Link></div></nav>
         <section className="results-head">
           <div><div className="eyebrow">Your starting point</div><h1>{result.correct} of {result.total} correct</h1><p>Your highest-impact next move is to <strong>{result.priority.toLowerCase()}</strong>.</p><CloudSyncStatus session={storedSession} diagnosticResult={result} /></div>
           <div className="score-ring"><strong>{Math.round(result.accuracy * 100)}</strong><span>% accuracy</span></div>

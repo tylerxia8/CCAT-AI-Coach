@@ -283,10 +283,15 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .topic-intro { margin: 72px auto 38px; max-width: 760px; text-align: center; }
 .topic-intro h1 { font-family: var(--font-serif), Georgia, serif; font-size: clamp(42px, 6vw, 64px); font-weight: 450; letter-spacing: -.04em; line-height: 1.02; margin: 14px 0 20px; }
 .topic-intro p { color: var(--muted); font-size: 18px; line-height: 1.65; margin: 0 auto; max-width: 680px; }
-.topic-grid { display: grid; gap: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 auto; max-width: 1080px; }
-.topic-card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; display: flex; flex-direction: column; min-height: 270px; padding: 28px; }
+.topic-sections { display: grid; gap: 48px; margin: 0 auto; max-width: 1080px; }
+.topic-section-heading { align-items: flex-end; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; margin-bottom: 18px; padding-bottom: 14px; }
+.topic-section-heading small { color: var(--accent); font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.topic-section-heading h2 { font-family: var(--font-serif), Georgia, serif; font-size: 30px; font-weight: 500; margin: 5px 0 0; }
+.topic-section-heading span { color: var(--muted); font-size: 13px; }
+.topic-grid { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.topic-card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; display: flex; flex-direction: column; min-height: 190px; padding: 24px; }
 .topic-card small { color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
-.topic-card h2 { font-family: var(--font-serif), Georgia, serif; font-size: 30px; font-weight: 500; margin: 18px 0 10px; }
+.topic-card h3 { font-family: var(--font-serif), Georgia, serif; font-size: 27px; font-weight: 500; margin: 18px 0 24px; }
 .topic-card p { color: var(--muted); line-height: 1.55; margin: 0 0 26px; }
 .topic-card .link-button { margin-top: auto; text-align: center; }
 .practice-progress { background: var(--line); height: 4px; margin: 0 calc(clamp(24px, 6vw, 92px) * -1); }

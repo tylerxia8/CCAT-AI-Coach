@@ -41,4 +41,4 @@ function firstStep(skill: string) {
   return "Translate the question into its simplest governing relationship.";
 }
 
-function Nav() { return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><Link className="nav-text-link" href="/progress">My coaching</Link></nav>; }
+function Nav() { return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topics</Link><Link className="nav-text-link" href="/progress">My coaching</Link></div></nav>; }

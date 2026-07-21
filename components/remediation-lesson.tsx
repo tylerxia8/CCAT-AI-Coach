@@ -40,7 +40,7 @@ export function RemediationLessonExperience() {
   }
 
   return <main className="lesson-shell">
-    <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/progress">My coaching</Link><span className="nav-note">Guided lesson</span></div></nav>
+    <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topics</Link><Link className="nav-text-link" href="/progress">My coaching</Link><span className="nav-note">Guided lesson</span></div></nav>
     <header className="lesson-head"><div><div className="eyebrow">Knowledge repair · {lesson.domain}</div><h1>{lesson.title}</h1><p>{lesson.outcome}</p></div><div className="lesson-progress"><strong>{completed.length}/{lesson.modules.length}</strong><span>checks passed</span></div></header>
     <section className="lesson-treatment"><strong>Instruction approach</strong><span>{treatmentLabel(treatment)}</span><small>The app alternates safe teaching approaches and compares later unseen transfer—not lesson completion—to learn what works best for you.</small></section>
     <section className="lesson-path" aria-label="Lesson progress">{lesson.modules.map((item, index) => <div className={completed.includes(index) ? "complete" : index === nextModule ? "current" : ""} key={item.title}><span>{completed.includes(index) ? "✓" : index + 1}</span><small>{["Full example", "Faded step", "Method hint", "Independent check"][index]} · {item.title.replace(/^\d+\. /, "")}</small></div>)}</section>

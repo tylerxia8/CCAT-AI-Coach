@@ -64,7 +64,7 @@ export function SettingsPanel() {
 
   return (
     <main className="settings-shell">
-      <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-text-link" href="/progress">Progress</Link></div></nav>
+      <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topics</Link><Link className="nav-text-link" href="/plan">Study plan</Link><Link className="nav-text-link" href="/progress">Progress</Link></div></nav>
       <section className="settings-head"><div className="eyebrow">Data & account</div><h1>Your work belongs to you.</h1><p>Review what is stored, take a portable copy, or clear this device without affecting the application itself.</p></section>
       <section className="settings-grid">
         <article><div className="section-label">Assessment date</div><h2>{testDate ? buildTestProgram(testDate)?.title ?? "Set your schedule" : "When is your test?"}</h2><p>{testDate ? `${buildTestProgram(testDate)?.daysRemaining} days remaining · ${buildTestProgram(testDate)?.cadence}` : "Your training volume and simulation schedule will adapt to the time available."}</p><label className="date-setting">Test date<input type="date" value={testDate} min={new Date().toISOString().slice(0, 10)} onChange={(event) => saveTestDate(event.target.value)} /></label></article>

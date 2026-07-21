@@ -234,5 +234,5 @@ function trainingConfig(focus: string, baseTarget: number, progression: DrillPro
 }
 
 function PracticeNav() {
-  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topic</Link><Link className="nav-text-link" href="/practice?focus=speed&new=1">Timed drills</Link><Link className="nav-text-link" href="/progress">Progress</Link><span className="nav-note">Practice mode</span></div></nav>;
+  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topics</Link><Link className="nav-text-link" href="/practice?focus=speed&new=1">Timed drills</Link><Link className="nav-text-link" href="/progress">Progress</Link><span className="nav-note">Practice mode</span></div></nav>;
 }
