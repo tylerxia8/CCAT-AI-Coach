@@ -12,10 +12,10 @@ describe("question-bank quality gate", () => {
     expect(validateQuestionBank(PRACTICE_TEST_QUESTIONS, PRACTICE_TEST_ANSWER_KEY)).toEqual([]);
   });
 
-  it("maintains a 400-question original inventory with unique IDs", () => {
+  it("maintains a 407-question original inventory with unique IDs", () => {
     const allQuestions = [...QUESTIONS, ...PRACTICE_TEST_QUESTIONS, ...PRACTICE_QUESTIONS];
-    expect(allQuestions).toHaveLength(400);
-    expect(new Set(allQuestions.map((question) => question.id)).size).toBe(400);
+    expect(allQuestions).toHaveLength(407);
+    expect(new Set(allQuestions.map((question) => question.id)).size).toBe(407);
   });
 
   it("renders every figure-matrix item as a visual matrix", () => {

@@ -15,6 +15,7 @@ import { nextRepairSkill, parseRepairQueue, recordRepairEvidence, REPAIR_QUEUE_K
 import { SkillLesson } from "@/components/skill-lesson";
 import { ITEM_CALIBRATION_KEY, parseItemCalibration, recordItemOutcome } from "@/lib/item-calibration";
 import { parseTransferQueue, TRANSFER_QUEUE_KEY } from "@/lib/transfer-store";
+import { topicQuestionPool } from "@/lib/practice-topics";
 
 export function PracticeExperience() {
   const [index, setIndex] = useState(0);
@@ -80,6 +81,7 @@ export function PracticeExperience() {
     const requested = parameters.get("focus");
     const intervention = parameters.get("intervention");
     const requestedSkill = parameters.get("skill");
+    const topicMode = parameters.get("mode") === "topic";
     const repairSkill = nextRepairSkill(parseRepairQueue(window.localStorage.getItem(REPAIR_QUEUE_KEY)));
     const learnerTarget = requestedSkill ? null : recommendedLearnerTarget(diagnosticHistory, practiceHistory);
     const inferredSkill = recommendPracticeSkill(diagnosticHistory, practiceHistory);
@@ -94,7 +96,8 @@ export function PracticeExperience() {
     const selectedProgression = drillProgression(selectedFocus, practiceHistory);
     const baseAbility = estimateAbility(selectedFocus, selectedProgression.stage, practiceHistory);
     const selectedAbility = learnerTarget && baseAbility.observations === 0 ? { ...baseAbility, targetDifficulty: learnerTarget.targetDifficulty, reason: `${learnerTarget.message} This set starts at level ${learnerTarget.targetDifficulty}.` } : baseAbility;
-    const selectedQuestionIds = selectAdaptiveSequence(PRACTICE_QUESTIONS, selectedAbility.targetDifficulty, validSkill, questionExposureCounts(practiceHistory), 10).map((item) => item.id);
+    const availableQuestions = topicQuestionPool(PRACTICE_QUESTIONS, validSkill, topicMode);
+    const selectedQuestionIds = selectAdaptiveSequence(availableQuestions, selectedAbility.targetDifficulty, topicMode ? null : validSkill, questionExposureCounts(practiceHistory), 10).map((item) => item.id);
     setSessionId(session.id);
     setFocus(session.focus);
     setProgression(selectedProgression);
@@ -231,5 +234,5 @@ function trainingConfig(focus: string, baseTarget: number, progression: DrillPro
 }
 
 function PracticeNav() {
-  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice?focus=speed&new=1">Timed drills</Link><Link className="nav-text-link" href="/progress">Progress</Link><span className="nav-note">Practice mode</span></div></nav>;
+  return <nav className="nav"><Link className="brand brand-link" href="/"><span>AC</span>Aptitude Coach</Link><div className="nav-actions"><Link className="nav-text-link" href="/practice/topics">Choose topic</Link><Link className="nav-text-link" href="/practice?focus=speed&new=1">Timed drills</Link><Link className="nav-text-link" href="/progress">Progress</Link><span className="nav-note">Practice mode</span></div></nav>;
 }

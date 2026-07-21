@@ -17,7 +17,7 @@ describe("practice bank", () => {
   it("covers all four reasoning categories", () => {
     expect(new Set(PRACTICE_QUESTIONS.map((question) => question.category))).toEqual(new Set(["Numerical", "Verbal", "Logic", "Spatial"]));
     expect(Object.fromEntries(["Numerical", "Verbal", "Logic", "Spatial"].map((category) => [category, PRACTICE_QUESTIONS.filter((question) => question.category === category).length])))
-      .toEqual({ Numerical: 81, Verbal: 98, Logic: 76, Spatial: 75 });
+      .toEqual({ Numerical: 83, Verbal: 103, Logic: 76, Spatial: 75 });
   });
 
   it("maintains depth in the formerly thin skill areas", () => {
@@ -40,7 +40,7 @@ describe("practice bank", () => {
   });
 
   it("tags every drill question for adaptive selection", () => {
-    expect(PRACTICE_QUESTIONS).toHaveLength(330);
+    expect(PRACTICE_QUESTIONS).toHaveLength(337);
     for (const question of PRACTICE_QUESTIONS) {
       expect(question.difficulty).toBeGreaterThanOrEqual(1);
       expect(question.difficulty).toBeLessThanOrEqual(5);

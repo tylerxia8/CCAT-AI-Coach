@@ -3,6 +3,7 @@ import { PRACTICE_EXPANSION_QUESTIONS } from "./practice-expansion";
 import { PRIORITY_EXPANSION_QUESTIONS } from "./practice-expansion-priority";
 import { ADVANCED_MATH_QUESTIONS } from "./practice-expansion-math";
 import { LOGIC_SPATIAL_EXPANSION_QUESTIONS } from "./practice-expansion-logic-spatial";
+import { TOPIC_EXPANSION_QUESTIONS } from "./practice-expansion-topics";
 
 export type PracticeQuestion = {
   id: string;
@@ -95,4 +96,5 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = [
   ...PRIORITY_EXPANSION_QUESTIONS,
   ...ADVANCED_MATH_QUESTIONS,
   ...LOGIC_SPATIAL_EXPANSION_QUESTIONS,
+  ...TOPIC_EXPANSION_QUESTIONS,
 ];
