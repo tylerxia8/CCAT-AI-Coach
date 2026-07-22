@@ -1,4 +1,4 @@
-import type { QuestionReview as Review } from "@/lib/diagnostic";
+import { QUESTIONS, type QuestionReview as Review } from "@/lib/diagnostic";
 
 function confidenceLabel(value: Review["confidence"]) {
   if (value === 3) return "High confidence";
@@ -12,10 +12,12 @@ export function QuestionReview({ reviews }: { reviews: Review[] }) {
     <section className="review-section">
       <div className="review-heading">
         <div><div className="section-label">Verified review</div><h2>Learn from each decision.</h2></div>
-        <p>Correct answers and explanations are released only after the diagnostic is complete.</p>
+        <p>All answer options, correct answers, and explanations are released only after the diagnostic is complete.</p>
       </div>
       <div className="review-list">
-        {reviews.map((review, index) => (
+        {reviews.map((review, index) => {
+          const choices = review.choices ?? QUESTIONS.find((question) => question.id === review.questionId)?.choices;
+          return (
           <details className={`review-item ${review.isCorrect ? "correct" : "incorrect"}`} key={review.questionId}>
             <summary>
               <span className="review-index">{String(index + 1).padStart(2, "0")}</span>
@@ -27,6 +29,19 @@ export function QuestionReview({ reviews }: { reviews: Review[] }) {
                 <div><small>Your answer</small><strong>{review.selectedAnswer ?? "No answer"}</strong></div>
                 <div><small>Correct answer</small><strong>{review.correctAnswer}</strong></div>
               </div>
+              {choices?.length ? (
+                <div className="review-options" aria-label="All answer options">
+                  <div className="review-options-title">All answer options</div>
+                  <ol>
+                    {choices.map((choice, choiceIndex) => {
+                      const isCorrect = choice === review.correctAnswer;
+                      const isSelected = choice === review.selectedAnswer;
+                      const label = isCorrect && isSelected ? "Your answer · Correct" : isCorrect ? "Correct answer" : isSelected ? "Your answer · Incorrect" : "Incorrect option";
+                      return <li className={isCorrect ? "correct" : isSelected ? "selected-wrong" : "incorrect"} key={`${choiceIndex}-${choice}`}><span>{String.fromCharCode(65 + choiceIndex)}</span><strong>{choice}</strong><small>{label}</small></li>;
+                    })}
+                  </ol>
+                </div>
+              ) : null}
               <p>{review.explanation}</p>
               <div className="review-signals">
                 <span>{review.elapsedSeconds}s taken · {review.targetSeconds}s target</span>
@@ -38,7 +53,8 @@ export function QuestionReview({ reviews }: { reviews: Review[] }) {
               </div>
             </div>
           </details>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

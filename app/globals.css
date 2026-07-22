@@ -254,6 +254,17 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
 .answer-grid div { background: var(--paper); border-radius: 10px; display: grid; gap: 7px; padding: 14px; }
 .answer-grid small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .answer-grid strong { font-size: 13px; }
+.review-options { margin-top: 22px; }
+.review-options-title { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; margin-bottom: 9px; text-transform: uppercase; }
+.review-options ol { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.review-options li { align-items: center; background: var(--paper); border: 1px solid var(--line); border-radius: 9px; display: grid; gap: 10px; grid-template-columns: 28px 1fr auto; padding: 11px 13px; }
+.review-options li > span { align-items: center; background: #e9eef0; border-radius: 50%; display: flex; font-size: 10px; font-weight: 800; height: 24px; justify-content: center; width: 24px; }
+.review-options li > strong { font-size: 13px; font-weight: 650; }
+.review-options li > small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.review-options li.correct { background: #eef7eb; border-color: #bfd5b7; }
+.review-options li.correct > small { color: var(--green); }
+.review-options li.selected-wrong { background: #fff1e9; border-color: #e7c2ae; }
+.review-options li.selected-wrong > small { color: #95492f; }
 .review-body > p { font-family: var(--font-serif), Georgia, serif; font-size: 20px; line-height: 1.45; margin: 24px 0; }
 .review-signals { border-top: 1px solid var(--line); color: var(--muted); display: flex; flex-wrap: wrap; font-size: 10px; gap: 20px; padding-top: 16px; text-transform: uppercase; }
 .review-signals .signal-warn { color: #95492f; font-weight: 800; }
@@ -549,6 +560,8 @@ footer { color: var(--muted); font-size: 11px; padding: 28px 0 34px; }
   .review-outcome { grid-column: 2; justify-self: start; }
   .review-body { margin-left: 0; }
   .answer-grid { grid-template-columns: 1fr; }
+  .review-options li { grid-template-columns: 28px 1fr; }
+  .review-options li > small { grid-column: 2; }
   .score-ring { min-width: 140px; }
   .confidence-row { align-items: flex-start; flex-wrap: wrap; }
   .confidence-row > span { flex-basis: 100%; }

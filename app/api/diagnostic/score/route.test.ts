@@ -29,6 +29,7 @@ describe("diagnostic scoring API", () => {
     expect(result).toMatchObject({ correct: QUESTIONS.length, accuracy: 1 });
     expect(result.reviews).toHaveLength(QUESTIONS.length);
     expect(result.reviews[0]).toMatchObject({ isCorrect: true, firstAnswerCorrect: true, firstAnswerSeconds: 16, viewCount: 1, pace: "on_target", answerChanges: 0, skill: "rates and arithmetic" });
+    expect(result.reviews[0].choices).toEqual(QUESTIONS[0].choices);
     expect(result.reviews[0].explanation).toContain("five 8-hour blocks");
     expect(result.coaching).toMatchObject({ bottleneck: "refinement" });
     expect(result.diagnosis).toMatchObject({ primaryCause: "refinement", weakestSkill: null });

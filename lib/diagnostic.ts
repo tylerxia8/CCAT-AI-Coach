@@ -47,6 +47,7 @@ export type QuestionReview = {
   questionId: string;
   category: Category;
   prompt: string;
+  choices?: string[];
   selectedAnswer: string | null;
   correctAnswer: string;
   isCorrect: boolean;
