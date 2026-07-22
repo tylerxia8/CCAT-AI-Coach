@@ -48,6 +48,7 @@ export type QuestionReview = {
   category: Category;
   prompt: string;
   choices?: string[];
+  stimulus?: DataStimulus;
   selectedAnswer: string | null;
   correctAnswer: string;
   isCorrect: boolean;

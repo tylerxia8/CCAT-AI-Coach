@@ -1,4 +1,5 @@
 import { QUESTIONS, type QuestionReview as Review } from "@/lib/diagnostic";
+import { QuestionStimulus } from "@/components/question-stimulus";
 
 function confidenceLabel(value: Review["confidence"]) {
   if (value === 3) return "High confidence";
@@ -16,7 +17,9 @@ export function QuestionReview({ reviews }: { reviews: Review[] }) {
       </div>
       <div className="review-list">
         {reviews.map((review, index) => {
-          const choices = review.choices ?? QUESTIONS.find((question) => question.id === review.questionId)?.choices;
+          const sourceQuestion = QUESTIONS.find((question) => question.id === review.questionId);
+          const choices = review.choices ?? sourceQuestion?.choices;
+          const stimulus = review.stimulus ?? sourceQuestion?.stimulus;
           return (
           <details className={`review-item ${review.isCorrect ? "correct" : "incorrect"}`} key={review.questionId}>
             <summary>
@@ -25,6 +28,7 @@ export function QuestionReview({ reviews }: { reviews: Review[] }) {
               <span className="review-outcome">{review.isCorrect ? "Correct" : review.selectedAnswer ? "Review" : "Skipped"}</span>
             </summary>
             <div className="review-body">
+              {stimulus ? <div className="review-stimulus"><QuestionStimulus stimulus={stimulus} /></div> : null}
               <div className="answer-grid">
                 <div><small>Your answer</small><strong>{review.selectedAnswer ?? "No answer"}</strong></div>
                 <div><small>Correct answer</small><strong>{review.correctAnswer}</strong></div>

@@ -47,6 +47,7 @@ export async function POST(request: Request) {
       category: question.category,
       prompt: question.prompt,
       choices: question.choices,
+      stimulus: question.stimulus,
       selectedAnswer: attempt?.answerIndex == null ? null : question.choices[attempt.answerIndex] ?? null,
       correctAnswer: question.choices[answer.correctIndex],
       isCorrect: attempt?.answerIndex === answer.correctIndex,
