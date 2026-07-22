@@ -5,6 +5,7 @@ import { ADVANCED_MATH_QUESTIONS } from "./practice-expansion-math";
 import { LOGIC_SPATIAL_EXPANSION_QUESTIONS } from "./practice-expansion-logic-spatial";
 import { TOPIC_EXPANSION_QUESTIONS } from "./practice-expansion-topics";
 import { THIN_SKILL_EXPANSION_QUESTIONS } from "./practice-expansion-thin-skills";
+import { BALANCED_EXPANSION_QUESTIONS } from "./practice-expansion-balanced";
 
 export type PracticeQuestion = {
   id: string;
@@ -99,4 +100,5 @@ export const PRACTICE_QUESTIONS: PracticeQuestion[] = [
   ...LOGIC_SPATIAL_EXPANSION_QUESTIONS,
   ...TOPIC_EXPANSION_QUESTIONS,
   ...THIN_SKILL_EXPANSION_QUESTIONS,
+  ...BALANCED_EXPANSION_QUESTIONS,
 ];
